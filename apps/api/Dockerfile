@@ -50,6 +50,7 @@ WORKDIR /app
 # Copy the build directory from the builder stage
 COPY --chown=node:node --from=builder /apps/package.json /app/package.json
 COPY --chown=node:node --from=builder /apps/api/prisma /app/api/prisma
+COPY --chown=node:node --from=builder /apps/api/client /app/api/client
 COPY --chown=node:node --from=builder /apps/pnpm-lock.yaml /app/pnpm-lock.yaml
 COPY --chown=node:node --from=builder /apps/pnpm-workspace.yaml /app/pnpm-workspace.yaml
 COPY --chown=node:node --from=builder /apps/apps/api/package.json /app/apps/api/package.json
