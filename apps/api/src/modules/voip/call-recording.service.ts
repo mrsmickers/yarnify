@@ -18,6 +18,7 @@ import { CallProcessingProducerService } from '../call-analysis/call-processing.
 import { CallProcessingJobData } from '../call-analysis/dto/call-processing-job.dto';
 import { CallRepository } from '../call-analysis/repositories/call.repository';
 import { dayjs } from '../../lib/dayjs';
+import { NTAExtension } from './dto/extension.dto';
 // Removed CallStatus import as it's a string literal
 
 @Injectable()
@@ -159,11 +160,11 @@ export class CallRecordingService {
     return processedRecordings;
   }
 
-  async getExtension(extension: string) {
+  async getExtension(extension: string): Promise<NTAExtension | undefined> {
     const customerId = this.configService.get<string>('VOIP_CUSTOMER_ID');
     const url = `${this.voipBaseUrl}/api/json/phones/get?auth_username=${this.voipUsername}&auth_password=${this.voipPassword}&name=${extension}&customer=${customerId}`;
 
     const { data } = await firstValueFrom(this.httpService.get(url));
-    return data;
+    return data.data;
   }
 }

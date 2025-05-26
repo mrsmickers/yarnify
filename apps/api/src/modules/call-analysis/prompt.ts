@@ -51,4 +51,5 @@ Rules:
 2. Do not infer tone or sentiment without clear evidence from the transcript.
 3. Assume the first name mentioned after the greeting is the speaker. Use contextual clues and known names to resolve ambiguity.
 4. All output in British english UK spelling please
+5. Use the agent name passed in the user prompt if available, otherwise use "undetermined".
 `;

@@ -10,6 +10,18 @@ CREATE TABLE "Company" (
 );
 
 -- CreateTable
+CREATE TABLE "Agent" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT,
+    "extension" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Agent_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Call" (
     "id" TEXT NOT NULL,
     "companyId" TEXT,
@@ -22,6 +34,7 @@ CREATE TABLE "Call" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "callAnalysisId" TEXT,
+    "agentsId" TEXT,
 
     CONSTRAINT "Call_pkey" PRIMARY KEY ("id")
 );
@@ -55,6 +68,12 @@ CREATE TABLE "ProcessingLog" (
 CREATE UNIQUE INDEX "Company_connectwiseId_key" ON "Company"("connectwiseId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Agent_email_key" ON "Agent"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Agent_extension_key" ON "Agent"("extension");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Call_callAnalysisId_key" ON "Call"("callAnalysisId");
 
 -- CreateIndex
@@ -71,6 +90,9 @@ ALTER TABLE "Call" ADD CONSTRAINT "Call_companyId_fkey" FOREIGN KEY ("companyId"
 
 -- AddForeignKey
 ALTER TABLE "Call" ADD CONSTRAINT "Call_callAnalysisId_fkey" FOREIGN KEY ("callAnalysisId") REFERENCES "CallAnalysis"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Call" ADD CONSTRAINT "Call_agentsId_fkey" FOREIGN KEY ("agentsId") REFERENCES "Agent"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "CallAnalysis" ADD CONSTRAINT "CallAnalysis_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE SET NULL ON UPDATE CASCADE;

@@ -27,7 +27,10 @@ export class CallAnalysisService {
       prompt: transcript,
       system: instructions,
     });
-    return object;
+
+    return {
+      ...object,
+    };
   }
 
   async extractExternalPhoneNumber(obj: CallRecordResponse['data']) {

@@ -17,6 +17,7 @@ import { ProcessingLogRepository } from './repositories/processing-log.repositor
 import { Prisma, Call, Company, CallAnalysis } from '../../../generated/prisma';
 import { dayjs } from '../../lib/dayjs';
 import internal from 'stream';
+import { NTAExtension } from '../voip/dto/extension.dto';
 @Injectable()
 @Processor(CALL_PROCESSING_QUEUE, { concurrency: 5 })
 export class CallProcessingConsumer extends WorkerHost {
@@ -61,6 +62,25 @@ export class CallProcessingConsumer extends WorkerHost {
         .unix(Number(recordingResponse.data.end))
         .toISOString();
 
+      const recordingData = recordingResponse.data;
+      const audioBase64 = recordingData.data;
+      const mimeType = recordingData.mimetype || 'audio/mpeg';
+
+      // 2. Upload fetched audio to blob storage
+      const blobFileName = `call-recordings/${callRecordingId}.${
+        mimeType.split('/')[1] || 'mp3'
+      }`;
+      const audioBufferForUpload = Buffer.from(audioBase64, 'base64');
+
+      const internalExtensionNumber =
+        await this.callAnalysisService.extractInternalPhoneNumber(
+          recordingData,
+        );
+
+      // Fetch internal extension name if available
+      const { callername_internal: internalExtensionName } =
+        await this.callRecordingService.getExtension(internalExtensionNumber);
+
       const duration = dayjs(endTime).diff(dayjs(startTime), 'seconds');
       // Step 0: Check for Existing Call
       const existingCall = await this.callRepository.findByCallSid(
@@ -88,6 +108,7 @@ export class CallProcessingConsumer extends WorkerHost {
           callStatus: 'PROCESSING',
         });
       } else {
+        // Create a new Call record if it doesn't exist
         callEntity = await this.callRepository.create({
           callSid: callRecordingId,
           // startDate from job data
@@ -95,6 +116,7 @@ export class CallProcessingConsumer extends WorkerHost {
           endTime,
           duration,
           callStatus: 'PROCESSING',
+
           // endTime and duration will be set upon completion
         });
         this.logger.log(
@@ -121,15 +143,7 @@ export class CallProcessingConsumer extends WorkerHost {
         status: 'LOG_INFO',
         message: 'Recording data fetched.',
       });
-      const recordingData = recordingResponse.data;
-      const audioBase64 = recordingData.data;
-      const mimeType = recordingData.mimetype || 'audio/mpeg';
 
-      // 2. Upload fetched audio to blob storage
-      const blobFileName = `call-recordings/${callRecordingId}.${
-        mimeType.split('/')[1] || 'mp3'
-      }`;
-      const audioBufferForUpload = Buffer.from(audioBase64, 'base64');
       const blobPath = await this.storageService.uploadFile(
         blobFileName,
         audioBufferForUpload,
@@ -179,22 +193,6 @@ export class CallProcessingConsumer extends WorkerHost {
         status: 'LOG_INFO',
         message: 'Transcription successful.',
       });
-
-      const internalPhoneNumber =
-        await this.callAnalysisService.extractInternalPhoneNumber(
-          recordingData,
-        );
-
-      let internalExtensionName;
-      if (internalPhoneNumber) {
-        internalExtensionName = await this.callRecordingService.getExtension(
-          internalPhoneNumber,
-        );
-        console.log(
-          `Extracted internal extension:`,
-          internalExtensionName.data.callername_internal,
-        );
-      }
 
       // 4. Handle Company
       const externalPhoneNumber =
@@ -286,8 +284,6 @@ export class CallProcessingConsumer extends WorkerHost {
       const promptTranscript = `
       client_name: ${companyEntity?.name || 'Not found'}\n
       Phone Number: ${externalPhoneNumber}\n
-      Find the agent name from snumber_display or dnumber_display if available.\n
-      agent_name: ${internalExtensionName}
       Transcript: ${transcript}`;
 
       const analysisResult = await this.callAnalysisService.analyzeTranscript(

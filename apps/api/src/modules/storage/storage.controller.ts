@@ -48,7 +48,7 @@ export class StorageController {
     const buffer = await this.storageService.getFile(
       `call-recordings/${fileName}`,
     );
-    
+
     // Set Content-Disposition to attachment to force download
     response.set({
       'Content-Disposition': `attachment; filename="${fileName}"`,
@@ -84,7 +84,7 @@ export class StorageController {
     const buffer = await this.storageService.getFile(
       `call-recordings/${fileName}`,
     );
-    
+
     // Set Content-Disposition to inline for in-browser playback
     response.set({
       'Content-Disposition': 'inline',
