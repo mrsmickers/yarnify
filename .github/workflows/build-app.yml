@@ -94,3 +94,6 @@ jobs:
           build-args: |
             commit_sha=${{ github.sha }}
             built_at=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+      - name: Webhook restart Container
+        run: |
+          curl --location --request POST 'https://dev.a9k.io/api/v1/deploy?uuid=wk0woc0wscwgw00480k8wk0s&force=false' --header 'Authorization: Bearer ${{ secrets.A9K_WEBHOOK_TOKEN }}'
