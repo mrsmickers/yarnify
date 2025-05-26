@@ -2,10 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useCallAnalysisControllerGetCalls } from '@/api/api-client'
-import type {
-  CallResponseDto,
-  PaginatedCallsResponseDto,
-} from '@/api/api-client'
+import type { CallResponseDto } from '@/api/api-client'
 import { useEffect, useState } from 'react'
 import { DataTable } from '@/components/ui/data-table'
 import type { ColumnDef } from '@tanstack/react-table'

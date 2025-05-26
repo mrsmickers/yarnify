@@ -1,4 +1,4 @@
-import { HomePage, NotFoundPage } from '../routes'
+import { NotFoundPage } from '../routes'
 import VoipDashboardPage from '../pages/VoipDashboardPage'
 import CallDetailPage from '../pages/CallDetailPage'
 import LogoutPage from '../pages/LogoutPage'
@@ -7,7 +7,7 @@ import LogoutPage from '../pages/LogoutPage'
 export const routes = [
   {
     path: '/',
-    element: <HomePage />,
+    element: <VoipDashboardPage />,
   },
   {
     path: '/dashboard',

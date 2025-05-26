@@ -25,4 +25,11 @@ export default tseslint.config(
       ],
     },
   },
+  // Special rules for generated API files
+  {
+    files: ['src/api/api-client.ts'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'off',
+    },
+  }
 )

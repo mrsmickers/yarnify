@@ -11,7 +11,8 @@ import { CallAnalysisModule } from './modules/call-analysis/call-analysis.module
 import { ConnectwiseManageModule } from './modules/connectwise-manage/connectwise-manage.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ClsModule } from 'nestjs-cls';
-import { ClsStore } from './common/interfaces/cls-store.interface';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -43,6 +44,13 @@ import { ClsStore } from './common/interfaces/cls-store.interface';
     CallAnalysisModule,
     ConnectwiseManageModule,
     AuthModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'client'),
+      exclude: ['/api/{*test}'],
+      serveStaticOptions: {
+        fallthrough: false,
+      },
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

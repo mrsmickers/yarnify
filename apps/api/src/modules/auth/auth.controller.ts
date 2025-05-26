@@ -19,7 +19,13 @@ import {
   RefreshTokenRequestDto,
   RefreshTokenResponseDto,
 } from './dto/refresh-token.dto'; // Import DTOs
-import { ApiBody, ApiResponse, ApiTags, ApiCookieAuth } from '@nestjs/swagger'; // Import Swagger decorators
+import {
+  ApiBody,
+  ApiResponse,
+  ApiTags,
+  ApiCookieAuth,
+  ApiOperation,
+} from '@nestjs/swagger'; // Import Swagger decorators
 import { WorkOS } from '@workos-inc/node';
 
 @ApiTags('Authentication') // Add ApiTags for Swagger
@@ -159,8 +165,9 @@ export class AuthController {
   }
 
   @Get('refresh')
-  @ApiCookieAuth() // Indicates that this endpoint might use cookie authentication implicitly for refresh_token
-  @ApiBody({ type: RefreshTokenRequestDto, required: false }) // refreshToken can come from body or cookie
+  @ApiOperation({
+    summary: 'Refresh access token using refresh token',
+  })
   @ApiResponse({
     status: 200,
     description: 'Token refreshed successfully.',

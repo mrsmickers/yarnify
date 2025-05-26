@@ -1,5 +1,6 @@
 import Axios, {
   AxiosError,
+  AxiosHeaders,
   type InternalAxiosRequestConfig,
   type AxiosResponse,
 } from 'axios'
@@ -28,7 +29,7 @@ const processQueue = (error: Error | null) => {
 
 // Optional: Request interceptor (e.g., for logging)
 AXIOS_INSTANCE.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
+  (config) => {
     // console.log('Starting Request:', config);
     return config
   },
@@ -89,9 +90,41 @@ AXIOS_INSTANCE.interceptors.response.use(
 
 // Export as a function for Orval that makes the request and returns data
 export const axiosInstance = <T>(
-  config: InternalAxiosRequestConfig
+  config: Partial<InternalAxiosRequestConfig> | Record<string, unknown>
 ): Promise<T> => {
-  return AXIOS_INSTANCE(config).then(({ data }) => data)
+  // Create a base headers object that can accept plain objects
+  const baseHeadersObject: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+
+  // If config has headers, merge them
+  if (config.headers) {
+    if (config.headers instanceof AxiosHeaders) {
+      // Convert AxiosHeaders to plain object first
+      const headerEntries = Object.entries(config.headers.toJSON())
+      headerEntries.forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          baseHeadersObject[key] = String(value)
+        }
+      })
+    } else {
+      // Merge plain object headers
+      Object.entries(config.headers as Record<string, unknown>).forEach(
+        ([key, value]) => {
+          if (value !== undefined && value !== null) {
+            baseHeadersObject[key] = String(value)
+          }
+        }
+      )
+    }
+  }
+
+  const requestConfig: InternalAxiosRequestConfig = {
+    ...config,
+    headers: new AxiosHeaders(baseHeadersObject),
+  } as InternalAxiosRequestConfig
+
+  return AXIOS_INSTANCE(requestConfig).then(({ data }) => data)
 }
 
 // Generic error handler

@@ -3,6 +3,15 @@
 This file records architectural and implementation decisions using a list format.
 2025-05-24 12:05:05 - Log of updates made.
 
+*   [2025-05-26 21:15:11] - Configured NestJS build to copy static client assets.
+    ## Decision
+    *   Modify `apps/api/nest-cli.json` to include the `apps/api/client` directory in the build assets.
+    *   The `compilerOptions.assets` array was updated to include `{"include": "../client/**/*", "outDir": "./client", "watchAssets": false}`.
+    ## Rationale
+    *   The `ServeStaticModule` in `apps/api/src/app.module.ts` is configured to serve static files from a `client` directory relative to the application's root (`dist/apps/api/client` after build).
+    *   Without explicitly defining these assets in `nest-cli.json`, the `client` directory and its contents (e.g., `index.html`) would not be copied to the `dist` folder during the build process, leading to 404 errors for static content.
+    ## Implementation Details
+    *   Updated `apps/api/nest-cli.json` by adding the `compilerOptions.assets` configuration.
 *   [2025-05-25 15:16:38] - Implemented a BullMQ job to sync call recordings every 15 minutes.
     ## Decision
     *   Create a new BullMQ queue named `CALL_RECORDING_SYNC_QUEUE`.

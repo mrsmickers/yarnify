@@ -7,6 +7,7 @@ This file tracks the project's progress using a task list format.
 
 ## Completed Tasks
 
+*   [2025-05-26 21:15:32] - Configured NestJS build in `apps/api/nest-cli.json` to copy static client assets from `apps/api/client` to `dist/apps/api/client`, enabling `ServeStaticModule` to serve them correctly.
 *   [2025-05-25 15:16:58] - Implemented a recurring BullMQ job to sync call recordings every 15 minutes. This included creating a new queue (`CALL_RECORDING_SYNC_QUEUE`), a producer service (`CallRecordingSyncProducerService`) to schedule the job, and a consumer service (`CallRecordingSyncConsumer`) to fetch recent recordings and queue them for detailed processing. The `CallRecordingService` was refactored to support this, and `VoipModule` was updated.
 *   [2025-05-25 15:13:17] - Enhanced [`CallProcessingConsumer`](apps/api/src/modules/call-analysis/call-processing.consumer.ts:0) to handle transcription failures. If transcription yields no text, the call is marked `"TRANSCRIPTION_FAILED"`, and analysis is skipped.
 *   [2025-05-25 15:09:20] - Updated [`CallProcessingConsumer`](apps/api/src/modules/call-analysis/call-processing.consumer.ts:0) to handle calls with missing phone numbers by marking them as `"INTERNAL_CALL_SKIPPED"` and bypassing company lookup and analysis.
