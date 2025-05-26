@@ -53,13 +53,12 @@ COPY --chown=node:node --from=builder /apps/api/prisma /app/api/prisma
 COPY --chown=node:node --from=builder /apps/api/client /app/api/client
 COPY --chown=node:node --from=builder /apps/pnpm-lock.yaml /app/pnpm-lock.yaml
 COPY --chown=node:node --from=builder /apps/pnpm-workspace.yaml /app/pnpm-workspace.yaml
-COPY --chown=node:node --from=builder /apps/apps/api/package.json /app/apps/api/package.json
-COPY --chown=node:node --from=builder /apps/packages/db/package.json /app/packages/db/package.json
+COPY --chown=node:node --from=builder /apps/api/package.json /app/apps/api/package.json
 COPY --chown=node:node --from=builder /apps/node_modules /app/node_modules
 COPY --chown=node:node --from=builder /apps/api/dist /app/apps/api/dist
 
 # Expose port 3000 for the application server
-EXPOSE 3001
+EXPOSE 3000
 
 # Set the NODE_ENV environment variable to production
 ENV NODE_ENV=production
