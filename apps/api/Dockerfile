@@ -27,6 +27,7 @@ RUN pnpm --filter api build
 # Remove the development dependencies
 RUN pnpm prune --prod
 
+
 # Create a new stage for the production image
 FROM node:22-alpine
 ARG commit_sha
@@ -49,14 +50,17 @@ WORKDIR /app
 # add CA certificates from lib/ssl
 
 # Copy the build directory from the builder stage
-COPY --chown=node:node --from=builder /apps/package.json /app/package.json
-COPY --chown=node:node --from=builder /apps/api/prisma /app/api/prisma
-COPY --chown=node:node --from=builder /apps/api/client /app/api/client
-COPY --chown=node:node --from=builder /apps/pnpm-lock.yaml /app/pnpm-lock.yaml
-COPY --chown=node:node --from=builder /apps/pnpm-workspace.yaml /app/pnpm-workspace.yaml
-COPY --chown=node:node --from=builder /apps/api/package.json /app/apps/api/package.json
-COPY --chown=node:node --from=builder /apps/node_modules /app/node_modules
-COPY --chown=node:node --from=builder /apps/api/dist /app/apps/api/dist
+
+COPY --chown=node:node --from=builder /app/apps/api/dist /app/apps/api/dist
+COPY --chown=node:node --from=builder /app/apps/api/client /app/apps/api/client
+COPY --chown=node:node --from=builder /app/apps/api/package.json /app/apps/api/package.json
+COPY --chown=node:node --from=builder /app/pnpm-lock.yaml /app/pnpm-lock.yaml
+COPY --chown=node:node --from=builder /app/pnpm-workspace.yaml /app/pnpm-workspace.yaml
+COPY --chown=node:node --from=builder /app/node_modules /app/node_modules
+COPY --chown=node:node --from=builder /app/package.json /app/package.json
+COPY --chown=node:node --from=builder /app/apps/api/generated /app/apps/api/generated
+COPY --chown=node:node --from=builder /app/apps/api/node_modules /app/apps/api/node_modules
+
 
 # Expose port 3000 for the application server
 EXPOSE 3000
