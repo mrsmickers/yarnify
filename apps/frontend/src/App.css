@@ -1,0 +1,12 @@
+#root {
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #f8fafc, #e2e8f0);
+}
+
+.page-container {
+  @reference max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6;
+}
+
+.content-section {
+  @reference bg-white rounded-lg shadow-sm p-6;
+}

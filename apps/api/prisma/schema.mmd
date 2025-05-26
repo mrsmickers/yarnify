@@ -1,0 +1,37 @@
+erDiagram
+    Company {
+      String id
+      String name
+      DateTime createdAt
+      DateTime updatedAt
+    }
+
+    Call {
+      String id
+      String companyId
+      String callSid
+      String callStatus
+      DateTime startTime
+      DateTime endTime
+      Int duration
+      String recordingUrl
+      DateTime createdAt
+      DateTime updatedAt
+      String callAnalysisId
+    }
+
+    CallAnalysis {
+      String id
+      String companyId
+      String callId
+      Json data
+      DateTime createdAt
+      DateTime updatedAt
+    }
+
+    Company ||--o{ Call : "has"
+    Company ||--o{ CallAnalysis : "has"
+    Call }|--|| Company : "belongs to"
+    Call ||--|| CallAnalysis : "analysis"
+    CallAnalysis }|--|| Company : "belongs to"
+    CallAnalysis ||--o| Call : "optional"

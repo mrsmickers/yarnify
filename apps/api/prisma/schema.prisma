@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// call analysi
+generator json {
+  provider = "prisma-json-types-generator"
+}
+
+model Company {
+  id            String   @id @default(cuid())
+  name          String
+  connectwiseId String   @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  calls         Call[]
+  CallAnalysis  CallAnalysis[]
+  processingLog ProcessingLog[]
+}
+
+model Call {
+  id           String    @id @default(cuid())
+  companyId    String?
+  callSid      String
+  callStatus   String
+  startTime    DateTime
+  endTime      DateTime?
+  duration     Int?
+  recordingUrl String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  company Company? @relation(fields: [companyId], references: [id])
+
+  analysis       CallAnalysis?   @relation(fields: [callAnalysisId], references: [id])
+  callAnalysisId String?         @unique
+  processingLog  ProcessingLog[]
+
+  @@index([companyId])
+}
+
+model CallAnalysis {
+  id        String   @id @default(cuid())
+  companyId String?
+  callId    String
+  /// [CallAnalysisData]
+  data      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Company   Company? @relation(fields: [companyId], references: [id])
+  Call      Call?
+
+  @@index([callId])
+}
+
+model ProcessingLog {
+  id        String   @id @default(cuid())
+  companyId String?
+  callId    String
+  status    String
+  message   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Company Company? @relation(fields: [companyId], references: [id])
+  Call    Call?    @relation(fields: [callId], references: [id])
+
+  @@index([companyId])
+}

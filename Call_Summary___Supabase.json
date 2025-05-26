@@ -1,0 +1,670 @@
+{
+  "name": "Call Summary - Supabase",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "de6b287c-3d63-435f-8456-c9b1a3341c85",
+              "leftValue": "={{ $json.client_number }}",
+              "rightValue": "undetermined",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2100,
+        -1660
+      ],
+      "id": "928ca781-52f8-4bae-983f-5bc9639171f5",
+      "name": "Found client number?"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "data.data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        -1680
+      ],
+      "id": "c6a597d7-2b9c-43fd-8887-a6c0894c0830",
+      "name": "Convert to File1",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "binaryPropertyName": "=data",
+        "options": {
+          "language": "en"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1260,
+        -1680
+      ],
+      "id": "001d7f1b-460e-4507-a0d9-b01d3e54d784",
+      "name": "OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "Opd2OxbqBFBQKe9N",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://voip.ingeniotech.co.uk/api/json/recording/recordings/list/?apikey=42655f7ae50e4b2a9359509ba4e985fc;auth_username=Simon%20Smyth;auth_password=Gravefoam80;recordgroup=4303;start={{ $now.minus(2,'days').toSeconds().round() }};end={{ $now.minus(1,'hour').toSeconds().round() }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -500,
+        -1440
+      ],
+      "id": "97833288-265b-4636-9f15-53a128a371ad",
+      "name": "Get recordings1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -280,
+        -1440
+      ],
+      "id": "939ce351-eafa-4c49-991c-4f093bba0973",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "batchSize": 5,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        600,
+        -1440
+      ],
+      "id": "28ac18c4-46f1-44bf-bc9c-f2cd3ccb6d04",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  $1::text AS uniqueId,\n  EXISTS (\n    SELECT 1\n    FROM n8n_call_summaries\n    WHERE metadata->>'uniqueId' = $1\n  ) AS is_present;",
+        "options": {
+          "queryBatching": "single",
+          "queryReplacement": "={{ $json.uniqueid }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        160,
+        -1440
+      ],
+      "id": "f6a7543e-68e3-4641-9864-7005ee4a0cae",
+      "name": "Check if processed1",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "credentials": {
+        "postgres": {
+          "id": "kT7llbU6ogiVDUpS",
+          "name": "Postgres account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"sentiment\": { \"type\": \"string\", \"enum\": [\"Positive\", \"Neutral\", \"Negative\", \"undetermined\"] },\n    \"summary\": { \"type\": \"string\" },\n    \"mood\": { \"type\": \"string\", \"enum\": [\"Calm\", \"Frustrated\", \"Satisfied\", \"undetermined\"] },\n    \"frustration_level\": { \"type\": \"string\", \"enum\": [\"Low\", \"Medium\", \"High\", \"undetermined\"] },\n    \"issue_clarity\": { \"type\": \"string\", \"enum\": [\"yes\", \"no\", \"unclear\", \"undetermined\"] },\n    \"agent_helpfulness\": { \"type\": \"string\", \"enum\": [\"yes\", \"no\", \"somewhat\", \"undetermined\"] },\n    \"upsell_opportunity\": { \"type\": \"string\" },\n    \"confidence_level\": { \"type\": \"string\", \"enum\": [\"High\", \"Medium\", \"Low\", \"undetermined\"] },\n    \"agent_name\": { \"type\": \"string\" },\n    \"client_name\": { \"type\": \"string\" }\n  },\n  \"required\": [\n    \"sentiment\",\n    \"summary\",\n    \"mood\",\n    \"frustration_level\",\n    \"issue_clarity\",\n    \"agent_helpfulness\",\n    \"upsell_opportunity\",\n    \"confidence_level\",\n    \"agent_name\",\n    \"client_name\"\n  ]\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1640,
+        -1460
+      ],
+      "id": "49e88393-9393-47f9-9c90-39d013703302",
+      "name": "Structured Output Parser1",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1160,
+        -1440
+      ],
+      "id": "c9aca722-cc1e-4817-b570-a8e82083cd5a",
+      "name": "Daily1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "87b33a3d-45ff-4b10-aa19-8e71ae040fb2",
+              "leftValue": "={{ $json.is_present }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        380,
+        -1440
+      ],
+      "id": "f51e1eae-9869-4637-a9b6-944b7c09c3c6",
+      "name": "If new recording1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "448570dd-d4a2-4744-a2af-c2f8c1ead2a2",
+              "leftValue": "={{ $json.dtype }}",
+              "rightValue": "external",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "3df3be37-7e53-4432-8d2a-4d10a5784c8e",
+              "leftValue": "={{ $json.stype }}",
+              "rightValue": "queue",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -60,
+        -1440
+      ],
+      "id": "6bdecc2d-e82a-4190-b3b9-fb18d5574563",
+      "name": "Call filter1"
+    },
+    {
+      "parameters": {
+        "url": "=https://voip.ingeniotech.co.uk/api/json/recording/recordings/get/?apikey=42655f7ae50e4b2a9359509ba4e985fc;auth_username=Simon%20Smyth;auth_password=Gravefoam80;recordgroup=4303;uniqueid={{$json.uniqueid}};recordid=2&encoding=base64\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        820,
+        -1680
+      ],
+      "id": "9078fbdf-2f74-47bc-81cb-9f0067adfbff",
+      "name": "Get Call Recording1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "CREATE EXTENSION IF NOT EXISTS vector;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -940,
+        -1440
+      ],
+      "id": "642944d4-bab7-441d-af27-38eb9dc9010a",
+      "name": "Check Table Exists2",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "credentials": {
+        "postgres": {
+          "id": "kT7llbU6ogiVDUpS",
+          "name": "Postgres account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "CREATE TABLE IF NOT EXISTS n8n_call_summaries (\n    id UUID PRIMARY KEY,\n    text TEXT NOT NULL,\n    metadata JSONB,\n    embedding VECTOR(1536)\n);\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -720,
+        -1440
+      ],
+      "id": "69df3a4c-cbed-4ef2-b773-c3021d5ee73e",
+      "name": "Check Table Exists3",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "credentials": {
+        "postgres": {
+          "id": "kT7llbU6ogiVDUpS",
+          "name": "Postgres account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI assistant and expert in call quality analysis for Managed Service Providers (MSPs). Your task is to analyse telephone call transcripts between Ingenio Technologies staff and clients to assess service quality and uncover potential sales opportunities.\n\n**Known team members:**\n- Helpdesk Staff: George, Cameron, Alica, Joel, Leanna, Zain  \n- Account Manager (internal sales/farming): Matty  \n- Operations Manager: Helen  \n- Office Manager (procurement): Louise  \n\nUse these names to help identify the agent or the client where possible.\n\n---\n\n### Instructions:\n\nBased on the content of the call transcript, extract the following insights. Focus on the client’s experience and the support provided.\n\nReturn your response as a JSON object using the following format. If any value cannot be confidently determined from the transcript, use `\"undetermined\"`.\n\n{\n  \"sentiment\": \"Positive | Neutral | Negative | undetermined\",\n  \"summary\": \"One-paragraph natural language summary, or 'undetermined'\",\n  \"mood\": \"Calm | Frustrated | Satisfied | undetermined\",\n  \"frustration_level\": \"Low | Medium | High | undetermined\",\n  \"issue_clarity\": \"yes | no | unclear | undetermined\",\n  \"agent_helpfulness\": \"yes | no | somewhat | undetermined\",\n  \"upsell_opportunity\": \"Leave blank if none. If unclear, use 'undetermined'.\",\n  \"confidence_level\": \"High | Medium | Low | undetermined\",\n  \"agent_name\": \"Name from known staff list, or 'undetermined'\",\n  \"client_name\": \"Detected name from transcript, or 'undetermined'\"\n}\n\n\nRules:\n1. If the call is blank or was not answered, do not process. Instead, return:\n   {\n     \"status\": \"Call not answered or empty transcript.\"\n   }\n\n2. If the transcript is incomplete or insufficient, set \"confidence_level\": \"Low\" and mark unclear values accordingly.\n\n3. Do not infer tone or sentiment without clear evidence from the transcript.\n\n4. Assume the first name mentioned after the greeting is the speaker. Use contextual clues and known names to resolve ambiguity.\n\n5. All output in British english UK spelling please\n\nTranscript:  \n{{ $json.text }}\n\nOutput only the raw JSON object without any explanation, markdown formatting, or code block syntax. Do not include ```json or any other wrappers.\n",
+        "hasOutputParser": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        1480,
+        -1680
+      ],
+      "id": "758505bc-ffb8-4656-bb18-45ceed53ea0b",
+      "name": "Basic LLM Chain1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "responseFormat": "text"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1420,
+        -1380
+      ],
+      "id": "89695f96-bda0-4468-9dad-86cd25194393",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "Opd2OxbqBFBQKe9N",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const unixToIso = (ts) => {\n  if (!ts || isNaN(ts)) return \"undetermined\";\n  return new Date(ts * 1000).toISOString();\n};\n\nconst agentMap = {\n  \"563601001\": \"Zain Hassan\",\n  \"563601002\": \"Leanna Landers\",\n  \"563601003\": \"George Stokes\",\n  \"563601004\": \"Cameron Ash\",\n  \"563601008\": \"Matty Harbron\",\n  \"563601009\": \"Lauren Isaacs\",\n  \"563601010\": \"Helen Collier\",\n  \"563601012\": \"Joel Allen\",\n  \"563601014\": \"Alicja Nowok\",\n  \"563601015\": \"Louise Maskell\"\n};\n\nconst EXTERNAL_CLI = \"01273806211\";\n\nconst inferDirection = (from, to, fromDisplay, toDisplay) => {\n  if (from === EXTERNAL_CLI || fromDisplay.includes(EXTERNAL_CLI)) return \"outbound\";\n  if (to === EXTERNAL_CLI || toDisplay.includes(EXTERNAL_CLI)) return \"inbound\";\n  if (/^56/.test(from) && /^07/.test(to)) return \"outbound\";\n  if (/^07/.test(from) && /^56/.test(to)) return \"inbound\";\n  return \"undetermined\";\n};\n\n// Safely access inputs using getInputDataByNodeName helper\nconst safeGetJson = (nodeName) => {\n  try {\n    return $(nodeName).item.json || {};\n  } catch (e) {\n    return {};\n  }\n};\n\nconst metadataNode = safeGetJson('Get Call Recording1').data || {};\nconst llmData = safeGetJson('Basic LLM Chain1');\nconst companyData = safeGetJson('ConnectWise Manage1');\n\nconst direction = inferDirection(\n  metadataNode.snumber,\n  metadataNode.dnumber,\n  metadataNode.snumber_display || \"\",\n  metadataNode.dnumber_display || \"\"\n);\n\nconst clientNumber = direction === \"inbound\"\n  ? metadataNode.snumber\n  : metadataNode.dnumber;\n\nconst company_name = companyData.name || \"undetermined\";\n\nreturn {\n  json: {\n    call_id: metadataNode.callid,\n    start_time: unixToIso(metadataNode.start),\n    end_time: unixToIso(metadataNode.end),\n    call_date: unixToIso(metadataNode.start).split(\"T\")[0],\n    call_duration_seconds: metadataNode.talktime || 0,\n    agent_extension: metadataNode.snumber || \"undetermined\",\n    agent_name: agentMap[metadataNode.snumber] || \"undetermined\",\n    direction,\n    client_number: clientNumber || \"undetermined\",\n    company_name,\n\n    // AI analysis\n    sentiment: llmData.sentiment || \"undetermined\",\n    summary: llmData.summary || \"undetermined\",\n    mood: llmData.mood || \"undetermined\",\n    frustration_level: llmData.frustration_level || \"undetermined\",\n    issue_clarity: llmData.issue_clarity || \"undetermined\",\n    agent_helpfulness: llmData.agent_helpfulness || \"undetermined\",\n    upsell_opportunity: llmData.upsell_opportunity || \"\",\n    confidence_level: llmData.confidence_level || \"undetermined\",\n    agent_name_transcript: llmData.agent_name || \"undetermined\",\n    client_name: llmData.client_name || \"undetermined\"\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2540,
+        -1640
+      ],
+      "id": "c8bba305-06b2-4fd1-b885-720f5fa25444",
+      "name": "Code1",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "resource": "company",
+        "operation": "getByPhoneNumber",
+        "phoneNumber": "={{ $json.client_number }}\n\n\n"
+      },
+      "type": "@adamhancock/n8n-nodes-msp-ai.connectWiseManage",
+      "typeVersion": 1,
+      "position": [
+        2320,
+        -1800
+      ],
+      "id": "5bf685b5-026b-4bd8-94d8-870e27ea1f59",
+      "name": "ConnectWise Manage1",
+      "alwaysOutputData": true,
+      "notesInFlow": false,
+      "credentials": {
+        "connectWiseManageApi": {
+          "id": "iKINJevlflj7T39b",
+          "name": "ConnectWise Manage account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const extractPhoneNumber = (obj) => {\n  const fields = [\n    obj.callerid_internal,\n    obj.cnumber_name,\n    obj.dnumber_name,\n    obj.snumber_display\n  ];\n\n  for (const raw of fields) {\n    if (typeof raw === \"string\") {\n      const match = raw.match(/0\\d{10}/); // match UK national format\n      if (match) return match[0];\n      const e164 = raw.match(/\\+44\\d{10}/);\n      if (e164) return \"0\" + e164[0].slice(3); // convert +44 to 0\n      const stripped = raw.match(/447\\d{9}/);\n      if (stripped) return \"0\" + stripped[0].slice(2);\n    }\n  }\n  return \"undetermined\";\n};\n\nreturn {\n  json: {\n    client_number: extractPhoneNumber($('Get Call Recording1').item.json.data),\n    uniqueid: $json.uniqueid\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1860,
+        -1680
+      ],
+      "id": "b2664f19-3689-4a0e-8701-37057b760c1f",
+      "name": "Code - Extract number1"
+    }
+  ],
+  "pinData": {
+    "Daily1": [
+      {
+        "json": {
+          "timestamp": "2025-05-07T21:15:52.648+00:00",
+          "Readable date": "May 7th 2025, 9:15:52 pm",
+          "Readable time": "9:15:52 pm",
+          "Day of week": "Wednesday",
+          "Year": "2025",
+          "Month": "May",
+          "Day of month": "07",
+          "Hour": "21",
+          "Minute": "15",
+          "Second": "52",
+          "Timezone": "UTC (UTC+00:00)"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Found client number?": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ConnectWise Manage1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File1": {
+      "main": [
+        [
+          {
+            "node": "OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get recordings1": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Call filter1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get Call Recording1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if processed1": {
+      "main": [
+        [
+          {
+            "node": "If new recording1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily1": {
+      "main": [
+        [
+          {
+            "node": "Check Table Exists2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If new recording1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call filter1": {
+      "main": [
+        [
+          {
+            "node": "Check if processed1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Call Recording1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Table Exists2": {
+      "main": [
+        [
+          {
+            "node": "Check Table Exists3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Table Exists3": {
+      "main": [
+        [
+          {
+            "node": "Get recordings1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Code - Extract number1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ConnectWise Manage1": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Extract number1": {
+      "main": [
+        [
+          {
+            "node": "Found client number?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c49c0161-9dda-4fde-ba17-31ec867a7346",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "940807e86c3743f04d9ef28cb0b489759e76f9139a57f55d46756f3365013ac3"
+  },
+  "id": "CRYTky3gQre0hQBG",
+  "tags": []
+}

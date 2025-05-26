@@ -1,0 +1,50 @@
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { PrismaModule } from './modules/prisma/prisma.module';
+import { StorageModule } from './modules/storage/storage.module';
+import { BullModule } from '@nestjs/bullmq';
+import { VoipModule } from './modules/voip/voip.module';
+import { TranscriptionModule } from './modules/transcription/transcription.module';
+import { CallAnalysisModule } from './modules/call-analysis/call-analysis.module';
+import { ConnectwiseManageModule } from './modules/connectwise-manage/connectwise-manage.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { ClsModule } from 'nestjs-cls';
+import { ClsStore } from './common/interfaces/cls-store.interface';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    ClsModule.forRoot({
+      global: true,
+      middleware: { mount: true },
+      // You can define a custom setup function if needed, e.g. for request ID
+      // setup: (cls, req) => {
+      //   cls.set('requestId', req.headers['x-request-id']);
+      // },
+    }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        connection: {
+          host: configService.get<string>('REDIS_HOST', 'localhost'),
+          port: configService.get<number>('REDIS_PORT', 6379),
+          password: configService.get<string>('REDIS_PASSWORD'),
+          db: configService.get<number>('REDIS_DB', 0),
+        },
+      }),
+      inject: [ConfigService],
+    }),
+    PrismaModule,
+    StorageModule,
+    VoipModule,
+    TranscriptionModule,
+    CallAnalysisModule,
+    ConnectwiseManageModule,
+    AuthModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
