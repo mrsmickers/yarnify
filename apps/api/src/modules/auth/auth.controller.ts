@@ -45,10 +45,6 @@ export class AuthController {
   }
 
   private getWorkOSRedirectUri(req: Request): string {
-    // Construct the redirect URI based on the incoming request's protocol and host
-    // This ensures it works correctly behind proxies or in different environments
-    const protocol = req.protocol;
-    const host = req.get('host');
     return `${this.frontendUrl}${this.workosRedirectPath}`;
   }
 
