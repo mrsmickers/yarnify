@@ -14,6 +14,7 @@ import { CompanyRepository } from './repositories/company.repository';
 import { CallAnalysisRepository } from './repositories/call-analysis.repository';
 import { ProcessingLogRepository } from './repositories/processing-log.repository';
 import { CallAnalysisController } from './call-analysis.controller';
+import { AgentRepository } from './repositories/agent.repository';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { CallAnalysisController } from './call-analysis.controller';
     CompanyRepository,
     CallAnalysisRepository,
     ProcessingLogRepository,
+    AgentRepository,
   ],
   exports: [
     CallAnalysisService,

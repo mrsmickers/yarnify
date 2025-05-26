@@ -14,10 +14,9 @@ import { CallRepository } from './repositories/call.repository';
 import { CompanyRepository } from './repositories/company.repository';
 import { CallAnalysisRepository } from './repositories/call-analysis.repository';
 import { ProcessingLogRepository } from './repositories/processing-log.repository';
-import { Prisma, Call, Company, CallAnalysis } from '../../../generated/prisma';
+import { AgentRepository } from './repositories/agent.repository';
+import { Call, Company, Agent } from '../../../generated/prisma';
 import { dayjs } from '../../lib/dayjs';
-import internal from 'stream';
-import { NTAExtension } from '../voip/dto/extension.dto';
 @Injectable()
 @Processor(CALL_PROCESSING_QUEUE, { concurrency: 5 })
 export class CallProcessingConsumer extends WorkerHost {
@@ -34,6 +33,7 @@ export class CallProcessingConsumer extends WorkerHost {
     private readonly companyRepository: CompanyRepository,
     private readonly callAnalysisRepository: CallAnalysisRepository, // This is the new repository for DB ops
     private readonly processingLogRepository: ProcessingLogRepository,
+    private readonly agentRepository: AgentRepository,
   ) {
     super();
   }
@@ -81,6 +81,30 @@ export class CallProcessingConsumer extends WorkerHost {
       const { callername_internal: internalExtensionName } =
         await this.callRecordingService.getExtension(internalExtensionNumber);
 
+      // Handle Agent - check if agent exists, if not create it
+      let agentEntity: Agent | null = null;
+      if (internalExtensionNumber && internalExtensionName) {
+        // First check if agent exists by extension number
+        agentEntity = await this.agentRepository.findByExtension(
+          internalExtensionNumber,
+        );
+
+        if (!agentEntity) {
+          // Create new agent if not found
+          agentEntity = await this.agentRepository.create({
+            name: internalExtensionName,
+            extension: internalExtensionNumber,
+          });
+          this.logger.log(
+            `Created new Agent: ${internalExtensionName} (Extension: ${internalExtensionNumber})`,
+          );
+        } else {
+          this.logger.log(
+            `Found existing Agent: ${agentEntity.name} (Extension: ${agentEntity.extension})`,
+          );
+        }
+      }
+
       const duration = dayjs(endTime).diff(dayjs(startTime), 'seconds');
       // Step 0: Check for Existing Call
       const existingCall = await this.callRepository.findByCallSid(
@@ -106,6 +130,8 @@ export class CallProcessingConsumer extends WorkerHost {
         );
         callEntity = await this.callRepository.update(callEntity.id, {
           callStatus: 'PROCESSING',
+          ...(agentEntity &&
+            !callEntity.agentsId && { agentsId: agentEntity.id }),
         });
       } else {
         // Create a new Call record if it doesn't exist
@@ -116,6 +142,7 @@ export class CallProcessingConsumer extends WorkerHost {
           endTime,
           duration,
           callStatus: 'PROCESSING',
+          agentsId: agentEntity?.id,
 
           // endTime and duration will be set upon completion
         });

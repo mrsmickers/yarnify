@@ -36,7 +36,7 @@ export class CallRepository {
   async findMany(
     args: Prisma.CallFindManyArgs,
     prisma: Prisma.TransactionClient = this.prisma,
-  ): Promise<Call[]> {
+  ): Promise<Prisma.CallGetPayload<typeof args>[]> {
     return prisma.call.findMany(args);
   }
 

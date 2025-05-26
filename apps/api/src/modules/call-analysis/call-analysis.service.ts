@@ -12,12 +12,14 @@ import {
 } from './dto/get-calls.dto';
 import { Prisma } from '@db'; // Use @db alias
 import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class CallAnalysisService {
   constructor(
     private readonly callRepository: CallRepository,
     private readonly config: ConfigService,
+    private readonly db: PrismaService,
   ) {}
   // Renamed from NewCallAnalysisService
   async analyzeTranscript(transcript: string): Promise<CallAnalysisOutput> {
@@ -73,7 +75,6 @@ export class CallAnalysisService {
         if (extensionMatch) return extensionMatch[0];
       }
     }
-    console.log('No internal phone number found in call record:', obj);
     return undefined;
   }
 
@@ -117,7 +118,7 @@ export class CallAnalysisService {
       ];
     }
 
-    const calls = await this.callRepository.findMany({
+    const calls = await this.db.call.findMany({
       where,
       skip,
       take: limit,
@@ -127,6 +128,7 @@ export class CallAnalysisService {
       include: {
         analysis: true, // Include related call analysis data
         company: true, // Include company data
+        Agents: true, // Include related agents if necessary
       },
     });
 
@@ -143,8 +145,7 @@ export class CallAnalysisService {
       endTime: call.endTime,
       duration: call.duration,
       callStatus: call.callStatus, // Prisma model uses string for callStatus
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore // analysis is included
+      agentName: call.Agents?.name || null, // Optional: include agent name{
       analysis: call.analysis?.data, // Assuming analysis data is in 'data' field
       createdAt: call.createdAt,
       updatedAt: call.updatedAt,

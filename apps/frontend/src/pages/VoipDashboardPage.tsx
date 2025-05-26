@@ -57,8 +57,6 @@ const VoipDashboardPage = () => {
             (analysisData.overall_sentiment as TransformedCallLog['sentiment']) ||
             'Unknown'
           const mood = (analysisData.customer_mood as string) || 'N/A'
-          const agentName =
-            (analysisData.agent_name as string) || 'Unknown Agent'
           const aiConfidence = (analysisData.ai_confidence_score as string)
             ? `${parseFloat(analysisData.ai_confidence_score as string).toFixed(
                 0
@@ -75,7 +73,7 @@ const VoipDashboardPage = () => {
             companyName,
             sentiment,
             mood,
-            agentName,
+            agentName: call.agentName || 'N/A', // Assuming agent name might come from analysis or a related field
             aiConfidence,
           }
         }

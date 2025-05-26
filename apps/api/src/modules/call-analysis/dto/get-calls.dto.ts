@@ -106,6 +106,9 @@ export class CallResponseDto {
 
   @ApiProperty()
   updatedAt: Date;
+
+  @ApiPropertyOptional()
+  agentName?: string; // Optional: include agent name if available
 }
 
 export class PaginatedCallsResponseDto {

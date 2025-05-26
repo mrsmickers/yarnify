@@ -39,6 +39,7 @@ export interface CallResponseDto {
   analysis?: CallResponseDtoAnalysis;
   createdAt: string;
   updatedAt: string;
+  agentName?: string;
 }
 
 export interface PaginatedCallsResponseDto {
@@ -167,6 +168,170 @@ export function useAppControllerGetHello<TData = Awaited<ReturnType<typeof appCo
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getAppControllerGetHelloQueryOptions(options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+export const storageControllerGetCallRecording = (
+    callId: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return axiosInstance<void>(
+      {url: `/api/v1/storage/recordings/${callId}`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+export const getStorageControllerGetCallRecordingQueryKey = (callId: string,) => {
+    return [`/api/v1/storage/recordings/${callId}`] as const;
+    }
+
+    
+export const getStorageControllerGetCallRecordingQueryOptions = <TData = Awaited<ReturnType<typeof storageControllerGetCallRecording>>, TError = void>(callId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerGetCallRecording>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getStorageControllerGetCallRecordingQueryKey(callId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof storageControllerGetCallRecording>>> = ({ signal }) => storageControllerGetCallRecording(callId, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(callId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof storageControllerGetCallRecording>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type StorageControllerGetCallRecordingQueryResult = NonNullable<Awaited<ReturnType<typeof storageControllerGetCallRecording>>>
+export type StorageControllerGetCallRecordingQueryError = void
+
+
+export function useStorageControllerGetCallRecording<TData = Awaited<ReturnType<typeof storageControllerGetCallRecording>>, TError = void>(
+ callId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerGetCallRecording>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof storageControllerGetCallRecording>>,
+          TError,
+          Awaited<ReturnType<typeof storageControllerGetCallRecording>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useStorageControllerGetCallRecording<TData = Awaited<ReturnType<typeof storageControllerGetCallRecording>>, TError = void>(
+ callId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerGetCallRecording>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof storageControllerGetCallRecording>>,
+          TError,
+          Awaited<ReturnType<typeof storageControllerGetCallRecording>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useStorageControllerGetCallRecording<TData = Awaited<ReturnType<typeof storageControllerGetCallRecording>>, TError = void>(
+ callId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerGetCallRecording>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useStorageControllerGetCallRecording<TData = Awaited<ReturnType<typeof storageControllerGetCallRecording>>, TError = void>(
+ callId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerGetCallRecording>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getStorageControllerGetCallRecordingQueryOptions(callId,options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+export const storageControllerStreamCallRecording = (
+    callId: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return axiosInstance<void>(
+      {url: `/api/v1/storage/recordings/stream/${callId}`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+export const getStorageControllerStreamCallRecordingQueryKey = (callId: string,) => {
+    return [`/api/v1/storage/recordings/stream/${callId}`] as const;
+    }
+
+    
+export const getStorageControllerStreamCallRecordingQueryOptions = <TData = Awaited<ReturnType<typeof storageControllerStreamCallRecording>>, TError = void>(callId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getStorageControllerStreamCallRecordingQueryKey(callId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>> = ({ signal }) => storageControllerStreamCallRecording(callId, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(callId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type StorageControllerStreamCallRecordingQueryResult = NonNullable<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>>
+export type StorageControllerStreamCallRecordingQueryError = void
+
+
+export function useStorageControllerStreamCallRecording<TData = Awaited<ReturnType<typeof storageControllerStreamCallRecording>>, TError = void>(
+ callId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof storageControllerStreamCallRecording>>,
+          TError,
+          Awaited<ReturnType<typeof storageControllerStreamCallRecording>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useStorageControllerStreamCallRecording<TData = Awaited<ReturnType<typeof storageControllerStreamCallRecording>>, TError = void>(
+ callId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof storageControllerStreamCallRecording>>,
+          TError,
+          Awaited<ReturnType<typeof storageControllerStreamCallRecording>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useStorageControllerStreamCallRecording<TData = Awaited<ReturnType<typeof storageControllerStreamCallRecording>>, TError = void>(
+ callId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useStorageControllerStreamCallRecording<TData = Awaited<ReturnType<typeof storageControllerStreamCallRecording>>, TError = void>(
+ callId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getStorageControllerStreamCallRecordingQueryOptions(callId,options)
 
   const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

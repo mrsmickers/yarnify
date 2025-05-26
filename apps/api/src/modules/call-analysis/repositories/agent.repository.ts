@@ -10,7 +10,7 @@ export class AgentRepository {
     email: string,
     prisma: Prisma.TransactionClient = this.prisma,
   ): Promise<Agent | null> {
-    return prisma.agent.findUnique({
+    return prisma.agent.findFirst({
       where: { email },
     });
   }
