@@ -58,6 +58,7 @@ COPY --chown=node:node --from=builder /app/pnpm-lock.yaml /app/pnpm-lock.yaml
 COPY --chown=node:node --from=builder /app/pnpm-workspace.yaml /app/pnpm-workspace.yaml
 COPY --chown=node:node --from=builder /app/node_modules /app/node_modules
 COPY --chown=node:node --from=builder /app/package.json /app/package.json
+COPY --chown=node:node --from=builder /app/apps/api/prisma /app/apps/api/prisma
 COPY --chown=node:node --from=builder /app/apps/api/generated /app/apps/api/generated
 COPY --chown=node:node --from=builder /app/apps/api/node_modules /app/apps/api/node_modules
 
