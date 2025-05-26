@@ -192,6 +192,21 @@ const CallDetailPage = () => {
                     </div>
                   </div>
                 </div>
+
+                {callId && (
+                  <div className="mt-6">
+                    <h5 className="text-md font-semibold mb-2 text-gray-700">
+                      Call Recording
+                    </h5>
+                    <audio
+                      controls
+                      src={`/api/v1/storage/recordings/stream/${callId}`}
+                      className="w-full"
+                    >
+                      Your browser does not support the audio element.
+                    </audio>
+                  </div>
+                )}
               </motion.div>
 
               {callDetails.analysis && (

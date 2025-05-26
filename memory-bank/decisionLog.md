@@ -3,6 +3,15 @@
 This file records architectural and implementation decisions using a list format.
 2025-05-24 12:05:05 - Log of updates made.
 
+*   [2025-05-26 23:22:51] - Added audio player to Call Details page.
+    ## Decision
+    *   Add an HTML `<audio>` element to [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:0).
+    *   The `src` attribute of the audio player will point to `/api/v1/storage/recordings/stream/:callId`.
+    ## Rationale
+    *   Provides users with the ability to play call recordings directly on the call details page.
+    *   Utilizes the existing API endpoint for streaming recordings.
+    ## Implementation Details
+    *   Modified [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:195) to include the `<audio>` tag and construct the `src` URL using the `callId` from `useParams`.
 *   [2025-05-26 21:15:11] - Configured NestJS build to copy static client assets.
     ## Decision
     *   Modify `apps/api/nest-cli.json` to include the `apps/api/client` directory in the build assets.

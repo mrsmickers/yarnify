@@ -12,6 +12,7 @@ This file tracks the project's current status, including recent changes, current
 
 ## Recent Changes
 
+*   [2025-05-26 23:22:51] - Added an audio player to [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:0) to stream call recordings from the `/api/v1/storage/recordings/stream/:callId` endpoint.
 *   [2025-05-26 21:15:25] - Configured NestJS build process in `apps/api/nest-cli.json` to copy the `apps/api/client` directory (containing static assets like `index.html`) to the `dist/apps/api/client` output directory. This ensures that the `ServeStaticModule` can correctly serve these files.
 *   [2025-05-25 15:16:51] - Added a BullMQ job to sync call recordings every 15 minutes. This involved creating `CallRecordingSyncProducerService` to schedule the job, `CallRecordingSyncConsumer` to fetch recent recordings and queue them for processing using the refactored `CallRecordingService.processRecordingsByDateRangeInternal` method. `VoipModule` was updated to include these new components and register the `CALL_RECORDING_SYNC_QUEUE`.
 *   [2025-05-25 15:13:17] - Updated [`CallProcessingConsumer`](apps/api/src/modules/call-analysis/call-processing.consumer.ts:0) to handle transcription failures. If transcription results in an empty or null string, the call status is set to `"TRANSCRIPTION_FAILED"`, and subsequent analysis steps are skipped.
