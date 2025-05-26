@@ -3,6 +3,13 @@
 This file records architectural and implementation decisions using a list format.
 2025-05-24 12:05:05 - Log of updates made.
 
+*   [2025-05-26 23:37:46] - Corrected `path` module import in [`StorageController`](apps/api/src/modules/storage/storage.controller.ts:14:1).
+    ## Decision
+    *   Changed `import path from 'path';` to `import * as path from 'path';`.
+    ## Rationale
+    *   The `path` module is a built-in Node.js module and does not have a default export. The `import * as path` syntax correctly imports all named exports from the module under the `path` namespace, resolving the `TypeError: Cannot read properties of undefined (reading 'basename')` that occurred because `path` itself was undefined.
+    ## Implementation Details
+    *   Updated the import statement in [`apps/api/src/modules/storage/storage.controller.ts`](apps/api/src/modules/storage/storage.controller.ts:14:1).
 *   [2025-05-26 23:22:51] - Added audio player to Call Details page.
     ## Decision
     *   Add an HTML `<audio>` element to [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:0).

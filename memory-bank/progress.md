@@ -7,6 +7,7 @@ This file tracks the project's progress using a task list format.
 
 ## Completed Tasks
 
+*   [2025-05-26 23:37:46] - Corrected `path` module import in [`StorageController`](apps/api/src/modules/storage/storage.controller.ts:14:1) to fix `TypeError` in call recording streaming.
 *   [2025-05-26 23:22:51] - Added audio player to [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:0) for playing call recordings.
 *   [2025-05-26 21:15:32] - Configured NestJS build in `apps/api/nest-cli.json` to copy static client assets from `apps/api/client` to `dist/apps/api/client`, enabling `ServeStaticModule` to serve them correctly.
 *   [2025-05-25 15:16:58] - Implemented a recurring BullMQ job to sync call recordings every 15 minutes. This included creating a new queue (`CALL_RECORDING_SYNC_QUEUE`), a producer service (`CallRecordingSyncProducerService`) to schedule the job, and a consumer service (`CallRecordingSyncConsumer`) to fetch recent recordings and queue them for detailed processing. The `CallRecordingService` was refactored to support this, and `VoipModule` was updated.

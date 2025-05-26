@@ -11,7 +11,7 @@ import { Response } from 'express';
 import { StorageService } from './storage.service';
 import { CallRepository } from '../call-analysis/repositories/call.repository';
 import { ApiTags, ApiResponse, ApiParam } from '@nestjs/swagger';
-import path from 'path';
+import * as path from 'path';
 
 @ApiTags('Storage')
 @Controller('storage')
