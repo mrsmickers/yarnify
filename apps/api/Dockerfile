@@ -9,6 +9,7 @@ WORKDIR /app
 
 COPY --chown=node:node package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY --chown=node:node apps/api/package.json apps/api/
+COPY --chown=node:node apps/frontend/package.json apps/frontend/
 RUN pnpm install --frozen-lockfile
 
 # Copy the application code to the image
