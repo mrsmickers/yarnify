@@ -49,7 +49,7 @@ export class AuthController {
     // This ensures it works correctly behind proxies or in different environments
     const protocol = req.protocol;
     const host = req.get('host');
-    return `${protocol}://${host}${this.workosRedirectPath}`;
+    return `${this.frontendUrl}${this.workosRedirectPath}`;
   }
 
   @Get('login')
