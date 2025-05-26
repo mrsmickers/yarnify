@@ -9,14 +9,16 @@ WORKDIR /app
 
 COPY --chown=node:node package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY --chown=node:node apps/api/package.json apps/api/
-COPY --chown=node:node packages/db/package.json packages/db/
 RUN pnpm install --frozen-lockfile
 
 # Copy the application code to the image
 COPY --chown=node:node . .
 
+# Build the application
+RUN pnpm --filter frontend build
+
 ## Generate the Prisma client
-RUN pnpm --filter @mailhooks/db exec prisma generate
+RUN pnpm --filter api exec prisma generate
 
 # Build the application
 RUN pnpm --filter api build
@@ -46,14 +48,14 @@ WORKDIR /app
 # add CA certificates from lib/ssl
 
 # Copy the build directory from the builder stage
-COPY --chown=node:node --from=builder /app/package.json /app/package.json
-COPY --chown=node:node --from=builder /app/packages/db/prisma /app/packages/db/prisma
-COPY --chown=node:node --from=builder /app/pnpm-lock.yaml /app/pnpm-lock.yaml
-COPY --chown=node:node --from=builder /app/pnpm-workspace.yaml /app/pnpm-workspace.yaml
-COPY --chown=node:node --from=builder /app/apps/api/package.json /app/apps/api/package.json
-COPY --chown=node:node --from=builder /app/packages/db/package.json /app/packages/db/package.json
-COPY --chown=node:node --from=builder /app/node_modules /app/node_modules
-COPY --chown=node:node --from=builder /app/apps/api/dist /app/apps/api/dist
+COPY --chown=node:node --from=builder /apps/package.json /app/package.json
+COPY --chown=node:node --from=builder /apps/api/prisma /app/api/prisma
+COPY --chown=node:node --from=builder /apps/pnpm-lock.yaml /app/pnpm-lock.yaml
+COPY --chown=node:node --from=builder /apps/pnpm-workspace.yaml /app/pnpm-workspace.yaml
+COPY --chown=node:node --from=builder /apps/apps/api/package.json /app/apps/api/package.json
+COPY --chown=node:node --from=builder /apps/packages/db/package.json /app/packages/db/package.json
+COPY --chown=node:node --from=builder /apps/node_modules /app/node_modules
+COPY --chown=node:node --from=builder /apps/api/dist /app/apps/api/dist
 
 # Expose port 3000 for the application server
 EXPOSE 3001
