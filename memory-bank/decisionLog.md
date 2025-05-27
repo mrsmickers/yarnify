@@ -3,6 +3,15 @@
 This file records architectural and implementation decisions using a list format.
 2025-05-24 12:05:05 - Log of updates made.
 
+*   [2025-05-27 10:52:44] - Moved agent name display in CallDetailPage.tsx to general info.
+    ## Decision
+    *   Relocated the "Agent Name" display block from the `callDetails.analysis` conditional section to the "General Information" section in [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:324).
+    ## Rationale
+    *   The agent's name (`callDetails.agentName`) is part of the primary call data, not just the analysis results.
+    *   Displaying it in the "General Information" section ensures it's visible even if the `callDetails.analysis` object is not present (e.g., if analysis processing failed or is incomplete). This provides users with key information regardless of the analysis status.
+    ## Implementation Details
+    *   Removed the "Agent Name" card from the analysis section.
+    *   Added a new `div` to display "Agent Name" within the "General Information" grid.
 *   [2025-05-27 07:29:12] - Updated agent name display in CallDetailPage.tsx.
     ## Decision
     *   Modified [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:247:1) to display `callDetails.agentName` instead of `callDetails.analysis.agent_name`.

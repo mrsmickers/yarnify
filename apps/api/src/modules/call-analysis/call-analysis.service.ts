@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { openai } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { instructions, callAnalysisSchema, CallAnalysisOutput } from './prompt';
@@ -10,9 +10,11 @@ import {
   PaginatedCallsResponseDto,
   CallResponseDto,
 } from './dto/get-calls.dto';
-import { Prisma } from '@db'; // Use @db alias
+import { Prisma } from '@db'; // Use @db alias - This is the correct one
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
+import { CallProcessingProducerService } from './call-processing.producer.service';
+// Removed: import { Prisma } from '../../../../generated/prisma';
 
 @Injectable()
 export class CallAnalysisService {
@@ -20,6 +22,7 @@ export class CallAnalysisService {
     private readonly callRepository: CallRepository,
     private readonly config: ConfigService,
     private readonly db: PrismaService,
+    private readonly callProcessingProducer: CallProcessingProducerService, // Added
   ) {}
   // Renamed from NewCallAnalysisService
   async analyzeTranscript(transcript: string): Promise<CallAnalysisOutput> {
@@ -181,8 +184,62 @@ export class CallAnalysisService {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore // analysis is included via repository
       analysis: call.analysis?.data,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore // Agents is included via repository (after update)
+      agentName: call.Agents?.name || null,
       createdAt: call.createdAt,
       updatedAt: call.updatedAt,
     };
+  }
+
+  async reprocessCall(id: string): Promise<{ message: string }> {
+    const call = await this.callRepository.findById(id);
+
+    if (!call) {
+      throw new NotFoundException(`Call with ID ${id} not found`);
+    }
+
+    if (!call.callSid) {
+      throw new NotFoundException(
+        `Call with ID ${id} does not have a callSid, cannot reprocess.`,
+      );
+    }
+
+    // Update call status to PENDING and disconnect old analysis
+    // Also, if there's an existing CallAnalysis record, we might want to delete it or mark it as outdated.
+    // For now, just disconnecting by setting callAnalysisId to null.
+    // The consumer will create a new one.
+    await this.db.call.update({
+      where: { id },
+      data: {
+        callStatus: 'PENDING', // Use string literal as CallStatus is not an enum in Prisma schema
+        callAnalysisId: null, // Disconnect the previous analysis
+        // Optionally, explicitly disconnect the relation if Prisma version requires it
+        // analysis: {
+        //  disconnect: call.callAnalysisId ? true : undefined
+        // }
+      },
+    });
+
+    // If a CallAnalysis record exists for this call, delete it to ensure a fresh reprocessing.
+    // This step is crucial if the consumer doesn't automatically handle overwriting or creating new analysis records cleanly.
+    if (call.callAnalysisId) {
+      await this.db.callAnalysis
+        .delete({ where: { id: call.callAnalysisId } })
+        .catch((err) => {
+          // Log error if deletion fails, but proceed with reprocessing
+          console.error(
+            `Failed to delete old analysis ${call.callAnalysisId} for call ${id}:`,
+            err,
+          );
+        });
+    }
+
+    // Add to processing queue
+    await this.callProcessingProducer.addCallToProcessingQueue({
+      callRecordingId: call.callSid,
+    });
+
+    return { message: `Call with ID ${id} has been queued for reprocessing.` };
   }
 }

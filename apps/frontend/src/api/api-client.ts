@@ -6,18 +6,23 @@
  * OpenAPI spec version: 1.0
  */
 import {
+  useInfiniteQuery,
   useMutation,
   useQuery
 } from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
+  DefinedUseInfiniteQueryResult,
   DefinedUseQueryResult,
+  InfiniteData,
   MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
@@ -48,11 +53,6 @@ export interface PaginatedCallsResponseDto {
   page: number;
   limit: number;
   totalPages: number;
-}
-
-export interface RefreshTokenRequestDto {
-  /** The refresh token (if not sent via cookie). */
-  refreshToken?: string;
 }
 
 export interface RefreshTokenResponseDto {
@@ -115,6 +115,69 @@ export const getAppControllerGetHelloQueryKey = () => {
     }
 
     
+export const getAppControllerGetHelloInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof appControllerGetHello>>>, TError = unknown>( options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof appControllerGetHello>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAppControllerGetHelloQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof appControllerGetHello>>> = ({ signal }) => appControllerGetHello(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof appControllerGetHello>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AppControllerGetHelloInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof appControllerGetHello>>>
+export type AppControllerGetHelloInfiniteQueryError = unknown
+
+
+export function useAppControllerGetHelloInfinite<TData = InfiniteData<Awaited<ReturnType<typeof appControllerGetHello>>>, TError = unknown>(
+  options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof appControllerGetHello>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof appControllerGetHello>>,
+          TError,
+          Awaited<ReturnType<typeof appControllerGetHello>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAppControllerGetHelloInfinite<TData = InfiniteData<Awaited<ReturnType<typeof appControllerGetHello>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof appControllerGetHello>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof appControllerGetHello>>,
+          TError,
+          Awaited<ReturnType<typeof appControllerGetHello>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAppControllerGetHelloInfinite<TData = InfiniteData<Awaited<ReturnType<typeof appControllerGetHello>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof appControllerGetHello>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useAppControllerGetHelloInfinite<TData = InfiniteData<Awaited<ReturnType<typeof appControllerGetHello>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof appControllerGetHello>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getAppControllerGetHelloInfiniteQueryOptions(options)
+
+  const query = useInfiniteQuery(queryOptions , queryClient) as  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
 export const getAppControllerGetHelloQueryOptions = <TData = Awaited<ReturnType<typeof appControllerGetHello>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof appControllerGetHello>>, TError, TData>>, }
 ) => {
 
@@ -197,6 +260,69 @@ export const getStorageControllerGetCallRecordingQueryKey = (callId: string,) =>
     }
 
     
+export const getStorageControllerGetCallRecordingInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof storageControllerGetCallRecording>>>, TError = void>(callId: string, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerGetCallRecording>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getStorageControllerGetCallRecordingQueryKey(callId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof storageControllerGetCallRecording>>> = ({ signal }) => storageControllerGetCallRecording(callId, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(callId), ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerGetCallRecording>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type StorageControllerGetCallRecordingInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof storageControllerGetCallRecording>>>
+export type StorageControllerGetCallRecordingInfiniteQueryError = void
+
+
+export function useStorageControllerGetCallRecordingInfinite<TData = InfiniteData<Awaited<ReturnType<typeof storageControllerGetCallRecording>>>, TError = void>(
+ callId: string, options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerGetCallRecording>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof storageControllerGetCallRecording>>,
+          TError,
+          Awaited<ReturnType<typeof storageControllerGetCallRecording>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useStorageControllerGetCallRecordingInfinite<TData = InfiniteData<Awaited<ReturnType<typeof storageControllerGetCallRecording>>>, TError = void>(
+ callId: string, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerGetCallRecording>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof storageControllerGetCallRecording>>,
+          TError,
+          Awaited<ReturnType<typeof storageControllerGetCallRecording>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useStorageControllerGetCallRecordingInfinite<TData = InfiniteData<Awaited<ReturnType<typeof storageControllerGetCallRecording>>>, TError = void>(
+ callId: string, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerGetCallRecording>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useStorageControllerGetCallRecordingInfinite<TData = InfiniteData<Awaited<ReturnType<typeof storageControllerGetCallRecording>>>, TError = void>(
+ callId: string, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerGetCallRecording>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getStorageControllerGetCallRecordingInfiniteQueryOptions(callId,options)
+
+  const query = useInfiniteQuery(queryOptions , queryClient) as  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
 export const getStorageControllerGetCallRecordingQueryOptions = <TData = Awaited<ReturnType<typeof storageControllerGetCallRecording>>, TError = void>(callId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerGetCallRecording>>, TError, TData>>, }
 ) => {
 
@@ -279,6 +405,69 @@ export const getStorageControllerStreamCallRecordingQueryKey = (callId: string,)
     }
 
     
+export const getStorageControllerStreamCallRecordingInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>>, TError = void>(callId: string, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getStorageControllerStreamCallRecordingQueryKey(callId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>> = ({ signal }) => storageControllerStreamCallRecording(callId, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(callId), ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type StorageControllerStreamCallRecordingInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>>
+export type StorageControllerStreamCallRecordingInfiniteQueryError = void
+
+
+export function useStorageControllerStreamCallRecordingInfinite<TData = InfiniteData<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>>, TError = void>(
+ callId: string, options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof storageControllerStreamCallRecording>>,
+          TError,
+          Awaited<ReturnType<typeof storageControllerStreamCallRecording>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useStorageControllerStreamCallRecordingInfinite<TData = InfiniteData<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>>, TError = void>(
+ callId: string, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof storageControllerStreamCallRecording>>,
+          TError,
+          Awaited<ReturnType<typeof storageControllerStreamCallRecording>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useStorageControllerStreamCallRecordingInfinite<TData = InfiniteData<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>>, TError = void>(
+ callId: string, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useStorageControllerStreamCallRecordingInfinite<TData = InfiniteData<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>>, TError = void>(
+ callId: string, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getStorageControllerStreamCallRecordingInfiniteQueryOptions(callId,options)
+
+  const query = useInfiniteQuery(queryOptions , queryClient) as  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
 export const getStorageControllerStreamCallRecordingQueryOptions = <TData = Awaited<ReturnType<typeof storageControllerStreamCallRecording>>, TError = void>(callId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallRecording>>, TError, TData>>, }
 ) => {
 
@@ -361,6 +550,69 @@ export const getVoipControllerProcessRecordingsByDateQueryKey = () => {
     }
 
     
+export const getVoipControllerProcessRecordingsByDateInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof voipControllerProcessRecordingsByDate>>>, TError = unknown>( options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof voipControllerProcessRecordingsByDate>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getVoipControllerProcessRecordingsByDateQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof voipControllerProcessRecordingsByDate>>> = ({ signal }) => voipControllerProcessRecordingsByDate(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof voipControllerProcessRecordingsByDate>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type VoipControllerProcessRecordingsByDateInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof voipControllerProcessRecordingsByDate>>>
+export type VoipControllerProcessRecordingsByDateInfiniteQueryError = unknown
+
+
+export function useVoipControllerProcessRecordingsByDateInfinite<TData = InfiniteData<Awaited<ReturnType<typeof voipControllerProcessRecordingsByDate>>>, TError = unknown>(
+  options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof voipControllerProcessRecordingsByDate>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof voipControllerProcessRecordingsByDate>>,
+          TError,
+          Awaited<ReturnType<typeof voipControllerProcessRecordingsByDate>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useVoipControllerProcessRecordingsByDateInfinite<TData = InfiniteData<Awaited<ReturnType<typeof voipControllerProcessRecordingsByDate>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof voipControllerProcessRecordingsByDate>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof voipControllerProcessRecordingsByDate>>,
+          TError,
+          Awaited<ReturnType<typeof voipControllerProcessRecordingsByDate>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useVoipControllerProcessRecordingsByDateInfinite<TData = InfiniteData<Awaited<ReturnType<typeof voipControllerProcessRecordingsByDate>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof voipControllerProcessRecordingsByDate>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useVoipControllerProcessRecordingsByDateInfinite<TData = InfiniteData<Awaited<ReturnType<typeof voipControllerProcessRecordingsByDate>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof voipControllerProcessRecordingsByDate>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getVoipControllerProcessRecordingsByDateInfiniteQueryOptions(options)
+
+  const query = useInfiniteQuery(queryOptions , queryClient) as  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
 export const getVoipControllerProcessRecordingsByDateQueryOptions = <TData = Awaited<ReturnType<typeof voipControllerProcessRecordingsByDate>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof voipControllerProcessRecordingsByDate>>, TError, TData>>, }
 ) => {
 
@@ -447,6 +699,72 @@ export const getCallAnalysisControllerGetCallsQueryKey = (params?: CallAnalysisC
     }
 
     
+export const getCallAnalysisControllerGetCallsInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, CallAnalysisControllerGetCallsParams['nextId']>, TError = unknown>(params?: CallAnalysisControllerGetCallsParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, TError, TData, Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, QueryKey, CallAnalysisControllerGetCallsParams['nextId']>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCallAnalysisControllerGetCallsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, QueryKey, CallAnalysisControllerGetCallsParams['nextId']> = ({ signal, pageParam }) => callAnalysisControllerGetCalls({...params, 'nextId': pageParam || params?.['nextId']}, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, TError, TData, Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, QueryKey, CallAnalysisControllerGetCallsParams['nextId']> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CallAnalysisControllerGetCallsInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>>
+export type CallAnalysisControllerGetCallsInfiniteQueryError = unknown
+
+
+export function useCallAnalysisControllerGetCallsInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, CallAnalysisControllerGetCallsParams['nextId']>, TError = unknown>(
+ params: undefined |  CallAnalysisControllerGetCallsParams, options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, TError, TData, Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, QueryKey, CallAnalysisControllerGetCallsParams['nextId']>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>,
+          TError,
+          Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, QueryKey
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCallAnalysisControllerGetCallsInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, CallAnalysisControllerGetCallsParams['nextId']>, TError = unknown>(
+ params?: CallAnalysisControllerGetCallsParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, TError, TData, Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, QueryKey, CallAnalysisControllerGetCallsParams['nextId']>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>,
+          TError,
+          Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, QueryKey
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCallAnalysisControllerGetCallsInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, CallAnalysisControllerGetCallsParams['nextId']>, TError = unknown>(
+ params?: CallAnalysisControllerGetCallsParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, TError, TData, Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, QueryKey, CallAnalysisControllerGetCallsParams['nextId']>>, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get a paginated list of calls with optional filters
+ */
+
+export function useCallAnalysisControllerGetCallsInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, CallAnalysisControllerGetCallsParams['nextId']>, TError = unknown>(
+ params?: CallAnalysisControllerGetCallsParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, TError, TData, Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, QueryKey, CallAnalysisControllerGetCallsParams['nextId']>>, }
+ , queryClient?: QueryClient 
+ ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCallAnalysisControllerGetCallsInfiniteQueryOptions(params,options)
+
+  const query = useInfiniteQuery(queryOptions , queryClient) as  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
 export const getCallAnalysisControllerGetCallsQueryOptions = <TData = Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, TError = unknown>(params?: CallAnalysisControllerGetCallsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, TError, TData>>, }
 ) => {
 
@@ -535,6 +853,72 @@ export const getCallAnalysisControllerGetCallByIdQueryKey = (id: string,) => {
     }
 
     
+export const getCallAnalysisControllerGetCallByIdInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCallById>>>, TError = void>(id: string, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCallById>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCallAnalysisControllerGetCallByIdQueryKey(id);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof callAnalysisControllerGetCallById>>> = ({ signal }) => callAnalysisControllerGetCallById(id, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCallById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CallAnalysisControllerGetCallByIdInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof callAnalysisControllerGetCallById>>>
+export type CallAnalysisControllerGetCallByIdInfiniteQueryError = void
+
+
+export function useCallAnalysisControllerGetCallByIdInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCallById>>>, TError = void>(
+ id: string, options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCallById>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof callAnalysisControllerGetCallById>>,
+          TError,
+          Awaited<ReturnType<typeof callAnalysisControllerGetCallById>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCallAnalysisControllerGetCallByIdInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCallById>>>, TError = void>(
+ id: string, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCallById>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof callAnalysisControllerGetCallById>>,
+          TError,
+          Awaited<ReturnType<typeof callAnalysisControllerGetCallById>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCallAnalysisControllerGetCallByIdInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCallById>>>, TError = void>(
+ id: string, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCallById>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get a single call by ID
+ */
+
+export function useCallAnalysisControllerGetCallByIdInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCallById>>>, TError = void>(
+ id: string, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCallById>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCallAnalysisControllerGetCallByIdInfiniteQueryOptions(id,options)
+
+  const query = useInfiniteQuery(queryOptions , queryClient) as  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
 export const getCallAnalysisControllerGetCallByIdQueryOptions = <TData = Awaited<ReturnType<typeof callAnalysisControllerGetCallById>>, TError = void>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCallById>>, TError, TData>>, }
 ) => {
 
@@ -602,6 +986,69 @@ export function useCallAnalysisControllerGetCallById<TData = Awaited<ReturnType<
 
 
 
+/**
+ * @summary Queue a call for reprocessing
+ */
+export const callAnalysisControllerReprocessCall = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return axiosInstance<void>(
+      {url: `/api/v1/call-analysis/calls/${id}/reprocess`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getCallAnalysisControllerReprocessCallMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof callAnalysisControllerReprocessCall>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof callAnalysisControllerReprocessCall>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['callAnalysisControllerReprocessCall'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof callAnalysisControllerReprocessCall>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  callAnalysisControllerReprocessCall(id,)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CallAnalysisControllerReprocessCallMutationResult = NonNullable<Awaited<ReturnType<typeof callAnalysisControllerReprocessCall>>>
+    
+    export type CallAnalysisControllerReprocessCallMutationError = void
+
+    /**
+ * @summary Queue a call for reprocessing
+ */
+export const useCallAnalysisControllerReprocessCall = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof callAnalysisControllerReprocessCall>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof callAnalysisControllerReprocessCall>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+
+      const mutationOptions = getCallAnalysisControllerReprocessCallMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
 export const authControllerLogin = (
     
  signal?: AbortSignal
@@ -620,6 +1067,69 @@ export const getAuthControllerLoginQueryKey = () => {
     }
 
     
+export const getAuthControllerLoginInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof authControllerLogin>>>, TError = unknown>( options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerLogin>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAuthControllerLoginQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerLogin>>> = ({ signal }) => authControllerLogin(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerLogin>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AuthControllerLoginInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof authControllerLogin>>>
+export type AuthControllerLoginInfiniteQueryError = unknown
+
+
+export function useAuthControllerLoginInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerLogin>>>, TError = unknown>(
+  options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerLogin>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof authControllerLogin>>,
+          TError,
+          Awaited<ReturnType<typeof authControllerLogin>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAuthControllerLoginInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerLogin>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerLogin>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof authControllerLogin>>,
+          TError,
+          Awaited<ReturnType<typeof authControllerLogin>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAuthControllerLoginInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerLogin>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerLogin>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useAuthControllerLoginInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerLogin>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerLogin>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getAuthControllerLoginInfiniteQueryOptions(options)
+
+  const query = useInfiniteQuery(queryOptions , queryClient) as  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
 export const getAuthControllerLoginQueryOptions = <TData = Awaited<ReturnType<typeof authControllerLogin>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerLogin>>, TError, TData>>, }
 ) => {
 
@@ -703,6 +1213,69 @@ export const getAuthControllerCallbackQueryKey = (params: AuthControllerCallback
     }
 
     
+export const getAuthControllerCallbackInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof authControllerCallback>>, AuthControllerCallbackParams['nextId']>, TError = unknown>(params: AuthControllerCallbackParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerCallback>>, TError, TData, Awaited<ReturnType<typeof authControllerCallback>>, QueryKey, AuthControllerCallbackParams['nextId']>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAuthControllerCallbackQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerCallback>>, QueryKey, AuthControllerCallbackParams['nextId']> = ({ signal, pageParam }) => authControllerCallback({...params, 'nextId': pageParam || params?.['nextId']}, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerCallback>>, TError, TData, Awaited<ReturnType<typeof authControllerCallback>>, QueryKey, AuthControllerCallbackParams['nextId']> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AuthControllerCallbackInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof authControllerCallback>>>
+export type AuthControllerCallbackInfiniteQueryError = unknown
+
+
+export function useAuthControllerCallbackInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerCallback>>, AuthControllerCallbackParams['nextId']>, TError = unknown>(
+ params: AuthControllerCallbackParams, options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerCallback>>, TError, TData, Awaited<ReturnType<typeof authControllerCallback>>, QueryKey, AuthControllerCallbackParams['nextId']>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof authControllerCallback>>,
+          TError,
+          Awaited<ReturnType<typeof authControllerCallback>>, QueryKey
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAuthControllerCallbackInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerCallback>>, AuthControllerCallbackParams['nextId']>, TError = unknown>(
+ params: AuthControllerCallbackParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerCallback>>, TError, TData, Awaited<ReturnType<typeof authControllerCallback>>, QueryKey, AuthControllerCallbackParams['nextId']>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof authControllerCallback>>,
+          TError,
+          Awaited<ReturnType<typeof authControllerCallback>>, QueryKey
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAuthControllerCallbackInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerCallback>>, AuthControllerCallbackParams['nextId']>, TError = unknown>(
+ params: AuthControllerCallbackParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerCallback>>, TError, TData, Awaited<ReturnType<typeof authControllerCallback>>, QueryKey, AuthControllerCallbackParams['nextId']>>, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useAuthControllerCallbackInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerCallback>>, AuthControllerCallbackParams['nextId']>, TError = unknown>(
+ params: AuthControllerCallbackParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerCallback>>, TError, TData, Awaited<ReturnType<typeof authControllerCallback>>, QueryKey, AuthControllerCallbackParams['nextId']>>, }
+ , queryClient?: QueryClient 
+ ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getAuthControllerCallbackInfiniteQueryOptions(params,options)
+
+  const query = useInfiniteQuery(queryOptions , queryClient) as  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
 export const getAuthControllerCallbackQueryOptions = <TData = Awaited<ReturnType<typeof authControllerCallback>>, TError = unknown>(params: AuthControllerCallbackParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerCallback>>, TError, TData>>, }
 ) => {
 
@@ -785,6 +1358,69 @@ export const getAuthControllerGetProfileQueryKey = () => {
     }
 
     
+export const getAuthControllerGetProfileInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof authControllerGetProfile>>>, TError = unknown>( options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerGetProfile>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAuthControllerGetProfileQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerGetProfile>>> = ({ signal }) => authControllerGetProfile(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerGetProfile>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AuthControllerGetProfileInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof authControllerGetProfile>>>
+export type AuthControllerGetProfileInfiniteQueryError = unknown
+
+
+export function useAuthControllerGetProfileInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerGetProfile>>>, TError = unknown>(
+  options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerGetProfile>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof authControllerGetProfile>>,
+          TError,
+          Awaited<ReturnType<typeof authControllerGetProfile>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAuthControllerGetProfileInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerGetProfile>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerGetProfile>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof authControllerGetProfile>>,
+          TError,
+          Awaited<ReturnType<typeof authControllerGetProfile>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAuthControllerGetProfileInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerGetProfile>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerGetProfile>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useAuthControllerGetProfileInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerGetProfile>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerGetProfile>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getAuthControllerGetProfileInfiniteQueryOptions(options)
+
+  const query = useInfiniteQuery(queryOptions , queryClient) as  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
 export const getAuthControllerGetProfileQueryOptions = <TData = Awaited<ReturnType<typeof authControllerGetProfile>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGetProfile>>, TError, TData>>, }
 ) => {
 
@@ -906,35 +1542,103 @@ const {mutation: mutationOptions} = options ?
       return useMutation(mutationOptions , queryClient);
     }
     
+/**
+ * @summary Refresh access token using refresh token
+ */
 export const authControllerRefreshToken = (
-    refreshTokenRequestDto?: RefreshTokenRequestDto,
+    
  signal?: AbortSignal
 ) => {
       
       
       return axiosInstance<RefreshTokenResponseDto>(
-      {url: `/api/v1/auth/refresh`, method: 'GET',
-      headers: {'Content-Type': 'application/json', }, signal
+      {url: `/api/v1/auth/refresh`, method: 'GET', signal
     },
       );
     }
   
 
-export const getAuthControllerRefreshTokenQueryKey = (refreshTokenRequestDto?: RefreshTokenRequestDto,) => {
-    return [`/api/v1/auth/refresh`, refreshTokenRequestDto] as const;
+export const getAuthControllerRefreshTokenQueryKey = () => {
+    return [`/api/v1/auth/refresh`] as const;
     }
 
     
-export const getAuthControllerRefreshTokenQueryOptions = <TData = Awaited<ReturnType<typeof authControllerRefreshToken>>, TError = void>(refreshTokenRequestDto?: RefreshTokenRequestDto, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerRefreshToken>>, TError, TData>>, }
+export const getAuthControllerRefreshTokenInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof authControllerRefreshToken>>>, TError = void>( options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerRefreshToken>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getAuthControllerRefreshTokenQueryKey(refreshTokenRequestDto);
+  const queryKey =  queryOptions?.queryKey ?? getAuthControllerRefreshTokenQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerRefreshToken>>> = ({ signal }) => authControllerRefreshToken(refreshTokenRequestDto, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerRefreshToken>>> = ({ signal }) => authControllerRefreshToken(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerRefreshToken>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AuthControllerRefreshTokenInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof authControllerRefreshToken>>>
+export type AuthControllerRefreshTokenInfiniteQueryError = void
+
+
+export function useAuthControllerRefreshTokenInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerRefreshToken>>>, TError = void>(
+  options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerRefreshToken>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof authControllerRefreshToken>>,
+          TError,
+          Awaited<ReturnType<typeof authControllerRefreshToken>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAuthControllerRefreshTokenInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerRefreshToken>>>, TError = void>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerRefreshToken>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof authControllerRefreshToken>>,
+          TError,
+          Awaited<ReturnType<typeof authControllerRefreshToken>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAuthControllerRefreshTokenInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerRefreshToken>>>, TError = void>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerRefreshToken>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Refresh access token using refresh token
+ */
+
+export function useAuthControllerRefreshTokenInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerRefreshToken>>>, TError = void>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerRefreshToken>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getAuthControllerRefreshTokenInfiniteQueryOptions(options)
+
+  const query = useInfiniteQuery(queryOptions , queryClient) as  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+export const getAuthControllerRefreshTokenQueryOptions = <TData = Awaited<ReturnType<typeof authControllerRefreshToken>>, TError = void>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerRefreshToken>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAuthControllerRefreshTokenQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerRefreshToken>>> = ({ signal }) => authControllerRefreshToken(signal);
 
       
 
@@ -948,7 +1652,7 @@ export type AuthControllerRefreshTokenQueryError = void
 
 
 export function useAuthControllerRefreshToken<TData = Awaited<ReturnType<typeof authControllerRefreshToken>>, TError = void>(
- refreshTokenRequestDto: undefined |  RefreshTokenRequestDto, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerRefreshToken>>, TError, TData>> & Pick<
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerRefreshToken>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof authControllerRefreshToken>>,
           TError,
@@ -958,7 +1662,7 @@ export function useAuthControllerRefreshToken<TData = Awaited<ReturnType<typeof 
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAuthControllerRefreshToken<TData = Awaited<ReturnType<typeof authControllerRefreshToken>>, TError = void>(
- refreshTokenRequestDto?: RefreshTokenRequestDto, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerRefreshToken>>, TError, TData>> & Pick<
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerRefreshToken>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof authControllerRefreshToken>>,
           TError,
@@ -968,16 +1672,19 @@ export function useAuthControllerRefreshToken<TData = Awaited<ReturnType<typeof 
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAuthControllerRefreshToken<TData = Awaited<ReturnType<typeof authControllerRefreshToken>>, TError = void>(
- refreshTokenRequestDto?: RefreshTokenRequestDto, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerRefreshToken>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerRefreshToken>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Refresh access token using refresh token
+ */
 
 export function useAuthControllerRefreshToken<TData = Awaited<ReturnType<typeof authControllerRefreshToken>>, TError = void>(
- refreshTokenRequestDto?: RefreshTokenRequestDto, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerRefreshToken>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerRefreshToken>>, TError, TData>>, }
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getAuthControllerRefreshTokenQueryOptions(refreshTokenRequestDto,options)
+  const queryOptions = getAuthControllerRefreshTokenQueryOptions(options)
 
   const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

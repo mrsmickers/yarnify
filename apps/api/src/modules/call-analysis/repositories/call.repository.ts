@@ -56,6 +56,7 @@ export class CallRepository {
       include: {
         analysis: true, // Include related CallAnalysis
         company: true, // Include related Company
+        Agents: true, // Include related Agent
       },
     });
   }

@@ -7,6 +7,8 @@ import {
   Param,
   NotFoundException,
   UseGuards,
+  Post, // Added Post
+  HttpCode, // Added HttpCode
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CallAnalysisService } from './call-analysis.service';
@@ -58,5 +60,22 @@ export class CallAnalysisController {
       throw new NotFoundException(`Call with ID ${id} not found`);
     }
     return call;
+  }
+
+  @Post('calls/:id/reprocess')
+  @HttpCode(202) // Accepted
+  @ApiOperation({ summary: 'Queue a call for reprocessing' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the call to reprocess',
+    type: String,
+  })
+  @ApiResponse({
+    status: 202,
+    description: 'Call has been queued for reprocessing.',
+  })
+  @ApiResponse({ status: 404, description: 'Call not found.' })
+  async reprocessCall(@Param('id') id: string): Promise<{ message: string }> {
+    return this.callAnalysisService.reprocessCall(id);
   }
 }

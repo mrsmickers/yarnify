@@ -1,11 +1,21 @@
 import { useParams, Link } from 'react-router-dom'
 import React, { useRef, useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useCallAnalysisControllerGetCallById } from '@/api/api-client'
+import {
+  useCallAnalysisControllerGetCallById,
+  useCallAnalysisControllerReprocessCall,
+  getCallAnalysisControllerGetCallByIdQueryKey, // Added
+  getCallAnalysisControllerGetCallsQueryKey, // Added
+} from '@/api/api-client'
 import { motion } from 'framer-motion'
+import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
+import type { AxiosError } from 'axios'
+import { useQueryClient } from '@tanstack/react-query' // Added
 
 const CallDetailPage = () => {
   const { callId } = useParams<{ callId: string }>()
+  const queryClient = useQueryClient() // Added
   const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [duration, setDuration] = useState(0)
@@ -16,12 +26,56 @@ const CallDetailPage = () => {
     isLoading: loading,
     error: queryError,
   } = useCallAnalysisControllerGetCallById(callId!, {
-    query: { enabled: !!callId },
+    query: {
+      enabled: !!callId,
+      refetchInterval: 10000, // Refetch every 10 seconds
+    },
   })
 
   const errorMessage = queryError
     ? (queryError as Error)?.message || 'Failed to fetch call details'
     : null
+
+  const reprocessMutation = useCallAnalysisControllerReprocessCall<
+    void, // Orval types 202/204 responses as void
+    AxiosError<{ message?: string }> // For error handling
+  >()
+
+  const failedStatuses = ['TRANSCRIPTION_FAILED', 'ANALYSIS_FAILED', 'FAILED'] // Define failed statuses
+
+  const handleReprocess = async () => {
+    if (!callId) return
+    toast.promise(
+      reprocessMutation.mutateAsync({ id: callId }), // This promise resolves to void as per Orval's typing for 202
+      {
+        loading: `Requesting reprocessing for call ${callId}...`,
+        success: () => {
+          // Since the promise resolves to void, the 'data' argument here would be undefined.
+          // We provide a generic success message.
+          // To get the actual message from the backend, one would typically expect
+          // the API client to be generated to return the actual response body,
+          // or handle this in a global response interceptor for axiosInstance.
+          // For now, a generic message is the most type-safe approach given the generated types.
+          if (callId) {
+            queryClient.invalidateQueries({
+              queryKey: getCallAnalysisControllerGetCallByIdQueryKey(callId),
+            })
+          }
+          queryClient.invalidateQueries({
+            queryKey: getCallAnalysisControllerGetCallsQueryKey(), // Invalidate list for dashboard
+          })
+          return `Call ${callId} has been queued for reprocessing.`
+        },
+        error: (err: AxiosError<{ message?: string }>) => {
+          return (
+            err.response?.data?.message ||
+            err.message ||
+            `Failed to reprocess call ${callId}. Please try again.`
+          )
+        },
+      }
+    )
+  }
 
   useEffect(() => {
     const audio = audioRef.current
@@ -170,6 +224,22 @@ const CallDetailPage = () => {
                     {callDetails.id}
                   </code>
                 </div>
+                {callDetails.callStatus &&
+                  failedStatuses.includes(
+                    callDetails.callStatus.toUpperCase()
+                  ) && (
+                    <Button
+                      onClick={handleReprocess}
+                      variant="outline"
+                      size="sm"
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white mt-2 sm:mt-0"
+                      disabled={reprocessMutation.isPending}
+                    >
+                      {reprocessMutation.isPending
+                        ? 'Reprocessing...'
+                        : 'Reprocess Call'}
+                    </Button>
+                  )}
               </div>
             </CardHeader>
 
@@ -250,6 +320,14 @@ const CallDetailPage = () => {
                       </span>
                       <span className="text-gray-700">
                         {displayCompany || 'N/A'}
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-gray-500">
+                        Agent Name
+                      </span>
+                      <span className="text-gray-700">
+                        {String(callDetails.agentName ?? 'N/A')}
                       </span>
                     </div>
                   </div>
@@ -364,14 +442,6 @@ const CallDetailPage = () => {
                         </div>
                         <div className="text-lg text-gray-700">
                           {String(callDetails.analysis.customer_mood ?? 'N/A')}
-                        </div>
-                      </div>
-                      <div className="bg-gray-50 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
-                        <div className="text-sm font-medium text-gray-500 mb-1">
-                          Agent Name
-                        </div>
-                        <div className="text-lg text-gray-700">
-                          {String(callDetails.agentName ?? 'N/A')}
                         </div>
                       </div>
                       <div className="bg-gray-50 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
