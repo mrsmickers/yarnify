@@ -6,7 +6,7 @@ import type { CallResponseDto } from '@/api/api-client'
 import { useEffect, useState } from 'react'
 import { DataTable } from '@/components/ui/data-table'
 import type { ColumnDef } from '@tanstack/react-table'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -31,6 +31,7 @@ interface TransformedCallLog {
 }
 
 const VoipDashboardPage = () => {
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [stats, setStats] = useState<CallStat[]>([])
   const [callLogs, setCallLogs] = useState<TransformedCallLog[]>([])
@@ -65,13 +66,11 @@ const VoipDashboardPage = () => {
         (call: CallResponseDto): TransformedCallLog => {
           const analysisData = call.analysis || {}
           const sentiment =
-            (analysisData.overall_sentiment as TransformedCallLog['sentiment']) ||
+            (analysisData.sentiment as TransformedCallLog['sentiment']) ||
             'Unknown'
-          const mood = (analysisData.customer_mood as string) || 'N/A'
-          const aiConfidence = (analysisData.ai_confidence_score as string)
-            ? `${parseFloat(analysisData.ai_confidence_score as string).toFixed(
-                0
-              )}%`
+          const mood = (analysisData.mood as string) || 'N/A'
+          const aiConfidence = (analysisData.confidence_level as string)
+            ? `${analysisData.confidence_level}`
             : 'N/A'
           const companyName =
             typeof call === 'object' && 'companyName' in call
@@ -101,17 +100,23 @@ const VoipDashboardPage = () => {
 
       calls.forEach((call: CallResponseDto) => {
         // Added type for call parameter
-        const sentiment = (
-          call.analysis?.overall_sentiment as string
-        )?.toLowerCase()
+        const sentiment = (call.analysis?.sentiment as string)?.toLowerCase()
         if (sentiment === 'positive') positiveSentiments++
         if (sentiment === 'negative') negativeSentiments++
 
-        const confidence = parseFloat(
-          call.analysis?.ai_confidence_score as string
-        )
-        if (!isNaN(confidence)) {
-          totalConfidenceScore += confidence
+        const confidence = call.analysis?.confidence_level as string
+        if (confidence) {
+          switch (confidence) {
+            case 'High':
+              totalConfidenceScore += 100
+              break
+            case 'Medium':
+              totalConfidenceScore += 50
+              break
+            case 'Low':
+              totalConfidenceScore += 25
+              break
+          }
           callsWithConfidence++
         }
       })
@@ -254,10 +259,12 @@ const VoipDashboardPage = () => {
         return (
           <Badge
             variant={
-              parseFloat(confidence) >= 80
+              confidence === 'High'
                 ? 'default'
-                : parseFloat(confidence) >= 60
+                : confidence === 'Medium'
                 ? 'secondary'
+                : confidence === 'Low'
+                ? 'destructive'
                 : 'outline'
             }
           >
@@ -276,7 +283,7 @@ const VoipDashboardPage = () => {
             <Link
               to={`/calls/${call.id}`}
               className={buttonVariants({
-                variant: getMoreButtonVariant(call.sentiment),
+                variant: 'secondary',
                 size: 'sm',
               })}
             >
@@ -418,6 +425,9 @@ const VoipDashboardPage = () => {
                 pageIndex={pageIndex}
                 onPageChange={setPageIndex}
                 onPageSizeChange={setPageSize}
+                onRowClick={(row) => {
+                  navigate(`/calls/${row.id}`)
+                }}
               />
             </motion.div>
           )}
