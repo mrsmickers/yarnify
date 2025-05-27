@@ -86,8 +86,10 @@ export class CallProcessingConsumer extends WorkerHost {
         );
 
       // Fetch internal extension name if available
-      const { callername_internal: internalExtensionName } =
-        await this.callRecordingService.getExtension(internalExtensionNumber);
+      const extensionInfo = await this.callRecordingService.getExtension(
+        internalExtensionNumber,
+      );
+      const internalExtensionName = extensionInfo?.callername_internal || null;
 
       // Handle Agent - check if agent exists, if not create it
       let agentEntity: Agent | null = null;

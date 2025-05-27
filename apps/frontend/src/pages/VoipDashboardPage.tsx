@@ -55,7 +55,9 @@ const VoipDashboardPage = () => {
 
   useEffect(() => {
     if (paginatedCallsData?.data) {
-      const calls = paginatedCallsData.data
+      const calls = paginatedCallsData.data.filter(
+        (call: CallResponseDto) => call.callStatus !== 'INTERNAL_CALL_SKIPPED'
+      )
 
       // Transform calls for the log
       const transformedLogs: TransformedCallLog[] = calls.map(

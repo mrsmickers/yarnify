@@ -9,6 +9,7 @@ import {
   Req,
   HttpStatus,
   Logger, // Import Logger
+  HttpException, // Import HttpException
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { StorageService } from './storage.service';
@@ -46,20 +47,33 @@ export class StorageController {
   ): Promise<StreamableFile> {
     const call = await this.callRepository.findById(callId);
     if (!call || !call.recordingUrl) {
+      this.logger.warn(`Recording not found for call ID: ${callId}`);
       throw new NotFoundException('Call recording not found');
     }
 
     const fileName = path.basename(call.recordingUrl);
-    const buffer = await this.storageService.getFile(
-      `call-recordings/${fileName}`,
-    );
+    const filePath = `call-recordings/${fileName}`;
+    this.logger.log(`Attempting to download recording: ${filePath}`);
 
-    // Set Content-Disposition to attachment to force download
-    response.set({
-      'Content-Disposition': `attachment; filename="${fileName}"`,
-    });
+    try {
+      const buffer = await this.storageService.getFile(filePath);
 
-    return new StreamableFile(buffer);
+      response.set({
+        'Content-Disposition': `attachment; filename=\"${fileName}\"`,
+      });
+      this.logger.log(
+        `Successfully prepared recording ${fileName} for download.`,
+      );
+      return new StreamableFile(buffer);
+    } catch (error) {
+      this.logger.error(
+        `Failed to get recording ${filePath} for call ${callId}: ${error.message}`,
+      );
+      if (error.statusCode === 404) {
+        throw new NotFoundException('Recording file not found in storage.');
+      }
+      throw error;
+    }
   }
 
   @Get('recordings/stream/:callId')
@@ -89,66 +103,133 @@ export class StorageController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ): Promise<StreamableFile> {
+    this.logger.log(
+      `Stream request for call ID: ${callId}, Range: ${
+        request.headers.range || 'None'
+      }`,
+    );
     const call = await this.callRepository.findById(callId);
     if (!call || !call.recordingUrl) {
+      this.logger.warn(
+        `Recording not found for call ID: ${callId} during stream request.`,
+      );
       throw new NotFoundException('Call recording not found');
     }
 
     const fileName = path.basename(call.recordingUrl);
     const filePath = `call-recordings/${fileName}`;
+    this.logger.log(`Streaming recording from path: ${filePath}`);
 
     const fileStats = await this.storageService.getFileStats(filePath);
-    if (!fileStats) {
-      throw new NotFoundException('Recording file stats not found');
+    if (!fileStats || fileStats.contentLength === undefined) {
+      this.logger.error(
+        `File stats not found or content length undefined for ${filePath}.`,
+      );
+      throw new NotFoundException(
+        'Recording file stats not found or incomplete.',
+      );
     }
     const fileSize = fileStats.contentLength;
+    this.logger.log(`File size for ${filePath}: ${fileSize} bytes.`);
 
     response.setHeader('Content-Type', 'audio/mpeg');
     response.setHeader('Accept-Ranges', 'bytes');
-    response.setHeader('Content-Disposition', 'inline');
+    response.setHeader('Content-Disposition', 'inline'); // Suggest inline playback
 
     const range = request.headers.range;
 
     if (range) {
+      this.logger.log(`Processing range request: ${range}`);
       const parts = range.replace(/bytes=/, '').split('-');
-      const start = parseInt(parts[0], 10);
-      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+      const startString = parts[0];
+      const endString = parts[1];
 
-      if (start >= fileSize || end >= fileSize || start > end) {
-        response.status(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
+      if (!startString && !endString) {
+        this.logger.warn(
+          `Invalid range header (both start and end missing): ${range}`,
+        );
+        throw new HttpException(
+          'Invalid Range header',
+          HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE,
+        );
+      }
+
+      const start = parseInt(startString, 10);
+      let end = endString ? parseInt(endString, 10) : fileSize - 1;
+
+      if (
+        isNaN(start) ||
+        (endString && isNaN(end)) ||
+        start < 0 ||
+        end < 0 ||
+        start > end ||
+        start >= fileSize
+      ) {
+        this.logger.warn(
+          `Invalid range: start=${start}, end=${end}, fileSize=${fileSize}. Header: ${range}`,
+        );
         response.setHeader('Content-Range', `bytes */${fileSize}`);
-        // Return an empty streamable file or handle error appropriately
-        // For now, we'll let it fall through, but ideally, we'd throw or return nothing.
-        // However, NestJS passthrough means we must return a StreamableFile or throw.
-        // Let's throw an error that the frontend won't try to play.
-        // This case should be rare if the browser behaves.
-        throw new NotFoundException('Invalid range requested.');
+        throw new HttpException(
+          'Requested range not satisfiable',
+          HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE,
+        );
+      }
+
+      // Ensure end does not exceed fileSize - 1
+      if (end >= fileSize) {
+        end = fileSize - 1;
       }
 
       const chunksize = end - start + 1;
-
-      // Assuming storageService.getStreamableFileRange returns a StreamableFile
-      // This method needs to be implemented in StorageService
-      const fileStream = await this.storageService.getStreamableFileRange(
-        filePath,
-        start,
-        end,
+      this.logger.log(
+        `Serving range: bytes ${start}-${end}/${fileSize}, chunksize: ${chunksize}`,
       );
 
-      response.status(HttpStatus.PARTIAL_CONTENT);
-      response.setHeader('Content-Range', `bytes ${start}-${end}/${fileSize}`);
-      response.setHeader('Content-Length', chunksize.toString());
-
-      return fileStream; // This should be a StreamableFile from the service
+      try {
+        const fileStream = await this.storageService.getStreamableFileRange(
+          filePath,
+          start,
+          end,
+        );
+        response.status(HttpStatus.PARTIAL_CONTENT);
+        response.setHeader(
+          'Content-Range',
+          `bytes ${start}-${end}/${fileSize}`,
+        );
+        response.setHeader('Content-Length', chunksize.toString());
+        this.logger.log(`Returning partial content stream for ${filePath}.`);
+        return fileStream;
+      } catch (error) {
+        this.logger.error(
+          `Error streaming range ${start}-${end} for ${filePath}: ${error.message}`,
+        );
+        if (error.statusCode === 404) {
+          throw new NotFoundException(
+            'Recording file not found in storage for range request.',
+          );
+        }
+        throw error;
+      }
     } else {
-      // No range requested, send the whole file
+      this.logger.log(`Serving full file request for ${filePath}.`);
       response.setHeader('Content-Length', fileSize.toString());
-      // Assuming storageService.getStreamableFile returns a StreamableFile of the whole file
-      // This might need adjustment if getFile returns a buffer
-      const fullFileStream = await this.storageService.getStreamableFile(
-        filePath,
-      );
-      return fullFileStream; // This should be a StreamableFile from the service
+      try {
+        const fullFileStream = await this.storageService.getStreamableFile(
+          filePath,
+        );
+        this.logger.log(`Returning full file stream for ${filePath}.`);
+        return fullFileStream;
+      } catch (error) {
+        this.logger.error(
+          `Error streaming full file ${filePath}: ${error.message}`,
+        );
+        if (error.statusCode === 404) {
+          throw new NotFoundException(
+            'Recording file not found in storage for full file request.',
+          );
+        }
+        throw error;
+      }
     }
   }
 

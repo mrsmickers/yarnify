@@ -3,22 +3,13 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { experimental_transcribe as transcribe } from 'ai';
-import { openai } from '@ai-sdk/openai'; // Ensure OPENAI_API_KEY is set in .env
+import { OpenAIService } from '../openai/openai.service';
 
 @Injectable()
 export class TranscriptionService {
   private readonly logger = new Logger(TranscriptionService.name);
 
-  constructor() {
-    if (!process.env.OPENAI_API_KEY) {
-      this.logger.warn(
-        'OPENAI_API_KEY is not set. Transcription will likely fail.',
-      );
-      // Depending on strictness, you might throw an error here
-      // throw new InternalServerErrorException('OPENAI_API_KEY environment variable must be set');
-    }
-  }
+  constructor(private readonly openaiService: OpenAIService) {}
 
   async transcribeAudio(
     base64: string,
@@ -31,22 +22,21 @@ export class TranscriptionService {
       }`,
     );
     try {
-      const { text } = await transcribe({
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        model: openai.transcription(modelName as any),
-        audio: base64,
-        providerOptions: {
-          openai: {
-            timestampGranularities: ['word'],
-          },
-        },
-        // TODO: Potentially use mimeType if the SDK/API supports it
-        // For example, some APIs might take a `contentType` parameter.
-        // OpenAI's API usually infers from common audio formats.
+      // Convert base64 to buffer for OpenAI API
+      const audioBuffer = Buffer.from(base64, 'base64');
+
+      // Create a File-like object from the buffer
+      const audioFile = new File([audioBuffer], 'audio.wav', {
+        type: mimeType || 'audio/wav',
       });
 
+      const transcription = await this.openaiService.transcribeAudio(
+        audioFile,
+        modelName,
+      );
+
       this.logger.log('Transcription successful.');
-      return text;
+      return transcription.text;
     } catch (error) {
       this.logger.error(
         `Error during transcription: ${error.message}`,

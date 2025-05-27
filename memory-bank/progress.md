@@ -7,6 +7,7 @@ This file tracks the project's progress using a task list format.
 
 ## Completed Tasks
 
+*   [2025-05-27 21:51:29] - Attempted to fix "No object generated: response did not match schema" error by clarifying LLM instructions in [`apps/api/src/modules/call-analysis/prompt.ts`](apps/api/src/modules/call-analysis/prompt.ts:46) regarding enum value handling.
 *   [2025-05-27 16:44:16] - Configured call data in [`VoipDashboardPage.tsx`](apps/frontend/src/pages/VoipDashboardPage.tsx:53:1) to refetch every 10 seconds.
 *   [2025-05-27 10:52:44] - Updated [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:324) to show agent name in general info, ensuring visibility even if analysis fails.
 *   [2025-05-27 07:29:12] - Fixed agent name display on call details page ([`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:247:1)) to show agent name from the call data (`callDetails.agentName`) instead of from the analysis data.

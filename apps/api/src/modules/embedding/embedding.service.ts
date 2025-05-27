@@ -1,24 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import OpenAI from 'openai';
+import { OpenAIService } from '../openai/openai.service';
 
 @Injectable()
 export class EmbeddingService {
   private readonly logger = new Logger(EmbeddingService.name);
-  private openai: OpenAI;
 
-  constructor(private readonly configService: ConfigService) {
-    const apiKey = this.configService.get<string>('OPENAI_API_KEY');
-    if (!apiKey) {
-      this.logger.error('OPENAI_API_KEY is not configured.');
-      throw new Error('OPENAI_API_KEY is not configured.');
-    }
-    this.openai = new OpenAI({ apiKey });
-  }
+  constructor(private readonly openaiService: OpenAIService) {}
 
   async generateEmbedding(
     textChunk: string,
-    model = 'text-embedding-ada-002',
+    model = 'text-embedding-3-small',
   ): Promise<number[]> {
     if (!textChunk || textChunk.trim() === '') {
       this.logger.warn('Attempted to generate embedding for empty text.');
@@ -34,18 +25,15 @@ export class EmbeddingService {
           50,
         )}..." using model ${model}`,
       );
-      const response = await this.openai.embeddings.create({
-        model: model,
-        input: textChunk.replace(/\n/g, ' '), // OpenAI recommends replacing newlines
-      });
 
-      if (
-        response.data &&
-        response.data.length > 0 &&
-        response.data[0].embedding
-      ) {
+      const embeddings = await this.openaiService.createEmbeddings(
+        textChunk.replace(/\n/g, ' '), // OpenAI recommends replacing newlines
+        model,
+      );
+
+      if (embeddings && embeddings.length > 0 && embeddings[0].embedding) {
         this.logger.debug(`Successfully generated embedding for chunk.`);
-        return response.data[0].embedding;
+        return embeddings[0].embedding;
       } else {
         this.logger.error('OpenAI API returned no embedding data.');
         throw new Error('Failed to generate embedding: No data returned.');

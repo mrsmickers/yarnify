@@ -3,6 +3,14 @@
 This file records architectural and implementation decisions using a list format.
 2025-05-24 12:05:05 - Log of updates made.
 
+*   [2025-05-27 21:51:29] - Clarified LLM instructions for handling enum values in call analysis.
+    ## Decision
+    *   Updated the system prompt in [`apps/api/src/modules/call-analysis/prompt.ts`](apps/api/src/modules/call-analysis/prompt.ts:46) to provide more specific guidance on how to handle undetermined or unclear values for enum fields when generating the `callAnalysisSchema` object.
+    ## Rationale
+    *   The "AI_NoObjectGeneratedError: No object generated: response did not match schema" error was likely caused by the LLM attempting to use the string "undetermined" for enum fields where it was not a valid option. The previous instruction was ambiguous.
+    *   The new instruction explicitly states that for string fields, "undetermined" can be used. For enum fields, one of the *defined* enum values for that specific field *must* be used. It guides the LLM to select neutral/default valid enum options if information is unclear, and restricts the use of "undetermined" to only the `upsell_opportunity` enum where it is explicitly allowed.
+    ## Implementation Details
+    *   Modified the instruction text on line 46 of [`apps/api/src/modules/call-analysis/prompt.ts`](apps/api/src/modules/call-analysis/prompt.ts:46).
 *   [2025-05-27 16:44:16] - Configured periodic data refetching in VoIP Dashboard.
     ## Decision
     *   Updated [`VoipDashboardPage.tsx`](apps/frontend/src/pages/VoipDashboardPage.tsx:53:1) to refetch call data every 10 seconds.

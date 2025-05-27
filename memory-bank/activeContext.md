@@ -12,6 +12,7 @@ This file tracks the project's current status, including recent changes, current
 
 ## Recent Changes
 
+*   [2025-05-27 21:51:29] - Updated instructions in [`apps/api/src/modules/call-analysis/prompt.ts`](apps/api/src/modules/call-analysis/prompt.ts:46) to clarify handling of undetermined enum values, aiming to resolve "No object generated: response did not match schema" errors.
 *   [2025-05-27 16:44:16] - Configured call data in [`VoipDashboardPage.tsx`](apps/frontend/src/pages/VoipDashboardPage.tsx:53:1) to refetch every 10 seconds by adding `refetchInterval: 10000` to the `useCallAnalysisControllerGetCalls` hook options.
 *   [2025-05-27 10:52:44] - Moved agent name display in [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:324) to the general information section to ensure it's visible even if call analysis fails.
 *   [2025-05-27 07:29:12] - Updated agent name display on [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:247:1) to use `callDetails.agentName` instead of `callDetails.analysis.agent_name`.
@@ -63,7 +64,7 @@ This file tracks the project's current status, including recent changes, current
 ## Open Questions/Issues
 
 *   User needs to run `pnpm --filter api exec prisma generate` after schema modifications for optional `companyId` fields are applied by Code mode.
-*   Verify that the `getCallRecordingTranscription` tool is now being called and that the "No object generated: response did not match schema" error is resolved.
+*   Verify that the "No object generated: response did not match schema" error is resolved after clarifying instructions in [`apps/api/src/modules/call-analysis/prompt.ts`](apps/api/src/modules/call-analysis/prompt.ts:46).
 *   User needs to configure `DATABASE_URL`.
 *   User needs to add `AZURE_STORAGE_CONNECTION_STRING` and `AZURE_STORAGE_CONTAINER_NAME` to `apps/api/.env`.
 *   The TypeScript error regarding `BlobServiceClient.fromConnectionString` in `apps/api/src/storage/storage.service.ts` (line 28) still needs to be monitored/resolved by the user if it persists after IDE/TS server restart.
