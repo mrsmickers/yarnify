@@ -3,6 +3,13 @@
 This file records architectural and implementation decisions using a list format.
 2025-05-24 12:05:05 - Log of updates made.
 
+*   [2025-05-27 16:44:16] - Configured periodic data refetching in VoIP Dashboard.
+    ## Decision
+    *   Updated [`VoipDashboardPage.tsx`](apps/frontend/src/pages/VoipDashboardPage.tsx:53:1) to refetch call data every 10 seconds.
+    ## Rationale
+    *   Ensures the dashboard displays near real-time call data, providing users with the most up-to-date information.
+    ## Implementation Details
+    *   Added `refetchInterval: 10000` to the query options of the `useCallAnalysisControllerGetCalls` hook.
 *   [2025-05-27 10:52:44] - Moved agent name display in CallDetailPage.tsx to general info.
     ## Decision
     *   Relocated the "Agent Name" display block from the `callDetails.analysis` conditional section to the "General Information" section in [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:324).

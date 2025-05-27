@@ -12,6 +12,7 @@ This file tracks the project's current status, including recent changes, current
 
 ## Recent Changes
 
+*   [2025-05-27 16:44:16] - Configured call data in [`VoipDashboardPage.tsx`](apps/frontend/src/pages/VoipDashboardPage.tsx:53:1) to refetch every 10 seconds by adding `refetchInterval: 10000` to the `useCallAnalysisControllerGetCalls` hook options.
 *   [2025-05-27 10:52:44] - Moved agent name display in [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:324) to the general information section to ensure it's visible even if call analysis fails.
 *   [2025-05-27 07:29:12] - Updated agent name display on [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:247:1) to use `callDetails.agentName` instead of `callDetails.analysis.agent_name`.
 *   [2025-05-27 07:22:54] - Reverted `ServeStaticModule` `exclude` option in [`apps/api/src/app.module.ts`](apps/api/src/app.module.ts:49:1) to `['/api/**']` to fix TypeScript error and attempt to resolve `path-to-regexp` error with a different glob pattern.

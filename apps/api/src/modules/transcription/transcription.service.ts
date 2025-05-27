@@ -35,6 +35,11 @@ export class TranscriptionService {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         model: openai.transcription(modelName as any),
         audio: base64,
+        providerOptions: {
+          openai: {
+            timestampGranularities: ['word'],
+          },
+        },
         // TODO: Potentially use mimeType if the SDK/API supports it
         // For example, some APIs might take a `contentType` parameter.
         // OpenAI's API usually infers from common audio formats.

@@ -50,7 +50,7 @@ const VoipDashboardPage = () => {
     error,
   } = useCallAnalysisControllerGetCalls(
     { page: pageIndex + 1, limit: pageSize },
-    { query: { staleTime: 5 * 60 * 1000 } }
+    { query: { staleTime: 5 * 60 * 1000, refetchInterval: 10000 } }
   )
 
   useEffect(() => {
