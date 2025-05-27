@@ -200,21 +200,6 @@ const VoipDashboardPage = () => {
     }
   }
 
-  const getMoreButtonVariant = (
-    sentiment: TransformedCallLog['sentiment']
-  ): 'default' | 'destructive' | 'outline' | 'secondary' => {
-    switch (sentiment) {
-      case 'Positive':
-        return 'default'
-      case 'Negative':
-        return 'destructive'
-      case 'Neutral':
-        return 'outline'
-      default: // For "Unknown"
-        return 'secondary'
-    }
-  }
-
   const columns: ColumnDef<TransformedCallLog>[] = [
     {
       accessorKey: 'date',
