@@ -13,7 +13,6 @@ export default defineConfig({
           usePrefetch: false,
           useQuery: true,
           useInfinite: true,
-          useInfiniteQueryParam: 'nextId',
           signal: true,
         },
       },

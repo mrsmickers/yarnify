@@ -699,7 +699,7 @@ export const getCallAnalysisControllerGetCallsQueryKey = (params?: CallAnalysisC
     }
 
     
-export const getCallAnalysisControllerGetCallsInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, CallAnalysisControllerGetCallsParams['nextId']>, TError = unknown>(params?: CallAnalysisControllerGetCallsParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, TError, TData, Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, QueryKey, CallAnalysisControllerGetCallsParams['nextId']>>, }
+export const getCallAnalysisControllerGetCallsInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>>, TError = unknown>(params?: CallAnalysisControllerGetCallsParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
@@ -708,49 +708,49 @@ const {query: queryOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, QueryKey, CallAnalysisControllerGetCallsParams['nextId']> = ({ signal, pageParam }) => callAnalysisControllerGetCalls({...params, 'nextId': pageParam || params?.['nextId']}, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>> = ({ signal }) => callAnalysisControllerGetCalls(params, signal);
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, TError, TData, Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, QueryKey, CallAnalysisControllerGetCallsParams['nextId']> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
 export type CallAnalysisControllerGetCallsInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>>
 export type CallAnalysisControllerGetCallsInfiniteQueryError = unknown
 
 
-export function useCallAnalysisControllerGetCallsInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, CallAnalysisControllerGetCallsParams['nextId']>, TError = unknown>(
- params: undefined |  CallAnalysisControllerGetCallsParams, options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, TError, TData, Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, QueryKey, CallAnalysisControllerGetCallsParams['nextId']>> & Pick<
+export function useCallAnalysisControllerGetCallsInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>>, TError = unknown>(
+ params: undefined |  CallAnalysisControllerGetCallsParams, options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>,
           TError,
-          Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, QueryKey
+          Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useCallAnalysisControllerGetCallsInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, CallAnalysisControllerGetCallsParams['nextId']>, TError = unknown>(
- params?: CallAnalysisControllerGetCallsParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, TError, TData, Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, QueryKey, CallAnalysisControllerGetCallsParams['nextId']>> & Pick<
+export function useCallAnalysisControllerGetCallsInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>>, TError = unknown>(
+ params?: CallAnalysisControllerGetCallsParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>,
           TError,
-          Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, QueryKey
+          Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useCallAnalysisControllerGetCallsInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, CallAnalysisControllerGetCallsParams['nextId']>, TError = unknown>(
- params?: CallAnalysisControllerGetCallsParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, TError, TData, Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, QueryKey, CallAnalysisControllerGetCallsParams['nextId']>>, }
+export function useCallAnalysisControllerGetCallsInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>>, TError = unknown>(
+ params?: CallAnalysisControllerGetCallsParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get a paginated list of calls with optional filters
  */
 
-export function useCallAnalysisControllerGetCallsInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, CallAnalysisControllerGetCallsParams['nextId']>, TError = unknown>(
- params?: CallAnalysisControllerGetCallsParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, TError, TData, Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, QueryKey, CallAnalysisControllerGetCallsParams['nextId']>>, }
+export function useCallAnalysisControllerGetCallsInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>>, TError = unknown>(
+ params?: CallAnalysisControllerGetCallsParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCalls>>, TError, TData>>, }
  , queryClient?: QueryClient 
  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -1213,7 +1213,7 @@ export const getAuthControllerCallbackQueryKey = (params: AuthControllerCallback
     }
 
     
-export const getAuthControllerCallbackInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof authControllerCallback>>, AuthControllerCallbackParams['nextId']>, TError = unknown>(params: AuthControllerCallbackParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerCallback>>, TError, TData, Awaited<ReturnType<typeof authControllerCallback>>, QueryKey, AuthControllerCallbackParams['nextId']>>, }
+export const getAuthControllerCallbackInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof authControllerCallback>>>, TError = unknown>(params: AuthControllerCallbackParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerCallback>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
@@ -1222,46 +1222,46 @@ const {query: queryOptions} = options ?? {};
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerCallback>>, QueryKey, AuthControllerCallbackParams['nextId']> = ({ signal, pageParam }) => authControllerCallback({...params, 'nextId': pageParam || params?.['nextId']}, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerCallback>>> = ({ signal }) => authControllerCallback(params, signal);
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerCallback>>, TError, TData, Awaited<ReturnType<typeof authControllerCallback>>, QueryKey, AuthControllerCallbackParams['nextId']> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerCallback>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
 export type AuthControllerCallbackInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof authControllerCallback>>>
 export type AuthControllerCallbackInfiniteQueryError = unknown
 
 
-export function useAuthControllerCallbackInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerCallback>>, AuthControllerCallbackParams['nextId']>, TError = unknown>(
- params: AuthControllerCallbackParams, options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerCallback>>, TError, TData, Awaited<ReturnType<typeof authControllerCallback>>, QueryKey, AuthControllerCallbackParams['nextId']>> & Pick<
+export function useAuthControllerCallbackInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerCallback>>>, TError = unknown>(
+ params: AuthControllerCallbackParams, options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerCallback>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof authControllerCallback>>,
           TError,
-          Awaited<ReturnType<typeof authControllerCallback>>, QueryKey
+          Awaited<ReturnType<typeof authControllerCallback>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useAuthControllerCallbackInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerCallback>>, AuthControllerCallbackParams['nextId']>, TError = unknown>(
- params: AuthControllerCallbackParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerCallback>>, TError, TData, Awaited<ReturnType<typeof authControllerCallback>>, QueryKey, AuthControllerCallbackParams['nextId']>> & Pick<
+export function useAuthControllerCallbackInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerCallback>>>, TError = unknown>(
+ params: AuthControllerCallbackParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerCallback>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof authControllerCallback>>,
           TError,
-          Awaited<ReturnType<typeof authControllerCallback>>, QueryKey
+          Awaited<ReturnType<typeof authControllerCallback>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useAuthControllerCallbackInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerCallback>>, AuthControllerCallbackParams['nextId']>, TError = unknown>(
- params: AuthControllerCallbackParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerCallback>>, TError, TData, Awaited<ReturnType<typeof authControllerCallback>>, QueryKey, AuthControllerCallbackParams['nextId']>>, }
+export function useAuthControllerCallbackInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerCallback>>>, TError = unknown>(
+ params: AuthControllerCallbackParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerCallback>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useAuthControllerCallbackInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerCallback>>, AuthControllerCallbackParams['nextId']>, TError = unknown>(
- params: AuthControllerCallbackParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerCallback>>, TError, TData, Awaited<ReturnType<typeof authControllerCallback>>, QueryKey, AuthControllerCallbackParams['nextId']>>, }
+export function useAuthControllerCallbackInfinite<TData = InfiniteData<Awaited<ReturnType<typeof authControllerCallback>>>, TError = unknown>(
+ params: AuthControllerCallbackParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof authControllerCallback>>, TError, TData>>, }
  , queryClient?: QueryClient 
  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
