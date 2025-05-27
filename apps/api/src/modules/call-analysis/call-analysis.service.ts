@@ -147,6 +147,7 @@ export class CallAnalysisService {
       startTime: call.startTime,
       endTime: call.endTime,
       duration: call.duration,
+      transcriptUrl: call.transcriptUrl, // Added transcriptUrl
       callStatus: call.callStatus, // Prisma model uses string for callStatus
       agentName: call.Agents?.name || null, // Optional: include agent name{
       analysis: call.analysis?.data, // Assuming analysis data is in 'data' field
@@ -180,6 +181,7 @@ export class CallAnalysisService {
       startTime: call.startTime,
       endTime: call.endTime,
       duration: call.duration,
+      transcriptUrl: call.transcriptUrl, // Added transcriptUrl
       callStatus: call.callStatus,
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore // analysis is included via repository

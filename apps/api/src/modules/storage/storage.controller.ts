@@ -8,6 +8,7 @@ import {
   NotFoundException,
   Req,
   HttpStatus,
+  Logger, // Import Logger
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { StorageService } from './storage.service';
@@ -18,6 +19,8 @@ import * as path from 'path';
 @ApiTags('Storage')
 @Controller('storage')
 export class StorageController {
+  private readonly logger = new Logger(StorageController.name); // Add logger instance
+
   constructor(
     private readonly storageService: StorageService,
     private readonly callRepository: CallRepository,
@@ -146,6 +149,52 @@ export class StorageController {
         filePath,
       );
       return fullFileStream; // This should be a StreamableFile from the service
+    }
+  }
+
+  @Get('transcripts/stream/:callId')
+  @ApiParam({
+    name: 'callId',
+    description: 'The ID of the call to stream the transcript for',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'The call transcript as a streamable text file.',
+    type: StreamableFile,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Call not found or transcript not available.',
+  })
+  async streamCallTranscript(
+    @Param('callId') callId: string,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<StreamableFile> {
+    const call = await this.callRepository.findById(callId);
+    if (!call || !call.transcriptUrl) {
+      throw new NotFoundException('Call transcript not found');
+    }
+
+    const filePath = call.transcriptUrl; // transcriptUrl should be the full path like 'transcripts/filename.txt'
+
+    // Ensure Content-Type is text/plain for transcripts
+    response.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    response.setHeader('Content-Disposition', 'inline'); // Display inline in browser
+
+    // Use the existing getStreamableFile method from StorageService
+    // This method should be capable of fetching the file from Azure by its path
+    try {
+      const fileStream = await this.storageService.getStreamableFile(filePath);
+      return fileStream;
+    } catch (error) {
+      this.logger.error(
+        `Failed to stream transcript ${filePath} for call ${callId}: ${error.message}`,
+      );
+      // Re-throw or handle as NotFoundException if appropriate
+      if (error.statusCode === 404 || error.message?.includes('not found')) {
+        throw new NotFoundException('Transcript file not found in storage.');
+      }
+      throw error; // Re-throw other errors
     }
   }
 }

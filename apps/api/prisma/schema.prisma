@@ -5,13 +5,15 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  provider        = "prisma-client-js"
+  output          = "../generated/prisma"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
 }
 
 // call analysi
@@ -42,24 +44,26 @@ model Agent {
 }
 
 model Call {
-  id           String    @id @default(cuid())
-  companyId    String?
-  callSid      String
-  callStatus   String
-  startTime    DateTime
-  endTime      DateTime?
-  duration     Int?
-  recordingUrl String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id            String    @id @default(cuid())
+  companyId     String?
+  callSid       String
+  callStatus    String
+  startTime     DateTime
+  endTime       DateTime?
+  duration      Int?
+  recordingUrl  String?
+  transcriptUrl String? // Path to the transcript in blob storage
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   company Company? @relation(fields: [companyId], references: [id])
 
-  analysis       CallAnalysis?   @relation(fields: [callAnalysisId], references: [id])
-  callAnalysisId String?         @unique
-  processingLog  ProcessingLog[]
-  Agents         Agent?          @relation(fields: [agentsId], references: [id])
-  agentsId       String?
+  analysis                CallAnalysis?             @relation(fields: [callAnalysisId], references: [id])
+  callAnalysisId          String?                   @unique
+  processingLog           ProcessingLog[]
+  Agents                  Agent?                    @relation(fields: [agentsId], references: [id])
+  agentsId                String?
+  CallTranscriptEmbedding CallTranscriptEmbedding[]
 
   @@index([companyId])
 }
@@ -91,4 +95,19 @@ model ProcessingLog {
   Call    Call?    @relation(fields: [callId], references: [id])
 
   @@index([companyId])
+}
+
+model CallTranscriptEmbedding {
+  id            String                      @id @default(cuid())
+  createdAt     DateTime                    @default(now())
+  updatedAt     DateTime                    @updatedAt
+  call          Call                        @relation(fields: [callId], references: [id])
+  callId        String // Foreign key to Call
+  chunkSequence Int // Order of this chunk within the call's transcript
+  embedding     Unsupported("vector(1536)") // For OpenAI text-embedding-ada-002
+  modelName     String // e.g., "text-embedding-ada-002"
+
+  @@unique([callId, chunkSequence])
+  @@index([callId])
+  @@index([callId, chunkSequence])
 }

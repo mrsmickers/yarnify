@@ -15,8 +15,12 @@ import { CompanyRepository } from './repositories/company.repository';
 import { CallAnalysisRepository } from './repositories/call-analysis.repository';
 import { ProcessingLogRepository } from './repositories/processing-log.repository';
 import { AgentRepository } from './repositories/agent.repository';
-import { Call, Company, Agent } from '../../../generated/prisma';
+import { Call, Company, Agent, Prisma } from '../../../generated/prisma'; // Added Prisma
 import { dayjs } from '../../lib/dayjs';
+import { EmbeddingService } from '../embedding/embedding.service';
+import { TextChunkingService } from '../text-chunking/text-chunking.service';
+import { CallTranscriptEmbeddingRepository } from './repositories/call-transcript-embedding.repository';
+import { ConfigService } from '@nestjs/config';
 @Injectable()
 @Processor(CALL_PROCESSING_QUEUE, { concurrency: 5 })
 export class CallProcessingConsumer extends WorkerHost {
@@ -34,6 +38,10 @@ export class CallProcessingConsumer extends WorkerHost {
     private readonly callAnalysisRepository: CallAnalysisRepository, // This is the new repository for DB ops
     private readonly processingLogRepository: ProcessingLogRepository,
     private readonly agentRepository: AgentRepository,
+    private readonly embeddingService: EmbeddingService,
+    private readonly textChunkingService: TextChunkingService,
+    private readonly callTranscriptEmbeddingRepository: CallTranscriptEmbeddingRepository,
+    private readonly configService: ConfigService, // For chunk size/overlap
   ) {
     super();
   }
@@ -220,6 +228,113 @@ export class CallProcessingConsumer extends WorkerHost {
         status: 'LOG_INFO',
         message: 'Transcription successful.',
       });
+
+      // Store full transcript in Azure Blob Storage
+      const transcriptFileName = `transcripts/${callRecordingId}.txt`;
+      const transcriptBuffer = Buffer.from(transcript, 'utf-8');
+      try {
+        await this.storageService.uploadFile(
+          transcriptFileName,
+          transcriptBuffer,
+          'text/plain',
+        );
+        callEntity = await this.callRepository.update(callEntity.id, {
+          transcriptUrl: transcriptFileName,
+        });
+        await this.processingLogRepository.create({
+          callId: callEntity.id,
+          status: 'LOG_INFO',
+          message: `Transcript uploaded to ${transcriptFileName}`,
+        });
+      } catch (storageError) {
+        this.logger.error(
+          `Failed to upload transcript for Call ID ${callEntity.id}: ${storageError.message}`,
+          storageError.stack,
+        );
+        await this.processingLogRepository.create({
+          callId: callEntity.id,
+          status: 'LOG_ERROR',
+          message: `Failed to upload transcript: ${storageError.message}`,
+        });
+        // Decide if this is a critical failure, for now, we continue to embedding if transcript is available
+      }
+
+      // Chunk and Embed Transcript
+      const chunkSize = this.configService.get<number>(
+        'EMBEDDING_CHUNK_SIZE_TOKENS',
+        7500,
+      );
+      const chunkOverlap = this.configService.get<number>(
+        'EMBEDDING_CHUNK_OVERLAP_TOKENS',
+        200,
+      );
+      const transcriptChunks = this.textChunkingService.chunkText(
+        transcript,
+        chunkSize,
+        chunkOverlap,
+      );
+
+      if (transcriptChunks && transcriptChunks.length > 0) {
+        for (let i = 0; i < transcriptChunks.length; i++) {
+          const chunk = transcriptChunks[i];
+          try {
+            const embeddingVector =
+              await this.embeddingService.generateEmbedding(chunk);
+            if (embeddingVector && embeddingVector.length > 0) {
+              await this.callTranscriptEmbeddingRepository.create({
+                callId: callEntity.id,
+                chunkSequence: i,
+                embedding: embeddingVector, // Removed cast
+                modelName: 'text-embedding-ada-002', // Or from config
+              });
+              await this.processingLogRepository.create({
+                callId: callEntity.id,
+                status: 'LOG_INFO',
+                message: `Embedding generated and stored for chunk ${i + 1}/${
+                  transcriptChunks.length
+                }.`,
+              });
+            } else {
+              this.logger.warn(
+                `Embedding for chunk ${i + 1} was empty. Skipping storage.`,
+              );
+              await this.processingLogRepository.create({
+                callId: callEntity.id,
+                status: 'LOG_WARN',
+                message: `Embedding for chunk ${i + 1}/${
+                  transcriptChunks.length
+                } was empty. Skipped storage.`,
+              });
+            }
+          } catch (embeddingError) {
+            this.logger.error(
+              `Failed to generate or store embedding for chunk ${
+                i + 1
+              } of Call ID ${callEntity.id}: ${embeddingError.message}`,
+              embeddingError.stack,
+            );
+            await this.processingLogRepository.create({
+              callId: callEntity.id,
+              status: 'LOG_ERROR',
+              message: `Failed to generate/store embedding for chunk ${i + 1}/${
+                transcriptChunks.length
+              }: ${embeddingError.message}`,
+            });
+            // Decide on error strategy: fail job, or mark call with partial success/error?
+            // For now, we log and continue, but this might lead to incomplete embeddings.
+            // Consider throwing error here to fail the job if any chunk fails.
+          }
+        }
+      } else {
+        this.logger.warn(
+          `No chunks generated for transcript of Call ID ${callEntity.id}. Skipping embedding.`,
+        );
+        await this.processingLogRepository.create({
+          callId: callEntity.id,
+          status: 'LOG_WARN',
+          message: 'No transcript chunks generated. Skipped embedding process.',
+        });
+      }
 
       // 4. Handle Company
       const externalPhoneNumber =

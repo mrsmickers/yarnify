@@ -93,6 +93,9 @@ export class CallResponseDto {
   @ApiPropertyOptional()
   duration?: number;
 
+  @ApiPropertyOptional({ description: 'URL to the stored transcript file' })
+  transcriptUrl?: string;
+
   @ApiProperty({
     description: 'Status of the call (e.g., PROCESSING, COMPLETED, FAILED)',
   })

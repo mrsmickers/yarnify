@@ -11,6 +11,8 @@ import { CallAnalysisModule } from './modules/call-analysis/call-analysis.module
 import { ConnectwiseManageModule } from './modules/connectwise-manage/connectwise-manage.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ClsModule } from 'nestjs-cls';
+import { EmbeddingModule } from './modules/embedding/embedding.module';
+import { TextChunkingModule } from './modules/text-chunking/text-chunking.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -44,6 +46,8 @@ import { join } from 'path';
     CallAnalysisModule,
     ConnectwiseManageModule,
     AuthModule,
+    EmbeddingModule,
+    TextChunkingModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'client'),
       serveStaticOptions: {

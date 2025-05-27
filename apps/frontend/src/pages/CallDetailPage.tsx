@@ -20,6 +20,9 @@ const CallDetailPage = () => {
   const [isPlaying, setIsPlaying] = useState(false)
   const [duration, setDuration] = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
+  const [transcript, setTranscript] = useState<string | null>(null)
+  const [transcriptLoading, setTranscriptLoading] = useState(false)
+  const [transcriptError, setTranscriptError] = useState<string | null>(null)
 
   const {
     data: callDetails,
@@ -108,6 +111,40 @@ const CallDetailPage = () => {
       }
     }
   }, [callDetails]) // Re-run if callDetails changes, implying audio src might change
+
+  useEffect(() => {
+    if (callId && callDetails?.transcriptUrl) {
+      const fetchTranscript = async () => {
+        setTranscriptLoading(true)
+        setTranscriptError(null)
+        try {
+          const response = await fetch(
+            `/api/v1/storage/transcripts/stream/${callId}`
+          )
+          if (!response.ok) {
+            throw new Error(
+              `Failed to fetch transcript: ${response.status} ${response.statusText}`
+            )
+          }
+          const text = await response.text()
+          setTranscript(text)
+        } catch (error) {
+          console.error('Error fetching transcript:', error)
+          setTranscriptError(
+            error instanceof Error
+              ? error.message
+              : 'Unknown error fetching transcript'
+          )
+          setTranscript(null)
+        } finally {
+          setTranscriptLoading(false)
+        }
+      }
+      fetchTranscript()
+    } else {
+      setTranscript(null) // Clear transcript if no URL or callId
+    }
+  }, [callId, callDetails?.transcriptUrl])
 
   const handlePlayPause = () => {
     if (audioRef.current) {
@@ -413,6 +450,38 @@ const CallDetailPage = () => {
                   </div>
                 )}
               </motion.div>
+
+              {/* Transcript Section */}
+              {callDetails?.transcriptUrl && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.25 }}
+                  className="pt-6 border-t border-gray-200"
+                >
+                  <h4 className="text-xl font-semibold mb-4 text-gray-800">
+                    Call Transcript
+                  </h4>
+                  {transcriptLoading && <p>Loading transcript...</p>}
+                  {transcriptError && (
+                    <p className="text-red-500">Error: {transcriptError}</p>
+                  )}
+                  {transcript && !transcriptLoading && !transcriptError && (
+                    <Card className="bg-gray-50/80 shadow-sm max-h-96 overflow-y-auto">
+                      <CardContent className="p-4">
+                        <pre className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed font-mono">
+                          {transcript}
+                        </pre>
+                      </CardContent>
+                    </Card>
+                  )}
+                  {!transcript && !transcriptLoading && !transcriptError && (
+                    <p className="text-gray-500">
+                      Transcript not available or failed to load.
+                    </p>
+                  )}
+                </motion.div>
+              )}
 
               {callDetails.analysis && (
                 <motion.div

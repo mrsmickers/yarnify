@@ -15,6 +15,9 @@ import { CallAnalysisRepository } from './repositories/call-analysis.repository'
 import { ProcessingLogRepository } from './repositories/processing-log.repository';
 import { CallAnalysisController } from './call-analysis.controller';
 import { AgentRepository } from './repositories/agent.repository';
+import { EmbeddingModule } from '../embedding/embedding.module';
+import { TextChunkingModule } from '../text-chunking/text-chunking.module';
+import { CallTranscriptEmbeddingRepository } from './repositories/call-transcript-embedding.repository';
 
 @Module({
   imports: [
@@ -26,6 +29,8 @@ import { AgentRepository } from './repositories/agent.repository';
     PrismaModule, // For PrismaService
     forwardRef(() => VoipModule), // For CallRecordingService
     ConnectwiseManageModule,
+    EmbeddingModule, // For EmbeddingService
+    TextChunkingModule, // For TextChunkingService
   ],
   controllers: [CallAnalysisController], // Added controller
   providers: [
@@ -37,6 +42,7 @@ import { AgentRepository } from './repositories/agent.repository';
     CallAnalysisRepository,
     ProcessingLogRepository,
     AgentRepository,
+    CallTranscriptEmbeddingRepository,
   ],
   exports: [
     CallAnalysisService,
@@ -45,6 +51,7 @@ import { AgentRepository } from './repositories/agent.repository';
     CompanyRepository,
     CallAnalysisRepository,
     ProcessingLogRepository,
+    CallTranscriptEmbeddingRepository,
   ],
 })
 export class CallAnalysisModule {}
