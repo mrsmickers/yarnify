@@ -6,7 +6,9 @@ import type { CallResponseDto } from '@/api/api-client'
 import { useEffect, useState } from 'react'
 import { DataTable } from '@/components/ui/data-table'
 import type { ColumnDef } from '@tanstack/react-table'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface CallStat {
   title: string
@@ -28,10 +30,19 @@ interface TransformedCallLog {
 }
 
 const VoipDashboardPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [stats, setStats] = useState<CallStat[]>([])
   const [callLogs, setCallLogs] = useState<TransformedCallLog[]>([])
-  const [pageSize, setPageSize] = useState(10)
-  const [pageIndex, setPageIndex] = useState(0)
+
+  // Initialize pageSize and pageIndex from URL search params or defaults
+  const [pageSize, setPageSize] = useState(() => {
+    const limit = searchParams.get('limit')
+    return limit ? parseInt(limit, 10) : 10
+  })
+  const [pageIndex, setPageIndex] = useState(() => {
+    const page = searchParams.get('page')
+    return page ? parseInt(page, 10) - 1 : 0 // API is 1-based, local state is 0-based
+  })
 
   const {
     data: paginatedCallsData,
@@ -78,7 +89,7 @@ const VoipDashboardPage = () => {
       setCallLogs(transformedLogs)
 
       // Calculate stats
-      const totalCalls = calls.length
+      const currentViewTotalCalls = calls.length // Renamed to avoid confusion with API total
       let positiveSentiments = 0
       let negativeSentiments = 0
       let totalConfidenceScore = 0
@@ -107,15 +118,17 @@ const VoipDashboardPage = () => {
       setStats([
         {
           title: 'Total Calls',
-          value: totalCalls,
+          value: paginatedCallsData?.total || 0, // Use total from API response
           colorClass: 'border-blue-500',
         },
         {
           title: 'Positive Sentiment',
           value: positiveSentiments,
           percentage:
-            totalCalls > 0
-              ? `${((positiveSentiments / totalCalls) * 100).toFixed(0)}%`
+            currentViewTotalCalls > 0 // Use current view total for percentage calculation
+              ? `${((positiveSentiments / currentViewTotalCalls) * 100).toFixed(
+                  0
+                )}%`
               : '0%',
           colorClass: 'border-green-500',
         },
@@ -123,8 +136,10 @@ const VoipDashboardPage = () => {
           title: 'Negative Sentiment',
           value: negativeSentiments,
           percentage:
-            totalCalls > 0
-              ? `${((negativeSentiments / totalCalls) * 100).toFixed(0)}%`
+            currentViewTotalCalls > 0 // Use current view total for percentage calculation
+              ? `${((negativeSentiments / currentViewTotalCalls) * 100).toFixed(
+                  0
+                )}%`
               : '0%',
           colorClass: 'border-red-500',
         },
@@ -136,6 +151,14 @@ const VoipDashboardPage = () => {
       ])
     }
   }, [paginatedCallsData]) // Use paginatedCallsData in dependency array
+
+  // Update URL search params when pageIndex or pageSize changes
+  useEffect(() => {
+    const newSearchParams = new URLSearchParams()
+    newSearchParams.set('page', (pageIndex + 1).toString())
+    newSearchParams.set('limit', pageSize.toString())
+    setSearchParams(newSearchParams, { replace: true })
+  }, [pageIndex, pageSize, setSearchParams])
 
   // Helper functions and column definitions moved inside the component
   const getSentimentBadgeVariant = (
@@ -257,13 +280,7 @@ const VoipDashboardPage = () => {
     },
   ]
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto p-8 text-center">
-        Loading dashboard data...
-      </div>
-    )
-  }
+  // Removed the global isLoading check here, will handle it inline for the table
 
   if (error) {
     const errorMessage =
@@ -288,25 +305,44 @@ const VoipDashboardPage = () => {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.title} className={`border-l-4 ${stat.colorClass}`}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {stat.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {stat.value}
-                {stat.percentage && (
-                  <span className="text-xs text-muted-foreground ml-1">
-                    ({stat.percentage})
-                  </span>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        {isLoading && stats.length === 0 ? (
+          <>
+            {Array.from({ length: 4 }).map((_, index) => (
+              <Card
+                key={`skeleton-stat-${index}`}
+                className="border-l-4 border-gray-200"
+              >
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <Skeleton className="h-4 w-3/4" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-6 w-1/2 mb-1" />
+                  <Skeleton className="h-3 w-1/4" />
+                </CardContent>
+              </Card>
+            ))}
+          </>
+        ) : (
+          stats.map((stat) => (
+            <Card key={stat.title} className={`border-l-4 ${stat.colorClass}`}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {stat.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {stat.value}
+                  {stat.percentage && (
+                    <span className="text-xs text-muted-foreground ml-1">
+                      ({stat.percentage})
+                    </span>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
 
       {/* Call List Table */}
@@ -337,16 +373,46 @@ const VoipDashboardPage = () => {
             Show Filters
           </Button>
         </CardHeader>
-        <CardContent>
-          <DataTable
-            columns={columns}
-            data={callLogs}
-            pageCount={paginatedCallsData?.totalPages || 1}
-            pageSize={pageSize}
-            pageIndex={pageIndex}
-            onPageChange={setPageIndex}
-            onPageSizeChange={setPageSize}
-          />
+        <CardContent className="relative min-h-[200px]">
+          {' '}
+          {/* Added relative and min-h for loader positioning */}
+          {isLoading ? (
+            <motion.div
+              key="loader"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm p-4 space-y-3" // Adjusted for skeleton layout
+            >
+              {/* Skeleton Loader for Table Rows */}
+              <div className="w-full space-y-2">
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-5/6" />
+                <Skeleton className="h-8 w-4/6" />
+              </div>
+              <p className="text-sm text-gray-600">Loading calls...</p>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="data-table"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <DataTable
+                columns={columns}
+                data={callLogs}
+                pageCount={paginatedCallsData?.totalPages || 1}
+                pageSize={pageSize}
+                pageIndex={pageIndex}
+                onPageChange={setPageIndex}
+                onPageSizeChange={setPageSize}
+              />
+            </motion.div>
+          )}
         </CardContent>
       </Card>
     </div>
