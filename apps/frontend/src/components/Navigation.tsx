@@ -22,7 +22,16 @@ export function Navigation() {
       <div className="max-w-5xl px-4 sm:px-6 lg:px-8">
         <div className="h-32 flex items-center justify-between">
           <div className="flex items-center gap-2 text-lg font-semibold text-gray-900">
-            <img src="/logo.png" alt="Speek It Logo" className="h-20" />
+            <img
+              src="/logo.png"
+              alt="Speek It Logo"
+              className="hidden sm:block sm:h-20"
+            />
+            <img
+              src="/logo-sm.png"
+              alt="Speek It Logo"
+              className="h-12 sm:hidden"
+            />
           </div>
           <div className="flex items-center gap-6">
             <Link
