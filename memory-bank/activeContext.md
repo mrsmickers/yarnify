@@ -12,6 +12,7 @@ This file tracks the project's current status, including recent changes, current
 
 ## Recent Changes
 
+*   [2025-05-27 07:29:12] - Updated agent name display on [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:247:1) to use `callDetails.agentName` instead of `callDetails.analysis.agent_name`.
 *   [2025-05-27 07:22:54] - Reverted `ServeStaticModule` `exclude` option in [`apps/api/src/app.module.ts`](apps/api/src/app.module.ts:49:1) to `['/api/**']` to fix TypeScript error and attempt to resolve `path-to-regexp` error with a different glob pattern.
 *   [2025-05-27 07:22:13] - Updated `ServeStaticModule` in [`apps/api/src/app.module.ts`](apps/api/src/app.module.ts:49:1) to use a regular expression `exclude: [/^\/api\//]` to prevent `path-to-regexp` errors.
 *   [2025-05-27 07:13:35] - Updated `ServeStaticModule` in [`apps/api/src/app.module.ts`](apps/api/src/app.module.ts:50:1) to correctly rewrite all non-API requests to `index.html` by setting `exclude: ['/api/*']` and `renderPath: '*'`.

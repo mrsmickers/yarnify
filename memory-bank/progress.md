@@ -7,6 +7,7 @@ This file tracks the project's progress using a task list format.
 
 ## Completed Tasks
 
+*   [2025-05-27 07:29:12] - Fixed agent name display on call details page ([`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:247:1)) to show agent name from the call data (`callDetails.agentName`) instead of from the analysis data.
 *   [2025-05-27 07:22:54] - Updated `ServeStaticModule` `exclude` pattern in [`apps/api/src/app.module.ts`](apps/api/src/app.module.ts:49:1) to `['/api/**']` to address `path-to-regexp` and TypeScript errors.
 *   [2025-05-27 07:13:35] - Configured `ServeStaticModule` in [`apps/api/src/app.module.ts`](apps/api/src/app.module.ts:50:1) for SPA routing by setting `exclude: ['/api/*']` and `renderPath: '*'`.
 *   [2025-05-26 23:37:46] - Corrected `path` module import in [`StorageController`](apps/api/src/modules/storage/storage.controller.ts:14:1) to fix `TypeError` in call recording streaming.

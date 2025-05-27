@@ -3,6 +3,14 @@
 This file records architectural and implementation decisions using a list format.
 2025-05-24 12:05:05 - Log of updates made.
 
+*   [2025-05-27 07:29:12] - Updated agent name display in CallDetailPage.tsx.
+    ## Decision
+    *   Modified [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:247:1) to display `callDetails.agentName` instead of `callDetails.analysis.agent_name`.
+    ## Rationale
+    *   The `CallResponseDto` (defined in [`apps/api/src/modules/call-analysis/dto/get-calls.dto.ts`](apps/api/src/modules/call-analysis/dto/get-calls.dto.ts:77:1)) provides an `agentName` field directly on the call object. This is likely the more accurate source for the agent's name associated with the call, as opposed to the `agent_name` field within the nested `analysis` object, which might be a result of AI analysis.
+    *   Using the direct `agentName` field ensures that the displayed name is the one explicitly linked to the call record in the backend.
+    ## Implementation Details
+    *   Changed the data binding for the "Agent Name" field in [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:247:1).
 *   [2025-05-27 07:22:54] - Reverted `ServeStaticModule` `exclude` pattern to `['/api/**']`.
     ## Decision
     *   Changed the `exclude` option in `ServeStaticModule` configuration in [`apps/api/src/app.module.ts`](apps/api/src/app.module.ts:49:1) from `[/^\/api\//]` back to a string glob `['/api/**']`.

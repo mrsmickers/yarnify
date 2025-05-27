@@ -244,7 +244,7 @@ const CallDetailPage = () => {
                           Agent Name
                         </div>
                         <div className="text-lg text-gray-700">
-                          {String(callDetails.analysis.agent_name ?? 'N/A')}
+                          {String(callDetails.agentName ?? 'N/A')}
                         </div>
                       </div>
                       <div className="bg-gray-50 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
