@@ -20,8 +20,8 @@ export class CallRecordingSyncConsumer extends WorkerHost {
     this.logger.log(`Processing job ${job.id} - ${job.name}`);
     try {
       // Fetch recordings from the last 1 hour
-      const now = dayjs();
-      const startTime = now.subtract(1, 'hour');
+      const now = dayjs().add(1, 'hour'); // Add 1 hour to ensure we capture the last hour correctly
+      const startTime = now.subtract(2, 'hour');
 
       this.logger.log(
         `Fetching call recordings from ${startTime.toISOString()} to ${now.toISOString()}`,
