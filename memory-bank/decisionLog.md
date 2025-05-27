@@ -3,6 +3,19 @@
 This file records architectural and implementation decisions using a list format.
 2025-05-24 12:05:05 - Log of updates made.
 
+*   [2025-05-27 07:13:35] - Configured `ServeStaticModule` for SPA routing.
+    ## Decision
+    *   Updated `ServeStaticModule` configuration in [`apps/api/src/app.module.ts`](apps/api/src/app.module.ts:50:1).
+    *   Set `exclude` to `['/api/*']`.
+    *   Added `renderPath: '*'`.
+    *   Removed `serveStaticOptions: { fallthrough: false }`.
+    ## Rationale
+    *   Ensures that all requests not matching an API route (`/api/*`) or an existing static file are served `index.html` from the `client` directory. This is standard practice for Single Page Applications (SPAs) to handle client-side routing.
+    *   `renderPath: '*'` is the recommended way to achieve SPA fallback with `@nestjs/serve-static`.
+    *   The previous `exclude: ['/api/{*test}']` was an unusual glob pattern. `'/api/*'` is more standard.
+    *   The default `fallthrough: true` behavior is generally preferred when using `renderPath` for SPA fallbacks.
+    ## Implementation Details
+    *   Modified the `ServeStaticModule.forRoot` options in [`apps/api/src/app.module.ts`](apps/api/src/app.module.ts:50:1).
 *   [2025-05-26 23:37:46] - Corrected `path` module import in [`StorageController`](apps/api/src/modules/storage/storage.controller.ts:14:1).
     ## Decision
     *   Changed `import path from 'path';` to `import * as path from 'path';`.

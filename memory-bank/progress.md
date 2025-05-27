@@ -7,6 +7,7 @@ This file tracks the project's progress using a task list format.
 
 ## Completed Tasks
 
+*   [2025-05-27 07:13:35] - Configured `ServeStaticModule` in [`apps/api/src/app.module.ts`](apps/api/src/app.module.ts:50:1) for SPA routing by setting `exclude: ['/api/*']` and `renderPath: '*'`.
 *   [2025-05-26 23:37:46] - Corrected `path` module import in [`StorageController`](apps/api/src/modules/storage/storage.controller.ts:14:1) to fix `TypeError` in call recording streaming.
 *   [2025-05-26 23:22:51] - Added audio player to [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:0) for playing call recordings.
 *   [2025-05-26 21:15:32] - Configured NestJS build in `apps/api/nest-cli.json` to copy static client assets from `apps/api/client` to `dist/apps/api/client`, enabling `ServeStaticModule` to serve them correctly.

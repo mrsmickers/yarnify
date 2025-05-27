@@ -12,6 +12,7 @@ This file tracks the project's current status, including recent changes, current
 
 ## Recent Changes
 
+*   [2025-05-27 07:13:35] - Updated `ServeStaticModule` in [`apps/api/src/app.module.ts`](apps/api/src/app.module.ts:50:1) to correctly rewrite all non-API requests to `index.html` by setting `exclude: ['/api/*']` and `renderPath: '*'`.
 *   [2025-05-26 23:37:46] - Corrected the import statement for the `path` module in [`StorageController`](apps/api/src/modules/storage/storage.controller.ts:14:1) to `import * as path from 'path';` to resolve a `TypeError` during call recording streaming.
 *   [2025-05-26 23:22:51] - Added an audio player to [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:0) to stream call recordings from the `/api/v1/storage/recordings/stream/:callId` endpoint.
 *   [2025-05-26 21:15:25] - Configured NestJS build process in `apps/api/nest-cli.json` to copy the `apps/api/client` directory (containing static assets like `index.html`) to the `dist/apps/api/client` output directory. This ensures that the `ServeStaticModule` can correctly serve these files.
