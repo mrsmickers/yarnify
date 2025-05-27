@@ -21,6 +21,7 @@ interface CallStat {
 interface TransformedCallLog {
   id: string
   date: string
+  time: string // Added time field
   companyName: string
   sentiment: 'Positive' | 'Negative' | 'Neutral' | 'Unknown'
   mood: string
@@ -80,6 +81,7 @@ const VoipDashboardPage = () => {
           return {
             id: call.id,
             date: new Date(call.startTime).toLocaleDateString(),
+            time: new Date(call.startTime).toLocaleTimeString('en-GB'), // Added time in 24-hour format
             companyName,
             sentiment,
             mood,
@@ -212,6 +214,10 @@ const VoipDashboardPage = () => {
     {
       accessorKey: 'date',
       header: 'Date',
+    },
+    {
+      accessorKey: 'time',
+      header: 'Time',
     },
     {
       accessorKey: 'companyName',
