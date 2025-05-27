@@ -46,7 +46,9 @@ import { join } from 'path';
     AuthModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'client'),
-      exclude: ['/api/*'],
+      serveStaticOptions: {
+        fallthrough: true,
+      },
       renderPath: '*',
     }),
   ],

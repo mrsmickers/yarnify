@@ -3,6 +3,15 @@
 This file records architectural and implementation decisions using a list format.
 2025-05-24 12:05:05 - Log of updates made.
 
+*   [2025-05-27 07:22:54] - Reverted `ServeStaticModule` `exclude` pattern to `['/api/**']`.
+    ## Decision
+    *   Changed the `exclude` option in `ServeStaticModule` configuration in [`apps/api/src/app.module.ts`](apps/api/src/app.module.ts:49:1) from `[/^\/api\//]` back to a string glob `['/api/**']`.
+    ## Rationale
+    *   The previous attempt to use a regular expression `[/^\/api\//]` for `exclude` caused a TypeScript error because the `exclude` option expects an array of strings (glob patterns).
+    *   The runtime error `TypeError: Missing parameter name at 6` from `path-to-regexp` occurred with `exclude: ['/api/*']`.
+    *   Using `['/api/**']` is another attempt to find a glob pattern that is correctly interpreted by `path-to-regexp` while satisfying the type requirements for the `exclude` option. The `**` globstar is intended to match any characters including slashes, effectively excluding all paths under `/api/`.
+    ## Implementation Details
+    *   Modified the `exclude` value in the `ServeStaticModule.forRoot` options in [`apps/api/src/app.module.ts`](apps/api/src/app.module.ts:49:1).
 *   [2025-05-27 07:13:35] - Configured `ServeStaticModule` for SPA routing.
     ## Decision
     *   Updated `ServeStaticModule` configuration in [`apps/api/src/app.module.ts`](apps/api/src/app.module.ts:50:1).
