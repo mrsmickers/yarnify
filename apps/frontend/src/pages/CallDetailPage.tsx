@@ -1,10 +1,15 @@
 import { useParams, Link } from 'react-router-dom'
+import React, { useRef, useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useCallAnalysisControllerGetCallById } from '@/api/api-client'
 import { motion } from 'framer-motion'
 
 const CallDetailPage = () => {
   const { callId } = useParams<{ callId: string }>()
+  const audioRef = useRef<HTMLAudioElement>(null)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [duration, setDuration] = useState(0)
+  const [currentTime, setCurrentTime] = useState(0)
 
   const {
     data: callDetails,
@@ -17,6 +22,63 @@ const CallDetailPage = () => {
   const errorMessage = queryError
     ? (queryError as Error)?.message || 'Failed to fetch call details'
     : null
+
+  useEffect(() => {
+    const audio = audioRef.current
+    if (audio) {
+      const setAudioData = () => {
+        setDuration(audio.duration)
+        setCurrentTime(audio.currentTime)
+      }
+
+      const setAudioTime = () => setCurrentTime(audio.currentTime)
+
+      audio.addEventListener('loadeddata', setAudioData)
+      audio.addEventListener('timeupdate', setAudioTime)
+      audio.addEventListener('play', () => setIsPlaying(true))
+      audio.addEventListener('pause', () => setIsPlaying(false))
+      audio.addEventListener('ended', () => setIsPlaying(false))
+
+      // Set initial data in case loadeddata already fired
+      if (audio.readyState >= 2) {
+        // HAVE_CURRENT_DATA or more
+        setAudioData()
+      }
+
+      return () => {
+        audio.removeEventListener('loadeddata', setAudioData)
+        audio.removeEventListener('timeupdate', setAudioTime)
+        audio.removeEventListener('play', () => setIsPlaying(true))
+        audio.removeEventListener('pause', () => setIsPlaying(false))
+        audio.removeEventListener('ended', () => setIsPlaying(false))
+      }
+    }
+  }, [callDetails]) // Re-run if callDetails changes, implying audio src might change
+
+  const handlePlayPause = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause()
+      } else {
+        audioRef.current.play()
+      }
+      setIsPlaying(!isPlaying)
+    }
+  }
+
+  const handleSeek = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (audioRef.current) {
+      const time = Number(event.target.value)
+      audioRef.current.currentTime = time
+      setCurrentTime(time)
+    }
+  }
+
+  const formatTime = (timeInSeconds: number) => {
+    const minutes = Math.floor(timeInSeconds / 60)
+    const seconds = Math.floor(timeInSeconds % 60)
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
+  }
 
   if (loading) {
     return (
@@ -199,12 +261,77 @@ const CallDetailPage = () => {
                       Call Recording
                     </h5>
                     <audio
-                      controls
+                      ref={audioRef}
                       src={`/api/v1/storage/recordings/stream/${callId}`}
-                      className="w-full"
-                    >
-                      Your browser does not support the audio element.
-                    </audio>
+                      className="w-full hidden" // Hide default controls initially
+                      onLoadedMetadata={() => {
+                        if (audioRef.current)
+                          setDuration(audioRef.current.duration)
+                      }}
+                      onTimeUpdate={() => {
+                        if (audioRef.current)
+                          setCurrentTime(audioRef.current.currentTime)
+                      }}
+                      onPlay={() => setIsPlaying(true)}
+                      onPause={() => setIsPlaying(false)}
+                      onEnded={() => setIsPlaying(false)}
+                    />
+                    <div className="mt-2 flex items-center space-x-2">
+                      <button
+                        onClick={handlePlayPause}
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        aria-label={
+                          isPlaying ? 'Pause recording' : 'Play recording'
+                        }
+                      >
+                        {isPlaying ? 'Pause' : 'Play'}
+                      </button>
+                      <label htmlFor="timeline-slider" className="sr-only">
+                        Call Recording Timeline
+                      </label>
+                      <input
+                        id="timeline-slider"
+                        type="range"
+                        min="0"
+                        max={duration || 0}
+                        value={currentTime}
+                        onChange={handleSeek}
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                        disabled={!duration}
+                        aria-label="Call recording timeline"
+                      />
+                      <div className="text-sm text-gray-600 w-24 text-right">
+                        {formatTime(currentTime)} / {formatTime(duration)}
+                      </div>
+                      <a
+                        href={`/api/v1/storage/recordings/${callId}`}
+                        download
+                        className="ml-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-3 rounded text-sm"
+                        aria-label="Download call recording"
+                        title="Download Recording"
+                      >
+                        {/* Simple Download Icon (Heroicons: ArrowDownTray) */}
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          className="w-5 h-5"
+                        >
+                          <path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z" />
+                          <path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" />
+                        </svg>
+                      </a>
+                    </div>
+                    {/* Fallback for browsers that might not hide the audio tag if src is invalid, or for accessibility */}
+                    <noscript>
+                      <audio
+                        controls
+                        src={`/api/v1/storage/recordings/stream/${callId}`}
+                        className="w-full"
+                      >
+                        Your browser does not support the audio element.
+                      </audio>
+                    </noscript>
                   </div>
                 )}
               </motion.div>

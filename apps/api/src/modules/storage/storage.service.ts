@@ -1,6 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, StreamableFile } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BlobServiceClient, ContainerClient } from '@azure/storage-blob';
+import { Readable } from 'stream';
 
 @Injectable()
 export class StorageService {
@@ -80,6 +81,77 @@ export class StorageService {
       );
     } catch (error) {
       this.logger.error(`Failed to delete file ${fileName}: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async getFileStats(
+    fileName: string,
+  ): Promise<{ contentLength: number } | null> {
+    const blockBlobClient = this.containerClient.getBlockBlobClient(fileName);
+    try {
+      const properties = await blockBlobClient.getProperties();
+      if (properties.contentLength === undefined) {
+        this.logger.warn(`Content length not available for file ${fileName}.`);
+        return null;
+      }
+      return { contentLength: properties.contentLength };
+    } catch (error) {
+      if (error.statusCode === 404) {
+        this.logger.warn(`File not found for stats: ${fileName}`);
+        return null;
+      }
+      this.logger.error(
+        `Failed to get file stats for ${fileName}: ${error.message}`,
+      );
+      throw error;
+    }
+  }
+
+  async getStreamableFile(fileName: string): Promise<StreamableFile> {
+    const blockBlobClient = this.containerClient.getBlockBlobClient(fileName);
+    try {
+      const downloadBlockBlobResponse = await blockBlobClient.download(0);
+      if (!downloadBlockBlobResponse.readableStreamBody) {
+        throw new Error(
+          `Readable stream not available for file ${fileName} (full file)`,
+        );
+      }
+      return new StreamableFile(
+        downloadBlockBlobResponse.readableStreamBody as Readable,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to get streamable file ${fileName}: ${error.message}`,
+      );
+      throw error;
+    }
+  }
+
+  async getStreamableFileRange(
+    fileName: string,
+    start: number,
+    end: number,
+  ): Promise<StreamableFile> {
+    const blockBlobClient = this.containerClient.getBlockBlobClient(fileName);
+    const count = end - start + 1;
+    try {
+      const downloadBlockBlobResponse = await blockBlobClient.download(
+        start,
+        count,
+      );
+      if (!downloadBlockBlobResponse.readableStreamBody) {
+        throw new Error(
+          `Readable stream not available for file range ${fileName} (${start}-${end})`,
+        );
+      }
+      return new StreamableFile(
+        downloadBlockBlobResponse.readableStreamBody as Readable,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to get streamable file range ${fileName} (${start}-${end}): ${error.message}`,
+      );
       throw error;
     }
   }
