@@ -114,6 +114,20 @@ export class CallResponseDto {
   agentName?: string; // Optional: include agent name if available
 }
 
+export class CallMetricsDto {
+  @ApiProperty({ description: 'Total number of positive sentiment calls' })
+  totalPositiveSentiment: number;
+
+  @ApiProperty({ description: 'Total number of negative sentiment calls' })
+  totalNegativeSentiment: number;
+
+  @ApiProperty({ description: 'Total number of neutral sentiment calls' })
+  totalNeutralSentiment: number;
+
+  @ApiProperty({ description: 'Average AI confidence score across all calls' })
+  averageConfidence: number;
+}
+
 export class PaginatedCallsResponseDto {
   @ApiProperty({ type: [CallResponseDto] })
   data: CallResponseDto[];
@@ -129,4 +143,7 @@ export class PaginatedCallsResponseDto {
 
   @ApiProperty()
   totalPages: number;
+
+  @ApiProperty({ type: CallMetricsDto })
+  metrics: CallMetricsDto;
 }

@@ -51,12 +51,24 @@ export interface CallResponseDto {
   agentName?: string;
 }
 
+export interface CallMetricsDto {
+  /** Total number of positive sentiment calls */
+  totalPositiveSentiment: number;
+  /** Total number of negative sentiment calls */
+  totalNegativeSentiment: number;
+  /** Total number of neutral sentiment calls */
+  totalNeutralSentiment: number;
+  /** Average AI confidence score across all calls */
+  averageConfidence: number;
+}
+
 export interface PaginatedCallsResponseDto {
   data: CallResponseDto[];
   total: number;
   page: number;
   limit: number;
   totalPages: number;
+  metrics: CallMetricsDto;
 }
 
 export interface RefreshTokenResponseDto {

@@ -91,70 +91,41 @@ const VoipDashboardPage = () => {
       )
       setCallLogs(transformedLogs)
 
-      // Calculate stats
-      const currentViewTotalCalls = calls.length // Renamed to avoid confusion with API total
-      let positiveSentiments = 0
-      let negativeSentiments = 0
-      let totalConfidenceScore = 0
-      let callsWithConfidence = 0
-
-      calls.forEach((call: CallResponseDto) => {
-        // Added type for call parameter
-        const sentiment = (call.analysis?.sentiment as string)?.toLowerCase()
-        if (sentiment === 'positive') positiveSentiments++
-        if (sentiment === 'negative') negativeSentiments++
-
-        const confidence = call.analysis?.confidence_level as string
-        if (confidence) {
-          switch (confidence) {
-            case 'High':
-              totalConfidenceScore += 100
-              break
-            case 'Medium':
-              totalConfidenceScore += 50
-              break
-            case 'Low':
-              totalConfidenceScore += 25
-              break
-          }
-          callsWithConfidence++
-        }
-      })
-
-      const avgConfidence =
-        callsWithConfidence > 0 ? totalConfidenceScore / callsWithConfidence : 0
+      const { metrics } = paginatedCallsData
 
       setStats([
         {
           title: 'Total Calls',
-          value: paginatedCallsData?.total || 0, // Use total from API response
+          value: paginatedCallsData?.total || 0,
           colorClass: 'border-blue-500',
         },
         {
           title: 'Positive Sentiment',
-          value: positiveSentiments,
+          value: metrics.totalPositiveSentiment,
           percentage:
-            currentViewTotalCalls > 0 // Use current view total for percentage calculation
-              ? `${((positiveSentiments / currentViewTotalCalls) * 100).toFixed(
-                  0
-                )}%`
+            paginatedCallsData?.total > 0
+              ? `${(
+                  (metrics.totalPositiveSentiment / paginatedCallsData.total) *
+                  100
+                ).toFixed(0)}%`
               : '0%',
           colorClass: 'border-green-500',
         },
         {
           title: 'Negative Sentiment',
-          value: negativeSentiments,
+          value: metrics.totalNegativeSentiment,
           percentage:
-            currentViewTotalCalls > 0 // Use current view total for percentage calculation
-              ? `${((negativeSentiments / currentViewTotalCalls) * 100).toFixed(
-                  0
-                )}%`
+            paginatedCallsData?.total > 0
+              ? `${(
+                  (metrics.totalNegativeSentiment / paginatedCallsData.total) *
+                  100
+                ).toFixed(0)}%`
               : '0%',
           colorClass: 'border-red-500',
         },
         {
           title: 'AI Confidence',
-          value: `${avgConfidence.toFixed(0)}%`,
+          value: `${metrics.averageConfidence}%`,
           colorClass: 'border-purple-500',
         },
       ])

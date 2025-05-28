@@ -159,12 +159,60 @@ export class CallAnalysisService {
       updatedAt: call.updatedAt,
     }));
 
+    // Calculate metrics across all calls (not just current page)
+    const allCalls = await this.db.call.findMany({
+      where,
+      include: {
+        analysis: true,
+      },
+    });
+
+    let totalPositiveSentiment = 0;
+    let totalNegativeSentiment = 0;
+    let totalNeutralSentiment = 0;
+    let totalConfidenceScore = 0;
+    let callsWithConfidence = 0;
+
+    allCalls.forEach((call) => {
+      const sentiment = (
+        call.analysis?.data?.sentiment as string
+      )?.toLowerCase();
+      if (sentiment === 'positive') totalPositiveSentiment++;
+      else if (sentiment === 'negative') totalNegativeSentiment++;
+      else if (sentiment === 'neutral') totalNeutralSentiment++;
+
+      const confidence = call.analysis?.data?.confidence_level as string;
+      if (confidence) {
+        switch (confidence.toLowerCase()) {
+          case 'high':
+            totalConfidenceScore += 100;
+            break;
+          case 'medium':
+            totalConfidenceScore += 50;
+            break;
+          case 'low':
+            totalConfidenceScore += 25;
+            break;
+        }
+        callsWithConfidence++;
+      }
+    });
+
+    const avgConfidence =
+      callsWithConfidence > 0 ? totalConfidenceScore / callsWithConfidence : 0;
+
     return {
       data: callResponseDtos,
       total,
       page,
       limit,
       totalPages: Math.ceil(total / limit),
+      metrics: {
+        totalPositiveSentiment,
+        totalNegativeSentiment,
+        totalNeutralSentiment,
+        averageConfidence: Math.round(avgConfidence),
+      },
     };
   }
 
