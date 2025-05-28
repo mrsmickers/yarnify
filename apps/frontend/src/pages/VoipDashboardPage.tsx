@@ -1,9 +1,36 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { useCallAnalysisControllerGetCalls } from '@/api/api-client'
-import type { CallResponseDto } from '@/api/api-client'
-import { useEffect, useState } from 'react'
+// import { Input } from '@/components/ui/input' // No longer needed
+import { Label } from '@/components/ui/label' // Added Label
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select' // Added Select
+import { Calendar } from '@/components/ui/calendar' // Added Calendar
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover' // Added Popover
+import { CalendarIcon, FilterXIcon, RotateCcwIcon } from 'lucide-react' // Added Icons
+import { cn } from '@/lib/utils' // Added cn
+import dayjs from 'dayjs' // Switch to dayjs
+
+import {
+  useCallAnalysisControllerGetCalls,
+  useCallAnalysisControllerGetCompanyList, // Added hook for company list
+  useCallAnalysisControllerGetAgentList, // Added hook for agent list
+} from '@/api/api-client'
+import type {
+  CallResponseDto,
+  CompanyListItemDto, // Added DTO
+  AgentListItemDto, // Added DTO
+} from '@/api/api-client'
+import { useEffect, useState, useCallback } from 'react' // Added useCallback
 import { DataTable } from '@/components/ui/data-table'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
@@ -35,6 +62,36 @@ const VoipDashboardPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [stats, setStats] = useState<CallStat[]>([])
   const [callLogs, setCallLogs] = useState<TransformedCallLog[]>([])
+  const [showFilters, setShowFilters] = useState(false) // State for filter visibility
+
+  // Filter states initialized from URL search params or defaults
+  const [companyIdFilter, setCompanyIdFilter] = useState(
+    () => searchParams.get('companyId') || ''
+  )
+  const [agentIdFilter, setAgentIdFilter] = useState(
+    () => searchParams.get('agentId') || ''
+  )
+  const [sentimentFilter, setSentimentFilter] = useState(
+    () => searchParams.get('sentiment') || ''
+  )
+  const [startDateFilter, setStartDateFilter] = useState<Date | undefined>(
+    () => {
+      const dateStr = searchParams.get('startDate')
+      return dateStr && dayjs(dateStr).isValid()
+        ? dayjs(dateStr).toDate()
+        : undefined
+    }
+  )
+  const [endDateFilter, setEndDateFilter] = useState<Date | undefined>(() => {
+    const dateStr = searchParams.get('endDate')
+    return dateStr && dayjs(dateStr).isValid()
+      ? dayjs(dateStr).toDate()
+      : undefined
+  })
+
+  // Data for filter dropdowns
+  const { data: companyList } = useCallAnalysisControllerGetCompanyList()
+  const { data: agentList } = useCallAnalysisControllerGetAgentList()
 
   // Initialize pageSize and pageIndex from URL search params or defaults
   const [pageSize, setPageSize] = useState(() => {
@@ -46,14 +103,49 @@ const VoipDashboardPage = () => {
     return page ? parseInt(page, 10) - 1 : 0 // API is 1-based, local state is 0-based
   })
 
+  // API call parameters
+  const queryParams = {
+    page: pageIndex + 1,
+    limit: pageSize,
+    companyId: companyIdFilter || undefined,
+    agentId: agentIdFilter || undefined,
+    sentiment: sentimentFilter || undefined,
+    startDate: startDateFilter
+      ? dayjs(startDateFilter).format('YYYY-MM-DD')
+      : undefined,
+    endDate: endDateFilter
+      ? dayjs(endDateFilter).format('YYYY-MM-DD')
+      : undefined,
+  }
+
   const {
     data: paginatedCallsData,
     isLoading,
     error,
-  } = useCallAnalysisControllerGetCalls(
-    { page: pageIndex + 1, limit: pageSize },
-    { query: { staleTime: 5 * 60 * 1000, refetchInterval: 10000 } }
-  )
+    refetch, // Added refetch
+  } = useCallAnalysisControllerGetCalls(queryParams, {
+    query: {
+      staleTime: 5 * 60 * 1000,
+      refetchInterval: 10000,
+      // refetchOnWindowFocus: false, // Optional: disable refetch on window focus if filters are applied manually
+    },
+  })
+
+  const handleApplyFilters = useCallback(() => {
+    setPageIndex(0) // Reset to first page when filters are applied
+    refetch()
+  }, [refetch])
+
+  const handleClearFilters = useCallback(() => {
+    setCompanyIdFilter('')
+    setAgentIdFilter('')
+    setSentimentFilter('')
+    setStartDateFilter(undefined)
+    setEndDateFilter(undefined)
+    setPageIndex(0) // Reset to first page
+    // setSearchParams({}, { replace: true }); // Clear URL params immediately
+    // refetch will be triggered by useEffect for searchParams
+  }, [])
 
   useEffect(() => {
     if (paginatedCallsData?.data) {
@@ -137,8 +229,33 @@ const VoipDashboardPage = () => {
     const newSearchParams = new URLSearchParams()
     newSearchParams.set('page', (pageIndex + 1).toString())
     newSearchParams.set('limit', pageSize.toString())
+    if (companyIdFilter) newSearchParams.set('companyId', companyIdFilter)
+    else newSearchParams.delete('companyId')
+    if (agentIdFilter) newSearchParams.set('agentId', agentIdFilter)
+    else newSearchParams.delete('agentId')
+    if (sentimentFilter) newSearchParams.set('sentiment', sentimentFilter)
+    else newSearchParams.delete('sentiment')
+    if (startDateFilter)
+      newSearchParams.set(
+        'startDate',
+        dayjs(startDateFilter).format('YYYY-MM-DD')
+      )
+    else newSearchParams.delete('startDate')
+    if (endDateFilter)
+      newSearchParams.set('endDate', dayjs(endDateFilter).format('YYYY-MM-DD'))
+    else newSearchParams.delete('endDate')
+
     setSearchParams(newSearchParams, { replace: true })
-  }, [pageIndex, pageSize, setSearchParams])
+  }, [
+    pageIndex,
+    pageSize,
+    companyIdFilter,
+    agentIdFilter,
+    sentimentFilter,
+    startDateFilter,
+    endDateFilter,
+    setSearchParams,
+  ])
 
   // Helper functions and column definitions moved inside the component
   const getSentimentBadgeVariant = (
@@ -326,24 +443,207 @@ const VoipDashboardPage = () => {
               total calls
             </p>
           </div>
-          <Button variant="outline">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-4 h-4 mr-2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"
-              />
-            </svg>
-            Show Filters
+          <Button
+            variant="outline"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            {showFilters ? (
+              <>
+                <FilterXIcon className="w-4 h-4 mr-2" />
+                Hide Filters
+              </>
+            ) : (
+              <>
+                <svg // Keep original filter icon for "Show Filters"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-4 h-4 mr-2"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"
+                  />
+                </svg>
+                Show Filters
+              </>
+            )}
           </Button>
         </CardHeader>
+
+        {showFilters && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="px-6 pb-4 border-b"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-4">
+              {/* Company Filter */}
+              <div className="space-y-1">
+                <Label htmlFor="companyFilter">Company</Label>
+                <Select
+                  value={companyIdFilter || 'ALL_COMPANIES'}
+                  onValueChange={(value) => {
+                    if (value === 'ALL_COMPANIES') {
+                      setCompanyIdFilter('')
+                    } else {
+                      setCompanyIdFilter(value)
+                    }
+                  }}
+                >
+                  <SelectTrigger id="companyFilter">
+                    <SelectValue placeholder="Select Company" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL_COMPANIES">All Companies</SelectItem>
+                    {companyList?.map((company: CompanyListItemDto) => (
+                      <SelectItem key={company.id} value={company.id}>
+                        {company.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Agent Filter */}
+              <div className="space-y-1">
+                <Label htmlFor="agentFilter">Agent</Label>
+                <Select
+                  value={agentIdFilter || 'ALL_AGENTS'}
+                  onValueChange={(value) => {
+                    if (value === 'ALL_AGENTS') {
+                      setAgentIdFilter('')
+                    } else {
+                      setAgentIdFilter(value)
+                    }
+                  }}
+                >
+                  <SelectTrigger id="agentFilter">
+                    <SelectValue placeholder="Select Agent" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL_AGENTS">All Agents</SelectItem>
+                    {agentList?.map((agent: AgentListItemDto) => (
+                      <SelectItem key={agent.id} value={agent.id}>
+                        {agent.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Sentiment Filter */}
+              <div className="space-y-1">
+                <Label htmlFor="sentimentFilter">Sentiment</Label>
+                <Select
+                  value={sentimentFilter || 'ALL_SENTIMENTS'} // Ensure "ALL_SENTIMENTS" is selected if filter is empty
+                  onValueChange={(value) => {
+                    if (value === 'ALL_SENTIMENTS') {
+                      setSentimentFilter('') // Set to empty string for "no filter"
+                    } else {
+                      setSentimentFilter(value)
+                    }
+                  }}
+                >
+                  <SelectTrigger id="sentimentFilter">
+                    <SelectValue placeholder="Select Sentiment" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL_SENTIMENTS">
+                      All Sentiments
+                    </SelectItem>
+                    <SelectItem value="Positive">Positive</SelectItem>
+                    <SelectItem value="Negative">Negative</SelectItem>
+                    <SelectItem value="Neutral">Neutral</SelectItem>
+                    <SelectItem value="Unknown">Unknown</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Start Date Filter */}
+              <div className="space-y-1">
+                <Label htmlFor="startDateFilter">Start Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="startDateFilter"
+                      variant={'outline'}
+                      className={cn(
+                        'w-full justify-start text-left font-normal',
+                        !startDateFilter && 'text-muted-foreground'
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {startDateFilter ? (
+                        dayjs(startDateFilter).format('MMM D, YYYY')
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={startDateFilter}
+                      onSelect={setStartDateFilter}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* End Date Filter */}
+              <div className="space-y-1">
+                <Label htmlFor="endDateFilter">End Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="endDateFilter"
+                      variant={'outline'}
+                      className={cn(
+                        'w-full justify-start text-left font-normal',
+                        !endDateFilter && 'text-muted-foreground'
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {endDateFilter ? (
+                        dayjs(endDateFilter).format('MMM D, YYYY')
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={endDateFilter}
+                      onSelect={setEndDateFilter}
+                      disabled={(
+                        date: Date // Added type for date
+                      ) => (startDateFilter ? date < startDateFilter : false)}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={handleClearFilters} size="sm">
+                <RotateCcwIcon className="w-4 h-4 mr-2" />
+                Clear Filters
+              </Button>
+              <Button onClick={handleApplyFilters} size="sm">
+                Apply Filters
+              </Button>
+            </div>
+          </motion.div>
+        )}
+
         <CardContent className="relative min-h-[200px]">
           {' '}
           {/* Added relative and min-h for loader positioning */}

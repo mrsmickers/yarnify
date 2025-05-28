@@ -55,6 +55,22 @@ export class GetCallsQueryDto {
   companyId?: string;
 
   @ApiPropertyOptional({
+    description: 'Agent ID to filter by',
+    type: String,
+  })
+  @IsOptional()
+  @IsString()
+  agentId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Sentiment to filter by (e.g., Positive, Negative, Neutral)',
+    type: String,
+  })
+  @IsOptional()
+  @IsString()
+  sentiment?: string;
+
+  @ApiPropertyOptional({
     description:
       'Call status to filter by (e.g., PROCESSING, COMPLETED, FAILED)',
     type: String,
@@ -146,4 +162,20 @@ export class PaginatedCallsResponseDto {
 
   @ApiProperty({ type: CallMetricsDto })
   metrics: CallMetricsDto;
+}
+
+export class CompanyListItemDto {
+  @ApiProperty({ description: 'Company ID' })
+  id: string;
+
+  @ApiProperty({ description: 'Company Name' })
+  name: string;
+}
+
+export class AgentListItemDto {
+  @ApiProperty({ description: 'Agent ID' })
+  id: string;
+
+  @ApiProperty({ description: 'Agent Name' })
+  name: string;
 }

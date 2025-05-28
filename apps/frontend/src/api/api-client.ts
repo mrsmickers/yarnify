@@ -71,6 +71,20 @@ export interface PaginatedCallsResponseDto {
   metrics: CallMetricsDto;
 }
 
+export interface CompanyListItemDto {
+  /** Company ID */
+  id: string;
+  /** Company Name */
+  name: string;
+}
+
+export interface AgentListItemDto {
+  /** Agent ID */
+  id: string;
+  /** Agent Name */
+  name: string;
+}
+
 export interface RefreshTokenResponseDto {
   /** A message indicating the result of the refresh operation. */
   message: string;
@@ -99,6 +113,14 @@ endDate?: string;
  * Company ID to filter by
  */
 companyId?: string;
+/**
+ * Agent ID to filter by
+ */
+agentId?: string;
+/**
+ * Sentiment to filter by (e.g., Positive, Negative, Neutral)
+ */
+sentiment?: string;
 /**
  * Call status to filter by (e.g., PROCESSING, COMPLETED, FAILED)
  */
@@ -1210,6 +1232,314 @@ export const useCallAnalysisControllerReprocessCall = <TError = void,
       return useMutation(mutationOptions , queryClient);
     }
     
+/**
+ * @summary Get a list of all companies for filter dropdown
+ */
+export const callAnalysisControllerGetCompanyList = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return axiosInstance<CompanyListItemDto[]>(
+      {url: `/api/v1/call-analysis/companies-list`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+export const getCallAnalysisControllerGetCompanyListQueryKey = () => {
+    return [`/api/v1/call-analysis/companies-list`] as const;
+    }
+
+    
+export const getCallAnalysisControllerGetCompanyListInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>>, TError = unknown>( options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCallAnalysisControllerGetCompanyListQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>> = ({ signal }) => callAnalysisControllerGetCompanyList(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CallAnalysisControllerGetCompanyListInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>>
+export type CallAnalysisControllerGetCompanyListInfiniteQueryError = unknown
+
+
+export function useCallAnalysisControllerGetCompanyListInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>>, TError = unknown>(
+  options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>,
+          TError,
+          Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCallAnalysisControllerGetCompanyListInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>,
+          TError,
+          Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCallAnalysisControllerGetCompanyListInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get a list of all companies for filter dropdown
+ */
+
+export function useCallAnalysisControllerGetCompanyListInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCallAnalysisControllerGetCompanyListInfiniteQueryOptions(options)
+
+  const query = useInfiniteQuery(queryOptions , queryClient) as  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+export const getCallAnalysisControllerGetCompanyListQueryOptions = <TData = Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCallAnalysisControllerGetCompanyListQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>> = ({ signal }) => callAnalysisControllerGetCompanyList(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CallAnalysisControllerGetCompanyListQueryResult = NonNullable<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>>
+export type CallAnalysisControllerGetCompanyListQueryError = unknown
+
+
+export function useCallAnalysisControllerGetCompanyList<TData = Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>,
+          TError,
+          Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCallAnalysisControllerGetCompanyList<TData = Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>,
+          TError,
+          Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCallAnalysisControllerGetCompanyList<TData = Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get a list of all companies for filter dropdown
+ */
+
+export function useCallAnalysisControllerGetCompanyList<TData = Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetCompanyList>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCallAnalysisControllerGetCompanyListQueryOptions(options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get a list of all agents for filter dropdown
+ */
+export const callAnalysisControllerGetAgentList = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return axiosInstance<AgentListItemDto[]>(
+      {url: `/api/v1/call-analysis/agents-list`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+export const getCallAnalysisControllerGetAgentListQueryKey = () => {
+    return [`/api/v1/call-analysis/agents-list`] as const;
+    }
+
+    
+export const getCallAnalysisControllerGetAgentListInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>>, TError = unknown>( options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCallAnalysisControllerGetAgentListQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>> = ({ signal }) => callAnalysisControllerGetAgentList(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CallAnalysisControllerGetAgentListInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>>
+export type CallAnalysisControllerGetAgentListInfiniteQueryError = unknown
+
+
+export function useCallAnalysisControllerGetAgentListInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>>, TError = unknown>(
+  options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>,
+          TError,
+          Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCallAnalysisControllerGetAgentListInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>,
+          TError,
+          Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCallAnalysisControllerGetAgentListInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get a list of all agents for filter dropdown
+ */
+
+export function useCallAnalysisControllerGetAgentListInfinite<TData = InfiniteData<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCallAnalysisControllerGetAgentListInfiniteQueryOptions(options)
+
+  const query = useInfiniteQuery(queryOptions , queryClient) as  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+export const getCallAnalysisControllerGetAgentListQueryOptions = <TData = Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCallAnalysisControllerGetAgentListQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>> = ({ signal }) => callAnalysisControllerGetAgentList(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CallAnalysisControllerGetAgentListQueryResult = NonNullable<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>>
+export type CallAnalysisControllerGetAgentListQueryError = unknown
+
+
+export function useCallAnalysisControllerGetAgentList<TData = Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>,
+          TError,
+          Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCallAnalysisControllerGetAgentList<TData = Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>,
+          TError,
+          Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCallAnalysisControllerGetAgentList<TData = Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get a list of all agents for filter dropdown
+ */
+
+export function useCallAnalysisControllerGetAgentList<TData = Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof callAnalysisControllerGetAgentList>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCallAnalysisControllerGetAgentListQueryOptions(options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
 export const authControllerLogin = (
     
  signal?: AbortSignal

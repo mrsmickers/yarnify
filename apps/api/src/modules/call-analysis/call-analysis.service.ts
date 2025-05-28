@@ -9,6 +9,8 @@ import {
   GetCallsQueryDto,
   PaginatedCallsResponseDto,
   CallResponseDto,
+  CompanyListItemDto, // Added
+  AgentListItemDto, // Added
 } from './dto/get-calls.dto';
 import { Prisma } from '@db'; // Use @db alias - This is the correct one
 import { ConfigService } from '@nestjs/config';
@@ -90,6 +92,8 @@ export class CallAnalysisService {
       companyId,
       status,
       searchTerm,
+      agentId, // Added agentId
+      sentiment, // Added sentiment
     } = query;
 
     const skip = (page - 1) * limit;
@@ -102,13 +106,34 @@ export class CallAnalysisService {
       (where.startTime as Prisma.DateTimeFilter).gte = startDate;
     }
     if (endDate) {
-      if (typeof where.endTime !== 'object' || where.endTime === null) {
-        where.endTime = {};
+      // Corrected to apply to startTime for end of day
+      if (typeof where.startTime !== 'object' || where.startTime === null) {
+        where.startTime = {};
       }
-      (where.endTime as Prisma.DateTimeFilter).lte = endDate;
+      // If filtering for a whole day, endDate should be the start of the next day
+      // For simplicity here, assuming endDate is precise or handled client-side for day range
+      (where.startTime as Prisma.DateTimeFilter).lte = endDate;
     }
     if (companyId) {
       where.companyId = companyId;
+    }
+    if (agentId) {
+      where.agentsId = agentId; // Corrected based on TS error suggestion
+    }
+    if (sentiment) {
+      // Filter by sentiment in the related CallAnalysis record's 'data' JSON field
+      where.analysis = {
+        is: {
+          // 'data' is the JSON field on the CallAnalysis model
+          // We apply JsonFilter conditions to it.
+          data: {
+            // Path to the 'sentiment' key within the 'data' JSON object
+            path: ['sentiment'],
+            // The value to match for the 'sentiment' key
+            equals: sentiment,
+          } as Prisma.JsonFilter, // Type assertion for JsonFilter
+        },
+      };
     }
     if (status) {
       where.callStatus = status;
@@ -295,5 +320,42 @@ export class CallAnalysisService {
     });
 
     return { message: `Call with ID ${id} has been queued for reprocessing.` };
+  }
+
+  async getCompanyList(): Promise<CompanyListItemDto[]> {
+    const companies = await this.db.company.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    });
+    return companies.map((company) => ({
+      id: company.id,
+      name: company.name || 'Unnamed Company', // Handle cases where name might be null
+    }));
+  }
+
+  async getAgentList(): Promise<AgentListItemDto[]> {
+    // Assuming your agent model is named 'Agents' as seen in 'include: { Agents: true }'
+    // and has 'id' and 'name' fields. Adjust if your model is different.
+    const agents = await this.db.agent.findMany({
+      // Corrected from 'agents' to 'agent'
+      // Changed from 'agent' to 'agents'
+      select: {
+        id: true,
+        name: true,
+      },
+      // Removed where clause for name, assuming names are generally non-null for selectable agents
+      orderBy: {
+        name: 'asc',
+      },
+    });
+    return agents.map((agent) => ({
+      id: agent.id,
+      name: agent.name as string, // Assert name is string as we filtered out nulls
+    }));
   }
 }

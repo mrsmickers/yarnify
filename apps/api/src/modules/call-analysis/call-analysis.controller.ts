@@ -16,6 +16,8 @@ import {
   GetCallsQueryDto,
   PaginatedCallsResponseDto,
   CallResponseDto, // Import CallResponseDto for single call response
+  CompanyListItemDto, // Added
+  AgentListItemDto, // Added
 } from './dto/get-calls.dto';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -77,5 +79,27 @@ export class CallAnalysisController {
   @ApiResponse({ status: 404, description: 'Call not found.' })
   async reprocessCall(@Param('id') id: string): Promise<{ message: string }> {
     return this.callAnalysisService.reprocessCall(id);
+  }
+
+  @Get('companies-list')
+  @ApiOperation({ summary: 'Get a list of all companies for filter dropdown' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved company list.',
+    type: [CompanyListItemDto],
+  })
+  async getCompanyList(): Promise<CompanyListItemDto[]> {
+    return this.callAnalysisService.getCompanyList();
+  }
+
+  @Get('agents-list')
+  @ApiOperation({ summary: 'Get a list of all agents for filter dropdown' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved agent list.',
+    type: [AgentListItemDto],
+  })
+  async getAgentList(): Promise<AgentListItemDto[]> {
+    return this.callAnalysisService.getAgentList();
   }
 }
