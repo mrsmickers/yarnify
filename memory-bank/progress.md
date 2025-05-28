@@ -7,6 +7,9 @@ This file tracks the project's progress using a task list format.
 
 ## Completed Tasks
 
+*   [2025-05-28 22:51:03] - Simplified the "Technical Info" section in [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:528) by removing the "ID" field and making "Call SID" full-width.
+*   [2025-05-28 22:49:31] - Restyled the "Technical Info" section in [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:521) for improved visual appearance using Shadcn-like card/grid styling.
+*   [2025-05-28 22:48:01] - Fixed duplicated code in [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:557) by removing extraneous closing JSX tags.
 *   [2025-05-27 21:51:29] - Attempted to fix "No object generated: response did not match schema" error by clarifying LLM instructions in [`apps/api/src/modules/call-analysis/prompt.ts`](apps/api/src/modules/call-analysis/prompt.ts:46) regarding enum value handling.
 *   [2025-05-27 16:44:16] - Configured call data in [`VoipDashboardPage.tsx`](apps/frontend/src/pages/VoipDashboardPage.tsx:53:1) to refetch every 10 seconds.
 *   [2025-05-27 10:52:44] - Updated [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:324) to show agent name in general info, ensuring visibility even if analysis fails.

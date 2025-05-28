@@ -255,12 +255,7 @@ const CallDetailPage = () => {
                 <CardTitle className="text-3xl font-bold tracking-tight">
                   Call Details
                 </CardTitle>
-                <div className="flex items-center gap-2 text-blue-100">
-                  <span className="text-sm font-medium">ID:</span>
-                  <code className="bg-blue-700/30 px-2 py-1 rounded text-sm">
-                    {callDetails.id}
-                  </code>
-                </div>
+                {/* Remove ID from header */}
                 {callDetails.callStatus &&
                   failedStatuses.includes(
                     callDetails.callStatus.toUpperCase()
@@ -284,7 +279,7 @@ const CallDetailPage = () => {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
+                transition={{ delay: 0.1 }}
               >
                 <h4 className="text-xl font-semibold mb-4 text-gray-800">
                   General Information
@@ -293,10 +288,18 @@ const CallDetailPage = () => {
                   <div className="space-y-3">
                     <div className="flex flex-col">
                       <span className="text-sm font-medium text-gray-500">
-                        Call SID
+                        Company
                       </span>
-                      <span className="font-mono text-gray-700">
-                        {callDetails.callSid}
+                      <span className="text-gray-700">
+                        {displayCompany || 'N/A'}
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-gray-500">
+                        Company Contact
+                      </span>
+                      <span className="text-gray-700">
+                        {String(callDetails.analysis?.client_name ?? 'N/A')}
                       </span>
                     </div>
                     <div className="flex flex-col">
@@ -332,35 +335,6 @@ const CallDetailPage = () => {
                     )}
                     <div className="flex flex-col">
                       <span className="text-sm font-medium text-gray-500">
-                        Status
-                      </span>
-                      <span
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                          callDetails.callStatus === 'COMPLETED'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}
-                      >
-                        <span
-                          className={`w-2 h-2 rounded-full mr-2 ${
-                            callDetails.callStatus === 'COMPLETED'
-                              ? 'bg-green-400'
-                              : 'bg-yellow-400'
-                          }`}
-                        ></span>
-                        {callDetails.callStatus}
-                      </span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-gray-500">
-                        Company
-                      </span>
-                      <span className="text-gray-700">
-                        {displayCompany || 'N/A'}
-                      </span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-gray-500">
                         Agent Name
                       </span>
                       <span className="text-gray-700">
@@ -370,15 +344,109 @@ const CallDetailPage = () => {
                   </div>
                 </div>
 
-                {callId && (
-                  <div className="mt-6">
-                    <h5 className="text-md font-semibold mb-2 text-gray-700">
-                      Call Recording
-                    </h5>
+                {/* Move Call Recording section after Call Analysis */}
+              </motion.div>
+
+              {/* Call Analysis Section - Moved up */}
+              {callDetails.analysis && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="pt-6 border-t border-gray-200"
+                >
+                  <h4 className="text-xl font-semibold mb-6 text-gray-800">
+                    Call Analysis
+                  </h4>
+                  <div className="space-y-6">
+                    <div className="bg-gray-50 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow duration-200 mb-6">
+                      <div className="text-sm font-medium text-gray-500 mb-2">
+                        Summary
+                      </div>
+                      <p className="text-gray-700 leading-relaxed">
+                        {String(callDetails.analysis.summary ?? 'N/A')}
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {(() => {
+                        const dynamicAnalysis = Object.entries(
+                          callDetails.analysis
+                        ).filter(
+                          ([key]) => !['summary', 'agent_name'].includes(key)
+                        )
+                        return dynamicAnalysis.map(([key, value], index) => (
+                          <motion.div
+                            key={key}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 * index }}
+                            className="bg-gray-50/80 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 hover:bg-white"
+                          >
+                            <div className="text-sm font-medium text-gray-500 mb-1">
+                              {key
+                                .replace(/_/g, ' ')
+                                .replace(/\b\w/g, (l) => l.toUpperCase())}
+                            </div>
+                            <div className="text-gray-700 break-words">
+                              {String(value ?? 'N/A')}
+                            </div>
+                          </motion.div>
+                        ))
+                      })()}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Transcript Section - Moved down */}
+              {callDetails?.transcriptUrl && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }} // Already correct
+                  className="pt-6 border-t border-gray-200"
+                >
+                  <h4 className="text-xl font-semibold mb-4 text-gray-800">
+                    Call Transcript
+                  </h4>
+                  {transcriptLoading && <p>Loading transcript...</p>}
+                  {transcriptError && (
+                    <p className="text-red-500">Error: {transcriptError}</p>
+                  )}
+                  {transcript && !transcriptLoading && !transcriptError && (
+                    <Card className="bg-gray-50/80 shadow-sm max-h-96 overflow-y-auto">
+                      <CardContent className="p-4">
+                        <pre className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed font-mono">
+                          {transcript}
+                        </pre>
+                      </CardContent>
+                    </Card>
+                  )}
+                  {!transcript && !transcriptLoading && !transcriptError && (
+                    <p className="text-gray-500">
+                      Transcript not available or failed to load.
+                    </p>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Call Recording Section */}
+              {callId && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="pt-6 border-t border-gray-200"
+                >
+                  <h4 className="text-xl font-semibold mb-4 text-gray-800">
+                    Call Recording
+                  </h4>
+                  <div className="mt-2">
                     <audio
                       ref={audioRef}
                       src={`/api/v1/storage/recordings/stream/${callId}`}
-                      className="w-full hidden" // Hide default controls initially
+                      className="w-full hidden"
                       onLoadedMetadata={() => {
                         if (audioRef.current)
                           setDuration(audioRef.current.duration)
@@ -425,7 +493,6 @@ const CallDetailPage = () => {
                         aria-label="Download call recording"
                         title="Download Recording"
                       >
-                        {/* Simple Download Icon (Heroicons: ArrowDownTray) */}
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 20 20"
@@ -437,7 +504,6 @@ const CallDetailPage = () => {
                         </svg>
                       </a>
                     </div>
-                    {/* Fallback for browsers that might not hide the audio tag if src is invalid, or for accessibility */}
                     <noscript>
                       <audio
                         controls
@@ -448,91 +514,30 @@ const CallDetailPage = () => {
                       </audio>
                     </noscript>
                   </div>
-                )}
-              </motion.div>
-
-              {/* Transcript Section */}
-              {callDetails?.transcriptUrl && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.25 }}
-                  className="pt-6 border-t border-gray-200"
-                >
-                  <h4 className="text-xl font-semibold mb-4 text-gray-800">
-                    Call Transcript
-                  </h4>
-                  {transcriptLoading && <p>Loading transcript...</p>}
-                  {transcriptError && (
-                    <p className="text-red-500">Error: {transcriptError}</p>
-                  )}
-                  {transcript && !transcriptLoading && !transcriptError && (
-                    <Card className="bg-gray-50/80 shadow-sm max-h-96 overflow-y-auto">
-                      <CardContent className="p-4">
-                        <pre className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed font-mono">
-                          {transcript}
-                        </pre>
-                      </CardContent>
-                    </Card>
-                  )}
-                  {!transcript && !transcriptLoading && !transcriptError && (
-                    <p className="text-gray-500">
-                      Transcript not available or failed to load.
-                    </p>
-                  )}
                 </motion.div>
               )}
 
-              {callDetails.analysis && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="pt-6 border-t border-gray-200"
-                >
-                  <h4 className="text-xl font-semibold mb-6 text-gray-800">
-                    Call Analysis
-                  </h4>
-                  <div className="space-y-6">
-                    <div className="bg-gray-50 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow duration-200 mb-6">
-                      <div className="text-sm font-medium text-gray-500 mb-2">
-                        Summary
-                      </div>
-                      <p className="text-gray-700 leading-relaxed">
-                        {String(callDetails.analysis.summary ?? 'N/A')}
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {(() => {
-                        const dynamicAnalysis = Object.entries(
-                          callDetails.analysis
-                        ).filter(
-                          ([key]) => !['summary', 'agent_name'].includes(key)
-                        )
-                        return dynamicAnalysis.map(([key, value], index) => (
-                          <motion.div
-                            key={key}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.1 * index }}
-                            className="bg-gray-50/80 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 hover:bg-white"
-                          >
-                            <div className="text-sm font-medium text-gray-500 mb-1">
-                              {key
-                                .replace(/_/g, ' ')
-                                .replace(/\b\w/g, (l) => l.toUpperCase())}
-                            </div>
-                            <div className="text-gray-700 break-words">
-                              {String(value ?? 'N/A')}
-                            </div>
-                          </motion.div>
-                        ))
-                      })()}
-                    </div>
+              {/* Technical Info Section - At the bottom */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="pt-6 border-t border-gray-200"
+              >
+                <h4 className="text-xl font-semibold mb-4 text-gray-800">
+                  Technical Info
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-base">
+                  <div className="flex flex-col p-4 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 md:col-span-2">
+                    <span className="text-sm font-medium text-gray-500 mb-1">
+                      Call SID
+                    </span>
+                    <span className="font-mono text-gray-700 break-all">
+                      {callDetails.callSid}
+                    </span>
                   </div>
-                </motion.div>
-              )}
+                </div>
+              </motion.div>
             </CardContent>
           </Card>
         </motion.div>

@@ -12,6 +12,9 @@ This file tracks the project's current status, including recent changes, current
 
 ## Recent Changes
 
+*   [2025-05-28 22:51:03] - Removed the "ID" field from the "Technical Info" section in [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:528), leaving only "Call SID".
+*   [2025-05-28 22:49:31] - Improved the styling of the "Technical Info" section in [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:521) using Shadcn-like card styling for better visual presentation.
+*   [2025-05-28 22:48:01] - Removed duplicated code block from the end of [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:557).
 *   [2025-05-27 21:51:29] - Updated instructions in [`apps/api/src/modules/call-analysis/prompt.ts`](apps/api/src/modules/call-analysis/prompt.ts:46) to clarify handling of undetermined enum values, aiming to resolve "No object generated: response did not match schema" errors.
 *   [2025-05-27 16:44:16] - Configured call data in [`VoipDashboardPage.tsx`](apps/frontend/src/pages/VoipDashboardPage.tsx:53:1) to refetch every 10 seconds by adding `refetchInterval: 10000` to the `useCallAnalysisControllerGetCalls` hook options.
 *   [2025-05-27 10:52:44] - Moved agent name display in [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:324) to the general information section to ensure it's visible even if call analysis fails.

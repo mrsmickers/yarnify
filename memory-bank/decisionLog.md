@@ -3,6 +3,27 @@
 This file records architectural and implementation decisions using a list format.
 2025-05-24 12:05:05 - Log of updates made.
 
+*   [2025-05-28 22:51:03] - Simplified "Technical Info" section in CallDetailPage.
+    ## Decision
+    *   Removed the "ID" field from the "Technical Info" section of [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:528). The "Call SID" field was updated to span the full width of its grid row (`md:col-span-2`).
+    ## Rationale
+    *   The user requested to only show "Call SID" in this section, as the internal "ID" might be less relevant for the user viewing this page.
+    ## Implementation Details
+    *   Used `apply_diff` to remove the `div` container for the "ID" field and to add `md:col-span-2` to the "Call SID" `div` to make it full-width on medium screens and above.
+*   [2025-05-28 22:49:31] - Improved "Technical Info" section styling in CallDetailPage.
+    ## Decision
+    *   Replaced the simple `div` and `span` structure for "ID" and "Call SID" in the "Technical Info" section of [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:521) with a grid layout where each item is presented in a styled box, similar to a Shadcn `Card` or definition list item.
+    ## Rationale
+    *   The user requested to make the "Technical Info" section look better using Shadcn principles. The new structure provides better visual separation and a cleaner look, aligning with the styling of other information blocks on the page.
+    ## Implementation Details
+    *   Used `apply_diff` to change the JSX structure. The new structure uses a `grid` container and individual `div` elements for each technical detail, styled with Tailwind CSS classes (`p-4 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200`). Added `break-all` to the value spans to prevent long IDs from breaking the layout.
+*   [2025-05-28 22:48:01] - Corrected duplicated code in CallDetailPage.
+    ## Decision
+    *   Removed a duplicated block of JSX code from the end of the file [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:557).
+    ## Rationale
+    *   The duplicated code (closing tags for CardContent, Card, motion.div, and two other divs) was causing syntax errors and preventing the component from rendering correctly.
+    ## Implementation Details
+    *   Used `apply_diff` to remove the extraneous lines. The initial attempt to remove a larger block was too aggressive, but a subsequent check confirmed the first `apply_diff` correctly removed the duplication, and a second `apply_diff` attempt correctly reported no changes were needed.
 *   [2025-05-27 21:51:29] - Clarified LLM instructions for handling enum values in call analysis.
     ## Decision
     *   Updated the system prompt in [`apps/api/src/modules/call-analysis/prompt.ts`](apps/api/src/modules/call-analysis/prompt.ts:46) to provide more specific guidance on how to handle undetermined or unclear values for enum fields when generating the `callAnalysisSchema` object.
