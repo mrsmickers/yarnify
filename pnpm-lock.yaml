@@ -261,6 +261,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      dayjs:
+        specifier: ^1.11.13
+        version: 1.11.13
       framer-motion:
         specifier: ^12.12.2
         version: 12.12.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -2231,8 +2234,8 @@ packages:
   '@xsai/generate-transcription@0.2.2':
     resolution: {integrity: sha512-c8UEXoMrlciQmy+CCWFTRD9XOOvxj33pB4GeTSzEgL6OCWNZs4EO2+S+k+39WlOuyRxcoxhq2rfKw2f1LleDug==}
 
-  '@xsai/shared@0.3.0-beta.2':
-    resolution: {integrity: sha512-H9a6K0n8p05qGz9EutqhEXzP86YYMYAiwWv/d4eEVdnjHa51pdxiB93PTNFn3snkCcCG5oahli6am5RDIf23Zg==}
+  '@xsai/shared@0.3.0-beta.3':
+    resolution: {integrity: sha512-oEwhwLeh2xXb5J0Wt/K/4zQrdBxBvFV9v3aG5UOr4AoZpXsUm3F6Hf+XB2aMX0KegFVhV2dhXe00f7XBa2vFeg==}
 
   '@xtuc/ieee754@1.2.0':
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}
@@ -8231,13 +8234,13 @@ snapshots:
 
   '@xsai/generate-speech@0.2.2':
     dependencies:
-      '@xsai/shared': 0.3.0-beta.2
+      '@xsai/shared': 0.3.0-beta.3
 
   '@xsai/generate-transcription@0.2.2':
     dependencies:
-      '@xsai/shared': 0.3.0-beta.2
+      '@xsai/shared': 0.3.0-beta.3
 
-  '@xsai/shared@0.3.0-beta.2': {}
+  '@xsai/shared@0.3.0-beta.3': {}
 
   '@xtuc/ieee754@1.2.0': {}
 

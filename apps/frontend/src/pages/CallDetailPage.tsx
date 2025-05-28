@@ -1,5 +1,8 @@
 import { useParams, Link } from 'react-router-dom'
 import React, { useRef, useState, useEffect } from 'react'
+import dayjs from 'dayjs'
+import durationPlugin from 'dayjs/plugin/duration'
+dayjs.extend(durationPlugin)
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   useCallAnalysisControllerGetCallById,
@@ -166,9 +169,11 @@ const CallDetailPage = () => {
   }
 
   const formatTime = (timeInSeconds: number) => {
-    const minutes = Math.floor(timeInSeconds / 60)
-    const seconds = Math.floor(timeInSeconds % 60)
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
+    const duration = dayjs.duration(timeInSeconds, 'seconds')
+    if (timeInSeconds >= 60) {
+      return `${duration.minutes()}m ${duration.seconds()}s`
+    }
+    return `${duration.seconds()}s`
   }
 
   if (loading) {
@@ -329,7 +334,7 @@ const CallDetailPage = () => {
                           Duration
                         </span>
                         <span className="text-gray-700">
-                          {callDetails.duration} seconds
+                          {formatTime(callDetails.duration)}
                         </span>
                       </div>
                     )}
