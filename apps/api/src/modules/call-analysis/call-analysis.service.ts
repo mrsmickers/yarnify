@@ -112,6 +112,10 @@ export class CallAnalysisService {
     }
     if (status) {
       where.callStatus = status;
+    } else {
+      where.callStatus = {
+        notIn: ['INTERNAL_CALL_SKIPPED'], // Default statuses to include
+      };
     }
     if (searchTerm) {
       where.OR = [
