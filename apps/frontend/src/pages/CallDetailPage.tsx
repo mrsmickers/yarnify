@@ -494,44 +494,7 @@ const CallDetailPage = () => {
                     Call Analysis
                   </h4>
                   <div className="space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      <div className="bg-gray-50 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
-                        <div className="text-sm font-medium text-gray-500 mb-1">
-                          Overall Sentiment
-                        </div>
-                        <div className="text-lg text-gray-700">
-                          {String(
-                            callDetails.analysis.overall_sentiment ?? 'N/A'
-                          )}
-                        </div>
-                      </div>
-                      <div className="bg-gray-50 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
-                        <div className="text-sm font-medium text-gray-500 mb-1">
-                          Customer Mood
-                        </div>
-                        <div className="text-lg text-gray-700">
-                          {String(callDetails.analysis.customer_mood ?? 'N/A')}
-                        </div>
-                      </div>
-                      <div className="bg-gray-50 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
-                        <div className="text-sm font-medium text-gray-500 mb-1">
-                          AI Confidence
-                        </div>
-                        <div className="text-lg text-gray-700">
-                          {callDetails.analysis.ai_confidence_score
-                            ? `${(
-                                parseFloat(
-                                  String(
-                                    callDetails.analysis.ai_confidence_score
-                                  )
-                                ) * 100
-                              ).toFixed(0)}%`
-                            : 'N/A'}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-50 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <div className="bg-gray-50 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow duration-200 mb-6">
                       <div className="text-sm font-medium text-gray-500 mb-2">
                         Summary
                       </div>
@@ -545,14 +508,7 @@ const CallDetailPage = () => {
                         const dynamicAnalysis = Object.entries(
                           callDetails.analysis
                         ).filter(
-                          ([key]) =>
-                            ![
-                              'overall_sentiment',
-                              'customer_mood',
-                              'summary',
-                              'agent_name',
-                              'ai_confidence_score',
-                            ].includes(key)
+                          ([key]) => !['summary', 'agent_name'].includes(key)
                         )
                         return dynamicAnalysis.map(([key, value], index) => (
                           <motion.div
