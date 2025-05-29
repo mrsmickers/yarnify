@@ -118,4 +118,55 @@ export class OpenAIService {
       throw error;
     }
   }
+
+  /**
+   * Refine a transcript using OpenAI GPT-4o for better readability.
+   */
+  async refineTranscript(
+    rawTranscript: string,
+    model = 'gpt-4o', // Use gpt-4o for refinement
+    options?: Partial<OpenAI.Chat.ChatCompletionCreateParams>,
+  ): Promise<string> {
+    this.logger.log(`Refining transcript with model: ${model}`);
+
+    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+      {
+        role: 'system',
+        content:
+          'You are a helpful assistant that refines raw speech-to-text transcripts. Your goal is to make the transcript more readable by correcting grammar, punctuation, and sentence structure. If possible, identify different speakers and format the transcript accordingly (e.g., Speaker 1:, Speaker 2:). Do not summarize or change the meaning of the content. Output only the refined transcript text.',
+      },
+      {
+        role: 'user',
+        content: `Please refine the following transcript:\n\n${rawTranscript}`,
+      },
+    ];
+
+    try {
+      const completion = await this.createChatCompletion(messages, model, {
+        temperature: 0.2, // Lower temperature for more deterministic output
+        ...options,
+      });
+
+      const refinedText = completion.choices[0]?.message?.content?.trim();
+
+      if (!refinedText) {
+        this.logger.warn('Transcript refinement resulted in empty text.');
+        // Fallback to raw transcript if refinement fails or returns empty
+        return rawTranscript;
+      }
+
+      this.logger.log('Transcript refined successfully.');
+      return refinedText;
+    } catch (error) {
+      this.logger.error(
+        `Error during transcript refinement: ${error.message}`,
+        error.stack,
+      );
+      // Fallback to raw transcript in case of error
+      this.logger.warn(
+        'Falling back to raw transcript due to refinement error.',
+      );
+      return rawTranscript;
+    }
+  }
 }

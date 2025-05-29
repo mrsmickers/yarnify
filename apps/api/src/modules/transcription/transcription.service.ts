@@ -35,8 +35,16 @@ export class TranscriptionService {
         modelName,
       );
 
-      this.logger.log('Transcription successful.');
-      return transcription.text;
+      this.logger.log('Raw transcription successful. Refining transcript...');
+      const rawTranscript = transcription.text;
+
+      // Refine the transcript using the new method
+      const refinedTranscript = await this.openaiService.refineTranscript(
+        rawTranscript,
+      );
+
+      this.logger.log('Transcript refinement successful.');
+      return refinedTranscript;
     } catch (error) {
       this.logger.error(
         `Error during transcription: ${error.message}`,

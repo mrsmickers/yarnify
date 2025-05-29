@@ -7,6 +7,7 @@ This file tracks the project's progress using a task list format.
 
 ## Completed Tasks
 
+*   [2025-05-29 20:32:39] - Enhanced transcription process in [`TranscriptionService`](apps/api/src/modules/transcription/transcription.service.ts:1) and [`OpenAIService`](apps/api/src/modules/openai/openai.service.ts:1) to use GPT-4o for refining Whisper transcripts, improving readability.
 *   [2025-05-28 22:51:03] - Simplified the "Technical Info" section in [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:528) by removing the "ID" field and making "Call SID" full-width.
 *   [2025-05-28 22:49:31] - Restyled the "Technical Info" section in [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:521) for improved visual appearance using Shadcn-like card/grid styling.
 *   [2025-05-28 22:48:01] - Fixed duplicated code in [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:557) by removing extraneous closing JSX tags.

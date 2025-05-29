@@ -3,6 +3,17 @@
 This file records architectural and implementation decisions using a list format.
 2025-05-24 12:05:05 - Log of updates made.
 
+*   [2025-05-29 20:32:28] - Enhanced transcription process to include GPT-4o refinement.
+    ## Decision
+    *   Modified [`TranscriptionService`](apps/api/src/modules/transcription/transcription.service.ts:1) to send the raw output from Whisper to GPT-4o for refinement.
+    *   Added a new method `refineTranscript` to [`OpenAIService`](apps/api/src/modules/openai/openai.service.ts:123) to handle the call to GPT-4o with a specific prompt instructing it to improve readability, correct grammar/punctuation, and identify speakers if possible, without altering the meaning.
+    ## Rationale
+    *   Raw Whisper transcripts can sometimes be difficult to read due to lack of punctuation, run-on sentences, or minor inaccuracies.
+    *   Using GPT-4o to post-process the transcript aims to produce a cleaner, more human-readable version, which will be beneficial for subsequent analysis or direct review.
+    *   The refinement step includes error handling to fall back to the raw transcript if refinement fails.
+    ## Implementation Details
+    *   Added `refineTranscript` async method to [`OpenAIService`](apps/api/src/modules/openai/openai.service.ts:123), which uses `createChatCompletion` with model `gpt-4o` and a system prompt tailored for transcript refinement.
+    *   Modified `transcribeAudio` in [`TranscriptionService`](apps/api/src/modules/transcription/transcription.service.ts:14) to call `this.openaiService.refineTranscript()` with the text from the initial Whisper transcription.
 *   [2025-05-28 22:51:03] - Simplified "Technical Info" section in CallDetailPage.
     ## Decision
     *   Removed the "ID" field from the "Technical Info" section of [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:528). The "Call SID" field was updated to span the full width of its grid row (`md:col-span-2`).
