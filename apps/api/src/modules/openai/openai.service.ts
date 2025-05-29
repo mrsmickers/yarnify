@@ -39,6 +39,7 @@ export class OpenAIService {
       const transcription = await this.openai.audio.transcriptions.create({
         file: audioFile,
         model,
+        language: 'en', // Default to English, can be overridden in options
         ...options, // Spread options first
         response_format: 'verbose_json', // Ensure verbose_json for timestamps
         timestamp_granularities: ['segment'], // Ensure segment-level timestamps
