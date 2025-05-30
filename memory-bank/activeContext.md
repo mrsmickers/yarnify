@@ -12,6 +12,7 @@ This file tracks the project's current status, including recent changes, current
 
 ## Recent Changes
 
+*   [2025-05-30 08:44:26] - Reordered items in the "General Information" section of [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:313) to group caller information on the left and time/date/duration stats on the right.
 *   [2025-05-30 08:40:37] - Increased the navigation bar size by a total of 50% from its original dimensions in [`apps/frontend/src/components/Navigation.tsx`](apps/frontend/src/components/Navigation.tsx:26). This involved changing the main bar height to `h-24` (96px), desktop logo to `h-[60px]` (60px), mobile logo to `h-12` (48px), and mobile menu `top` to `top-24`.
 *   [2025-05-28 22:51:03] - Removed the "ID" field from the "Technical Info" section in [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:528), leaving only "Call SID".
 *   [2025-05-28 22:49:31] - Improved the styling of the "Technical Info" section in [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:521) using Shadcn-like card styling for better visual presentation.

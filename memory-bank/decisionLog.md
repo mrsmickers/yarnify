@@ -3,6 +3,15 @@
 This file records architectural and implementation decisions using a list format.
 2025-05-24 12:05:05 - Log of updates made.
 
+*   [2025-05-30 08:44:26] - Reordered "General Information" section in CallDetailPage.
+    ## Decision
+    *   Reordered items within the "General Information" section of [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:313).
+    *   The left column now displays: Company Contact, Agent Name, Company.
+    *   The right column now displays: Start Time, End Time, Duration.
+    ## Rationale
+    *   The user requested to group caller-related information on the left and time/date/duration statistics on the right for better logical flow and readability.
+    ## Implementation Details
+    *   Used `apply_diff` to move the JSX blocks for "Company Contact", "Agent Name", "Company", "Start Time", "End Time", and "Duration" within their respective column `div` containers.
 *   [2025-05-30 08:40:37] - Increased navigation bar size by 50% from original.
     ## Decision
     *   Increased the height of the main navigation bar container from an original `h-16` (64px) to `h-24` (96px) in [`apps/frontend/src/components/Navigation.tsx`](apps/frontend/src/components/Navigation.tsx:26).

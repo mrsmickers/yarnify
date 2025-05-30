@@ -314,20 +314,31 @@ const CallDetailPage = () => {
                   <div className="space-y-3">
                     <div className="flex flex-col">
                       <span className="text-sm font-medium text-gray-500">
-                        Company
-                      </span>
-                      <span className="text-gray-700">
-                        {displayCompany || 'N/A'}
-                      </span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-gray-500">
                         Company Contact
                       </span>
                       <span className="text-gray-700">
                         {String(callDetails.analysis?.client_name ?? 'N/A')}
                       </span>
                     </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-gray-500">
+                        Agent Name
+                      </span>
+                      <span className="text-gray-700">
+                        {String(callDetails.agentName ?? 'N/A')}
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-gray-500">
+                        Company
+                      </span>
+                      <span className="text-gray-700">
+                        {displayCompany || 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
                     <div className="flex flex-col">
                       <span className="text-sm font-medium text-gray-500">
                         Start Time
@@ -346,9 +357,6 @@ const CallDetailPage = () => {
                         </span>
                       </div>
                     )}
-                  </div>
-
-                  <div className="space-y-3">
                     {callDetails.duration && (
                       <div className="flex flex-col">
                         <span className="text-sm font-medium text-gray-500">
@@ -359,14 +367,6 @@ const CallDetailPage = () => {
                         </span>
                       </div>
                     )}
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-gray-500">
-                        Agent Name
-                      </span>
-                      <span className="text-gray-700">
-                        {String(callDetails.agentName ?? 'N/A')}
-                      </span>
-                    </div>
                   </div>
                 </div>
 

@@ -7,6 +7,7 @@ This file tracks the project's progress using a task list format.
 
 ## Completed Tasks
 
+*   [2025-05-30 08:44:26] - Reordered items in the "General Information" section of [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:313) to group caller information on the left and time/date/duration stats on the right.
 *   [2025-05-30 08:40:37] - Increased navigation bar size by a total of 50% from its original dimensions in [`apps/frontend/src/components/Navigation.tsx`](apps/frontend/src/components/Navigation.tsx:26).
 *   [2025-05-29 20:32:39] - Enhanced transcription process in [`TranscriptionService`](apps/api/src/modules/transcription/transcription.service.ts:1) and [`OpenAIService`](apps/api/src/modules/openai/openai.service.ts:1) to use GPT-4o for refining Whisper transcripts, improving readability.
 *   [2025-05-28 22:51:03] - Simplified the "Technical Info" section in [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:528) by removing the "ID" field and making "Call SID" full-width.
