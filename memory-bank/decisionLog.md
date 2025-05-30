@@ -3,6 +3,17 @@
 This file records architectural and implementation decisions using a list format.
 2025-05-24 12:05:05 - Log of updates made.
 
+*   [2025-05-30 08:40:37] - Increased navigation bar size by 50% from original.
+    ## Decision
+    *   Increased the height of the main navigation bar container from an original `h-16` (64px) to `h-24` (96px) in [`apps/frontend/src/components/Navigation.tsx`](apps/frontend/src/components/Navigation.tsx:26).
+    *   Increased the desktop logo height from an original `h-10` (40px) to `h-[60px]` (60px) in [`apps/frontend/src/components/Navigation.tsx`](apps/frontend/src/components/Navigation.tsx:32).
+    *   Increased the mobile logo height from an original `h-8` (32px) to `h-12` (48px) in [`apps/frontend/src/components/Navigation.tsx`](apps/frontend/src/components/Navigation.tsx:37).
+    *   Adjusted the `top` positioning of the mobile menu from an original `top-16` to `top-24` in [`apps/frontend/src/components/Navigation.tsx`](apps/frontend/src/components/Navigation.tsx:97).
+    ## Rationale
+    *   The user requested to make the navigation bar 50% larger in total (initial 25% increase, then another 25% of original size).
+    *   Adjustments to logo sizes and mobile menu positioning were necessary to maintain visual consistency with the increased navigation bar height.
+    ## Implementation Details
+    *   Used `apply_diff` to modify Tailwind CSS classes in [`apps/frontend/src/components/Navigation.tsx`](apps/frontend/src/components/Navigation.tsx).
 *   [2025-05-29 20:32:28] - Enhanced transcription process to include GPT-4o refinement.
     ## Decision
     *   Modified [`TranscriptionService`](apps/api/src/modules/transcription/transcription.service.ts:1) to send the raw output from Whisper to GPT-4o for refinement.
