@@ -30,8 +30,6 @@ import type {
 } from '@tanstack/react-query';
 
 import { axiosInstance } from './axios-instance';
-export interface StreamableFile { [key: string]: unknown }
-
 export type CallResponseDtoAnalysis = { [key: string]: unknown };
 
 export interface CallResponseDto {
@@ -570,77 +568,77 @@ export function useStorageControllerStreamCallRecording<TData = Awaited<ReturnTy
 
 
 
-export const storageControllerStreamCallTranscript = (
+export const storageControllerDownloadCallTranscript = (
     callId: string,
  signal?: AbortSignal
 ) => {
       
       
-      return axiosInstance<StreamableFile>(
-      {url: `/api/v1/storage/transcripts/stream/${callId}`, method: 'GET', signal
+      return axiosInstance<string>(
+      {url: `/api/v1/storage/transcripts/download/${callId}`, method: 'GET', signal
     },
       );
     }
   
 
-export const getStorageControllerStreamCallTranscriptQueryKey = (callId: string,) => {
-    return [`/api/v1/storage/transcripts/stream/${callId}`] as const;
+export const getStorageControllerDownloadCallTranscriptQueryKey = (callId: string,) => {
+    return [`/api/v1/storage/transcripts/download/${callId}`] as const;
     }
 
     
-export const getStorageControllerStreamCallTranscriptInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>>, TError = void>(callId: string, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>, TError, TData>>, }
+export const getStorageControllerDownloadCallTranscriptInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>>, TError = void>(callId: string, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getStorageControllerStreamCallTranscriptQueryKey(callId);
+  const queryKey =  queryOptions?.queryKey ?? getStorageControllerDownloadCallTranscriptQueryKey(callId);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>> = ({ signal }) => storageControllerStreamCallTranscript(callId, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>> = ({ signal }) => storageControllerDownloadCallTranscript(callId, signal);
 
       
 
       
 
-   return  { queryKey, queryFn, enabled: !!(callId), ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: !!(callId), ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type StorageControllerStreamCallTranscriptInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>>
-export type StorageControllerStreamCallTranscriptInfiniteQueryError = void
+export type StorageControllerDownloadCallTranscriptInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>>
+export type StorageControllerDownloadCallTranscriptInfiniteQueryError = void
 
 
-export function useStorageControllerStreamCallTranscriptInfinite<TData = InfiniteData<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>>, TError = void>(
- callId: string, options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>, TError, TData>> & Pick<
+export function useStorageControllerDownloadCallTranscriptInfinite<TData = InfiniteData<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>>, TError = void>(
+ callId: string, options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>,
+          Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>,
           TError,
-          Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>
+          Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useStorageControllerStreamCallTranscriptInfinite<TData = InfiniteData<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>>, TError = void>(
- callId: string, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>, TError, TData>> & Pick<
+export function useStorageControllerDownloadCallTranscriptInfinite<TData = InfiniteData<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>>, TError = void>(
+ callId: string, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>,
+          Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>,
           TError,
-          Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>
+          Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useStorageControllerStreamCallTranscriptInfinite<TData = InfiniteData<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>>, TError = void>(
- callId: string, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>, TError, TData>>, }
+export function useStorageControllerDownloadCallTranscriptInfinite<TData = InfiniteData<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>>, TError = void>(
+ callId: string, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useStorageControllerStreamCallTranscriptInfinite<TData = InfiniteData<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>>, TError = void>(
- callId: string, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>, TError, TData>>, }
+export function useStorageControllerDownloadCallTranscriptInfinite<TData = InfiniteData<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>>, TError = void>(
+ callId: string, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>, TError, TData>>, }
  , queryClient?: QueryClient 
  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getStorageControllerStreamCallTranscriptInfiniteQueryOptions(callId,options)
+  const queryOptions = getStorageControllerDownloadCallTranscriptInfiniteQueryOptions(callId,options)
 
   const query = useInfiniteQuery(queryOptions , queryClient) as  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -651,59 +649,59 @@ export function useStorageControllerStreamCallTranscriptInfinite<TData = Infinit
 
 
 
-export const getStorageControllerStreamCallTranscriptQueryOptions = <TData = Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>, TError = void>(callId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>, TError, TData>>, }
+export const getStorageControllerDownloadCallTranscriptQueryOptions = <TData = Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>, TError = void>(callId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getStorageControllerStreamCallTranscriptQueryKey(callId);
+  const queryKey =  queryOptions?.queryKey ?? getStorageControllerDownloadCallTranscriptQueryKey(callId);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>> = ({ signal }) => storageControllerStreamCallTranscript(callId, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>> = ({ signal }) => storageControllerDownloadCallTranscript(callId, signal);
 
       
 
       
 
-   return  { queryKey, queryFn, enabled: !!(callId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: !!(callId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type StorageControllerStreamCallTranscriptQueryResult = NonNullable<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>>
-export type StorageControllerStreamCallTranscriptQueryError = void
+export type StorageControllerDownloadCallTranscriptQueryResult = NonNullable<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>>
+export type StorageControllerDownloadCallTranscriptQueryError = void
 
 
-export function useStorageControllerStreamCallTranscript<TData = Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>, TError = void>(
- callId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>, TError, TData>> & Pick<
+export function useStorageControllerDownloadCallTranscript<TData = Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>, TError = void>(
+ callId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>,
+          Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>,
           TError,
-          Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>
+          Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useStorageControllerStreamCallTranscript<TData = Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>, TError = void>(
- callId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>, TError, TData>> & Pick<
+export function useStorageControllerDownloadCallTranscript<TData = Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>, TError = void>(
+ callId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>,
+          Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>,
           TError,
-          Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>
+          Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useStorageControllerStreamCallTranscript<TData = Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>, TError = void>(
- callId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>, TError, TData>>, }
+export function useStorageControllerDownloadCallTranscript<TData = Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>, TError = void>(
+ callId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useStorageControllerStreamCallTranscript<TData = Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>, TError = void>(
- callId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerStreamCallTranscript>>, TError, TData>>, }
+export function useStorageControllerDownloadCallTranscript<TData = Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>, TError = void>(
+ callId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storageControllerDownloadCallTranscript>>, TError, TData>>, }
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getStorageControllerStreamCallTranscriptQueryOptions(callId,options)
+  const queryOptions = getStorageControllerDownloadCallTranscriptQueryOptions(callId,options)
 
   const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

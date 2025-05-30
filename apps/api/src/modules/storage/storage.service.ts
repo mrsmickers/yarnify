@@ -1,7 +1,17 @@
-import { Injectable, Logger, StreamableFile } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  StreamableFile,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { BlobServiceClient, ContainerClient } from '@azure/storage-blob';
-import { Readable } from 'stream';
+import {
+  BlobServiceClient,
+  ContainerClient,
+  BlobDownloadOptions, // Keep for potential future use, but not strictly needed for current reverted logic
+} from '@azure/storage-blob';
+import { Readable, PassThrough } from 'stream';
 
 @Injectable()
 export class StorageService {
@@ -51,7 +61,10 @@ export class StorageService {
       );
       return blockBlobClient.url;
     } catch (error) {
-      this.logger.error(`Failed to upload file ${fileName}: ${error.message}`);
+      this.logger.error(
+        `Failed to upload file ${fileName}: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -65,10 +78,21 @@ export class StorageService {
       }
       return this.streamToBuffer(downloadBlockBlobResponse.readableStreamBody);
     } catch (error) {
-      this.logger.error(
-        `Failed to download file ${fileName}: ${error.message}`,
-      );
-      throw error;
+      if (error.message && error.message.includes('Premature close')) {
+        this.logger.warn(
+          `[getFile] Download for ${fileName} failed due to 'Premature close' (likely client disconnect): ${error.message}`,
+        );
+        throw new HttpException(
+          'Client connection closed prematurely.',
+          HttpStatus.BAD_REQUEST,
+        );
+      } else {
+        this.logger.error(
+          `[getFile] Failed to download file ${fileName}: ${error.message}`,
+          error.stack,
+        );
+        throw error;
+      }
     }
   }
 
@@ -80,7 +104,10 @@ export class StorageService {
         `File ${fileName} deleted from Azure Blob Storage container ${this.containerName}`,
       );
     } catch (error) {
-      this.logger.error(`Failed to delete file ${fileName}: ${error.message}`);
+      this.logger.error(
+        `Failed to delete file ${fileName}: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -103,6 +130,7 @@ export class StorageService {
       }
       this.logger.error(
         `Failed to get file stats for ${fileName}: ${error.message}`,
+        error.stack,
       );
       throw error;
     }
@@ -117,14 +145,52 @@ export class StorageService {
           `Readable stream not available for file ${fileName} (full file)`,
         );
       }
-      return new StreamableFile(
-        downloadBlockBlobResponse.readableStreamBody as Readable,
-      );
+      const azureStream =
+        downloadBlockBlobResponse.readableStreamBody as Readable;
+      const passThroughStream = new PassThrough();
+
+      azureStream.on('error', (err) => {
+        if (err.message && err.message.includes('Premature close')) {
+          this.logger.warn(
+            `Azure stream error for ${fileName} (full file) - Premature close (likely client disconnect): ${err.message}`,
+          );
+        } else {
+          this.logger.error(
+            `Azure stream error for ${fileName} (full file): ${err.message}`,
+            err.stack,
+          );
+        }
+        if (!passThroughStream.destroyed) {
+          passThroughStream.destroy(err);
+        }
+      });
+
+      passThroughStream.on('close', () => {
+        if (!azureStream.destroyed) {
+          this.logger.warn(
+            `PassThrough stream for ${fileName} (full file) closed. Azure stream state: destroyed=${azureStream.destroyed}.`,
+          );
+        }
+      });
+      azureStream.pipe(passThroughStream);
+
+      return new StreamableFile(passThroughStream);
     } catch (error) {
-      this.logger.error(
-        `Failed to get streamable file ${fileName}: ${error.message}`,
-      );
-      throw error;
+      if (error.message && error.message.includes('Premature close')) {
+        this.logger.warn(
+          `[getStreamableFile] Stream setup for ${fileName} (full file) failed due to 'Premature close' (likely client disconnect): ${error.message}`,
+        );
+        throw new HttpException(
+          'Client connection closed prematurely during stream setup.',
+          HttpStatus.BAD_REQUEST,
+        );
+      } else {
+        this.logger.error(
+          `[getStreamableFile] Failed to get streamable file ${fileName} (full file): ${error.message}`,
+          error.stack,
+        );
+        throw error;
+      }
     }
   }
 
@@ -145,14 +211,52 @@ export class StorageService {
           `Readable stream not available for file range ${fileName} (${start}-${end})`,
         );
       }
-      return new StreamableFile(
-        downloadBlockBlobResponse.readableStreamBody as Readable,
-      );
+      const azureStream =
+        downloadBlockBlobResponse.readableStreamBody as Readable;
+      const passThroughStream = new PassThrough();
+
+      azureStream.on('error', (err) => {
+        if (err.message && err.message.includes('Premature close')) {
+          this.logger.warn(
+            `Azure stream error for ${fileName} (range ${start}-${end}) - Premature close (likely client disconnect): ${err.message}`,
+          );
+        } else {
+          this.logger.error(
+            `Azure stream error for ${fileName} (range ${start}-${end}): ${err.message}`,
+            err.stack,
+          );
+        }
+        if (!passThroughStream.destroyed) {
+          passThroughStream.destroy(err);
+        }
+      });
+
+      passThroughStream.on('close', () => {
+        if (!azureStream.destroyed) {
+          this.logger.warn(
+            `PassThrough stream for ${fileName} (range ${start}-${end}) closed. Azure stream state: destroyed=${azureStream.destroyed}.`,
+          );
+        }
+      });
+      azureStream.pipe(passThroughStream);
+
+      return new StreamableFile(passThroughStream);
     } catch (error) {
-      this.logger.error(
-        `Failed to get streamable file range ${fileName} (${start}-${end}): ${error.message}`,
-      );
-      throw error;
+      if (error.message && error.message.includes('Premature close')) {
+        this.logger.warn(
+          `[getStreamableFileRange] Stream setup for ${fileName} (range ${start}-${end}) failed due to 'Premature close' (likely client disconnect): ${error.message}`,
+        );
+        throw new HttpException(
+          'Client connection closed prematurely during stream setup.',
+          HttpStatus.BAD_REQUEST,
+        );
+      } else {
+        this.logger.error(
+          `[getStreamableFileRange] Failed to get streamable file range ${fileName} (${start}-${end}): ${error.message}`,
+          error.stack,
+        );
+        throw error;
+      }
     }
   }
 
@@ -167,7 +271,7 @@ export class StorageService {
       readableStream.on('end', () => {
         resolve(Buffer.concat(chunks));
       });
-      readableStream.on('error', reject);
+      readableStream.on('error', reject); // Errors here will be caught by the calling method's try/catch
     });
   }
 }

@@ -233,49 +233,73 @@ export class StorageController {
     }
   }
 
-  @Get('transcripts/stream/:callId')
+  @Get('transcripts/download/:callId') // Changed endpoint to avoid confusion with streaming
   @ApiParam({
     name: 'callId',
-    description: 'The ID of the call to stream the transcript for',
+    description: 'The ID of the call to download the transcript for',
   })
   @ApiResponse({
     status: 200,
-    description: 'The call transcript as a streamable text file.',
-    type: StreamableFile,
+    description: 'The call transcript as a text file.',
+    content: {
+      'text/plain': {
+        schema: {
+          type: 'string',
+        },
+      },
+    },
   })
   @ApiResponse({
     status: 404,
     description: 'Call not found or transcript not available.',
   })
-  async streamCallTranscript(
+  async downloadCallTranscript(
+    // Renamed method
     @Param('callId') callId: string,
-    @Res({ passthrough: true }) response: Response,
-  ): Promise<StreamableFile> {
+    @Res() response: Response, // Removed passthrough
+  ): Promise<void> {
     const call = await this.callRepository.findById(callId);
     if (!call || !call.transcriptUrl) {
+      this.logger.warn(`Transcript not found for call ID: ${callId}`);
       throw new NotFoundException('Call transcript not found');
     }
 
     const filePath = call.transcriptUrl; // transcriptUrl should be the full path like 'transcripts/filename.txt'
+    this.logger.log(`Attempting to download transcript: ${filePath}`);
 
-    // Ensure Content-Type is text/plain for transcripts
-    response.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    response.setHeader('Content-Disposition', 'inline'); // Display inline in browser
-
-    // Use the existing getStreamableFile method from StorageService
-    // This method should be capable of fetching the file from Azure by its path
     try {
-      const fileStream = await this.storageService.getStreamableFile(filePath);
-      return fileStream;
+      const buffer = await this.storageService.getFile(filePath);
+      const transcriptText = buffer.toString('utf-8');
+      const fileName = path.basename(filePath) || `transcript_${callId}.txt`;
+
+      response.setHeader('Content-Type', 'text/plain; charset=utf-8');
+      response.setHeader(
+        'Content-Disposition',
+        `attachment; filename=\"${fileName}\"`,
+      );
+      response.setHeader(
+        'Content-Length',
+        Buffer.byteLength(transcriptText, 'utf8').toString(),
+      );
+      this.logger.log(
+        `Successfully prepared transcript ${fileName} for download. Length: ${transcriptText.length}`,
+      );
+      response.send(transcriptText);
     } catch (error) {
       this.logger.error(
-        `Failed to stream transcript ${filePath} for call ${callId}: ${error.message}`,
+        `Failed to get transcript ${filePath} for call ${callId}: ${error.message}`,
       );
-      // Re-throw or handle as NotFoundException if appropriate
       if (error.statusCode === 404 || error.message?.includes('not found')) {
         throw new NotFoundException('Transcript file not found in storage.');
       }
-      throw error; // Re-throw other errors
+      // Ensure a response is sent in case of other errors if not already handled
+      if (!response.headersSent) {
+        response
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .send('Failed to retrieve transcript');
+      }
+      // No need to throw error again if response is sent, but good for logging
+      // throw error;
     }
   }
 }
