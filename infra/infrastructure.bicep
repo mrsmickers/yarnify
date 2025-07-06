@@ -1,6 +1,3 @@
-@description('The name of the environment (e.g., dev, staging, prod)')
-param environment string
-
 @description('The Azure region to deploy resources to')
 param location string = resourceGroup().location
 
@@ -8,7 +5,7 @@ param location string = resourceGroup().location
 param tags object = {}
 
 @description('The name prefix for all resources')
-param namePrefix string
+param namePrefix string = 'speek-it'
 
 @description('PostgreSQL administrator username')
 @secure()
@@ -18,32 +15,22 @@ param postgresqlAdminUsername string
 @secure()
 param postgresqlAdminPassword string
 
-
-@description('The Docker image tag to deploy')
-param imageTag string = 'latest'
-
-@description('Whether to deploy the Container App (set to false for initial deployment)')
-param deployContainerApp bool = false
-
 // Variables
 var commonTags = union(tags, {
-  Environment: environment
   Project: 'speek-it'
 })
 
 var namingConvention = {
-  resourceGroup: 'rg-${namePrefix}-${environment}'
-  containerRegistry: 'cr${replace(namePrefix, '-', '')}${environment}'
-  storageAccount: 'st${replace(namePrefix, '-', '')}${environment}'
-  managedIdentity: 'id-${namePrefix}-${environment}'
-  keyVault: 'kv-${namePrefix}-${environment}'
-  logAnalytics: 'log-${namePrefix}-${environment}'
-  applicationInsights: 'ai-${namePrefix}-${environment}'
-  containerAppsEnvironment: 'cae-${namePrefix}-${environment}'
-  containerApp: 'ca-${namePrefix}-api-${environment}'
-  postgresql: 'psql-${namePrefix}-${environment}'
-  redis: 'redis-${namePrefix}-${environment}'
-  vnet: 'vnet-${namePrefix}-${environment}'
+  containerRegistry: 'cr${replace(namePrefix, '-', '')}'
+  storageAccount: 'st${replace(namePrefix, '-', '')}'
+  managedIdentity: 'id-${namePrefix}'
+  keyVault: 'kv-${namePrefix}'
+  logAnalytics: 'log-${namePrefix}'
+  applicationInsights: 'ai-${namePrefix}'
+  containerAppsEnvironment: 'cae-${namePrefix}'
+  postgresql: 'psql-${namePrefix}'
+  redis: 'redis-${namePrefix}'
+  vnet: 'vnet-${namePrefix}'
 }
 
 // Networking
@@ -53,7 +40,6 @@ module networking 'modules/networking.bicep' = {
     vnetName: namingConvention.vnet
     location: location
     tags: commonTags
-    environment: environment
   }
 }
 
@@ -67,6 +53,8 @@ module managedIdentity 'modules/managed-identity.bicep' = {
   }
 }
 
+// GitHub Actions uses existing service principal with contributor permissions
+
 // Container Registry
 module containerRegistry 'modules/container-registry.bicep' = {
   name: 'container-registry-deployment'
@@ -74,12 +62,10 @@ module containerRegistry 'modules/container-registry.bicep' = {
     registryName: namingConvention.containerRegistry
     location: location
     tags: commonTags
-    sku: environment == 'prod' ? 'Standard' : 'Basic'
+    sku: 'Standard'
     adminUserEnabled: true
   }
 }
-
-// Role assignment moved to separate module due to permissions requirements
 
 // Storage Account
 module storage 'modules/storage.bicep' = {
@@ -138,6 +124,17 @@ module applicationInsights 'modules/application-insights.bicep' = {
   }
 }
 
+// Key Vault (optional - not currently used by container app)
+// module keyVault 'modules/key-vault.bicep' = {
+//   name: 'key-vault-deployment'
+//   params: {
+//     keyVaultName: namingConvention.keyVault
+//     location: location
+//     tags: commonTags
+//     managedIdentityPrincipalId: managedIdentity.outputs.principalId
+//   }
+// }
+
 // Container Apps Environment
 module containerAppsEnvironment 'modules/container-apps-environment.bicep' = {
   name: 'container-apps-environment-deployment'
@@ -150,7 +147,7 @@ module containerAppsEnvironment 'modules/container-apps-environment.bicep' = {
   }
 }
 
-// Role Assignments for ACR access (requires elevated permissions)
+// Role Assignments for ACR (requires elevated permissions)
 // Deploy this separately if needed: az deployment group create --template-file role-assignments.bicep
 // module roleAssignments 'modules/role-assignments.bicep' = {
 //   name: 'role-assignments-deployment'
@@ -160,49 +157,20 @@ module containerAppsEnvironment 'modules/container-apps-environment.bicep' = {
 //   }
 // }
 
-// Container App (API) - Deploy only if deployContainerApp is true
-module containerApp 'modules/container-app.bicep' = if (deployContainerApp) {
-  name: 'container-app-deployment'
-  params: {
-    containerAppName: namingConvention.containerApp
-    location: location
-    tags: commonTags
-    containerAppsEnvironmentId: containerAppsEnvironment.outputs.environmentId
-    containerImage: '${containerRegistry.outputs.registryLoginServer}/speek-it-api:${imageTag}'
-    containerRegistryServer: containerRegistry.outputs.registryLoginServer
-    managedIdentityId: managedIdentity.outputs.identityId
-    environmentVariables: [
-      {
-        name: 'NODE_ENV'
-        value: 'production'
-      }
-      {
-        name: 'DATABASE_URL'
-        value: postgresql.outputs.connectionString
-      }
-      {
-        name: 'REDIS_URL'
-        value: redis.outputs.connectionString
-      }
-      {
-        name: 'AZURE_STORAGE_CONNECTION_STRING'
-        value: storage.outputs.connectionString
-      }
-      {
-        name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-        value: applicationInsights.outputs.connectionString
-      }
-    ]
-  }
-}
-
 // Outputs
 output resourceGroupName string = resourceGroup().name
 output containerRegistryLoginServer string = containerRegistry.outputs.registryLoginServer
 output containerRegistryName string = containerRegistry.outputs.registryName
-output containerAppUrl string = containerApp.outputs.applicationUrl
 output storageAccountName string = storage.outputs.storageAccountName
 output postgresqlServerName string = postgresql.outputs.serverName
 output redisCacheName string = redis.outputs.cacheName
 output vnetName string = networking.outputs.vnetName
 output managedIdentityId string = managedIdentity.outputs.identityId
+output managedIdentityPrincipalId string = managedIdentity.outputs.principalId
+output containerAppsEnvironmentId string = containerAppsEnvironment.outputs.environmentId
+output postgresqlConnectionString string = postgresql.outputs.connectionString
+output redisConnectionString string = redis.outputs.connectionString
+output storageConnectionString string = storage.outputs.connectionString
+output applicationInsightsConnectionString string = applicationInsights.outputs.connectionString
+// output keyVaultName string = keyVault.outputs.keyVaultName
+// output keyVaultUri string = keyVault.outputs.keyVaultUri

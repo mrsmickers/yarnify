@@ -22,12 +22,12 @@ param subnetId string
 param privateDnsZoneId string
 
 @description('The SKU name for the PostgreSQL server')
-param skuName string = 'Standard_B2s'
+param skuName string = 'Standard_B1ms'
 
 @description('The tier for the PostgreSQL server')
 param tier string = 'Burstable'
 
-@description('The storage size in MB')
+@description('The storage size in GB')
 param storageSizeGB int = 32
 
 @description('The PostgreSQL version')
@@ -80,17 +80,10 @@ resource database 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-06-0
   }
 }
 
-// Enable vector extension
-resource vectorExtension 'Microsoft.DBforPostgreSQL/flexibleServers/configurations@2023-06-01-preview' = {
-  parent: postgresqlServer
-  name: 'shared_preload_libraries'
-  properties: {
-    value: 'vector'
-    source: 'user-override'
-  }
-}
+// Note: Vector extension not available in shared_preload_libraries for this subscription
+// We'll try to install it manually after PostgreSQL is deployed
 
-// Create vector extension in database
+// Create vector extension in database using deployment script
 resource createVectorExtension 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: '${serverName}-create-vector-extension'
   location: location
@@ -124,16 +117,22 @@ resource createVectorExtension 'Microsoft.Resources/deploymentScripts@2020-10-01
       apt-get install -y postgresql-client
 
       # Wait for server to be ready
-      sleep 30
+      sleep 60
 
-      # Create vector extension
-      PGPASSWORD=$POSTGRES_PASSWORD psql -h $POSTGRES_HOST -U $POSTGRES_USER -d $POSTGRES_DB -c "CREATE EXTENSION IF NOT EXISTS vector;"
-      PGPASSWORD=$POSTGRES_PASSWORD psql -h $POSTGRES_HOST -U $POSTGRES_USER -d $POSTGRES_DB -c "SELECT * FROM pg_extension WHERE extname = 'vector';"
+      # Try to create vector extension (may fail if not available)
+      echo "Attempting to create vector extension..."
+      if PGPASSWORD=$POSTGRES_PASSWORD psql -h $POSTGRES_HOST -U $POSTGRES_USER -d $POSTGRES_DB -c "CREATE EXTENSION IF NOT EXISTS vector;" 2>/dev/null; then
+        echo "Vector extension created successfully"
+        PGPASSWORD=$POSTGRES_PASSWORD psql -h $POSTGRES_HOST -U $POSTGRES_USER -d $POSTGRES_DB -c "SELECT * FROM pg_extension WHERE extname = 'vector';"
+      else
+        echo "Vector extension not available - will need manual installation"
+        echo "Available extensions:"
+        PGPASSWORD=$POSTGRES_PASSWORD psql -h $POSTGRES_HOST -U $POSTGRES_USER -d $POSTGRES_DB -c "SELECT name FROM pg_available_extensions ORDER BY name;" || true
+      fi
     '''
   }
   dependsOn: [
     database
-    vectorExtension
   ]
 }
 

@@ -41,17 +41,10 @@ resource redisCache 'Microsoft.Cache/redis@2023-08-01' = {
     publicNetworkAccess: 'Disabled'
     redisVersion: redisVersion
     redisConfiguration: {
-      'aof-backup-enabled': 'false'
-      'aof-storage-connection-string-0': ''
-      'aof-storage-connection-string-1': ''
       'maxfragmentationmemory-reserved': '50'
       'maxmemory-delta': '50'
       'maxmemory-reserved': '50'
       'maxmemory-policy': 'volatile-lru'
-      'rdb-backup-enabled': 'false'
-      'rdb-backup-frequency': '60'
-      'rdb-backup-max-snapshot-count': '1'
-      'rdb-storage-connection-string': ''
     }
   }
 }

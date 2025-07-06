@@ -16,16 +16,14 @@ param containerImage string
 @description('The container registry server')
 param containerRegistryServer string
 
-@description('The container registry username')
-@secure()
-param containerRegistryUsername string
-
-@description('The container registry password')
-@secure()
-param containerRegistryPassword string
+@description('The managed identity resource ID for ACR access')
+param managedIdentityId string
 
 @description('Environment variables for the container')
 param environmentVariables array = []
+
+@description('Key Vault name for secrets')
+param keyVaultName string = ''
 
 @description('The minimum number of replicas')
 param minReplicas int = 1
@@ -47,6 +45,12 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
   name: containerAppName
   location: location
   tags: tags
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${managedIdentityId}': {}
+    }
+  }
   properties: {
     managedEnvironmentId: containerAppsEnvironmentId
     configuration: {
@@ -65,14 +69,34 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
       registries: [
         {
           server: containerRegistryServer
-          username: containerRegistryUsername
-          passwordSecretRef: 'registry-password'
+          identity: managedIdentityId
         }
       ]
       secrets: [
         {
-          name: 'registry-password'
-          value: containerRegistryPassword
+          name: 'database-url'
+          keyVaultUrl: 'https://${keyVaultName}.vault.azure.net/secrets/database-url'
+          identity: managedIdentityId
+        }
+        {
+          name: 'redis-url'
+          keyVaultUrl: 'https://${keyVaultName}.vault.azure.net/secrets/redis-url'
+          identity: managedIdentityId
+        }
+        {
+          name: 'storage-connection-string'
+          keyVaultUrl: 'https://${keyVaultName}.vault.azure.net/secrets/storage-connection-string'
+          identity: managedIdentityId
+        }
+        {
+          name: 'app-insights-connection-string'
+          keyVaultUrl: 'https://${keyVaultName}.vault.azure.net/secrets/app-insights-connection-string'
+          identity: managedIdentityId
+        }
+        {
+          name: 'openai-api-key'
+          keyVaultUrl: 'https://${keyVaultName}.vault.azure.net/secrets/openai-api-key'
+          identity: managedIdentityId
         }
       ]
     }

@@ -1,9 +1,8 @@
-using '../main.bicep'
+using '../infrastructure.bicep'
 
 param environment = 'dev'
 param location = 'UK South'
 param namePrefix = 'speek-it'
-param imageTag = 'latest'
 
 param tags = {
   Owner: 'Development Team'

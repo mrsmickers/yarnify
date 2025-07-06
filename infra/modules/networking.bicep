@@ -7,8 +7,6 @@ param location string
 @description('Common tags to apply to all resources')
 param tags object = {}
 
-@description('The environment name')
-param environment string
 
 var vnetAddressSpace = '10.0.0.0/16'
 var subnets = {
@@ -135,7 +133,7 @@ resource nsgContainerApps 'Microsoft.Network/networkSecurityGroups@2023-05-01' =
 
 // Private DNS Zone for PostgreSQL
 resource postgresPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
-  name: '${environment}.postgres.database.azure.com'
+  name: 'speek-it.postgres.database.azure.com'
   location: 'global'
   tags: tags
 }

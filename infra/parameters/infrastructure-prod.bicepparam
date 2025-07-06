@@ -1,14 +1,14 @@
-using '../main.bicep'
+using '../infrastructure.bicep'
 
-param environment = 'dev'
+param environment = 'prod'
 param location = 'UK South'
 param namePrefix = 'speek-it'
-param imageTag = 'latest'
 
 param tags = {
-  Owner: 'Development Team'
+  Owner: 'Production Team'
   CostCenter: 'Engineering'
   Project: 'Speek-It'
+  Criticality: 'High'
 }
 
 // Secure parameters - these should be provided via Azure Key Vault or deployment time

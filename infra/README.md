@@ -11,7 +11,8 @@ The infrastructure includes:
 - **Azure PostgreSQL Flexible Server** with vector extension for embeddings
 - **Azure Redis Cache** for session management and BullMQ queues
 - **Azure Blob Storage** for storing transcripts and recordings
-- **GitHub Packages** (ghcr.io) for hosting Docker images
+- **Azure Container Registry** for hosting Docker images with managed identity access
+- **Managed Identity** for secure, credential-free access to ACR
 - **Log Analytics Workspace** and **Application Insights** for monitoring
 - **Private endpoints** for secure database and storage access
 
@@ -19,12 +20,20 @@ The infrastructure includes:
 
 ```
 infra/
-├── main.bicep                    # Main orchestration template
+├── infrastructure.bicep          # Phase 1: Core infrastructure template
+├── container-app.bicep          # Phase 2: Container App template  
+├── main.bicep                   # Legacy: Combined template (deprecated)
 ├── parameters/
-│   ├── dev.bicepparam           # Development environment parameters
-│   └── prod.bicepparam          # Production environment parameters
+│   ├── infrastructure-dev.bicepparam  # Phase 1 dev parameters
+│   ├── infrastructure-prod.bicepparam # Phase 1 prod parameters
+│   ├── container-app-dev.bicepparam   # Phase 2 dev parameters
+│   ├── container-app-prod.bicepparam  # Phase 2 prod parameters
+│   ├── dev.bicepparam           # Legacy parameters (deprecated)
+│   └── prod.bicepparam          # Legacy parameters (deprecated)
 ├── modules/
 │   ├── networking.bicep         # Virtual network and subnets
+│   ├── container-registry.bicep # Azure Container Registry
+│   ├── managed-identity.bicep   # User-assigned managed identity
 │   ├── storage.bicep           # Azure Blob Storage with containers
 │   ├── postgresql.bicep        # PostgreSQL with vector extension
 │   ├── redis.bicep             # Redis Cache with private endpoint
@@ -33,7 +42,9 @@ infra/
 │   ├── container-apps-environment.bicep # Container Apps environment
 │   └── container-app.bicep     # Container App for API service
 ├── scripts/
-│   └── deploy.sh               # Deployment script
+│   ├── deploy-infrastructure.sh # Phase 1: Infrastructure deployment
+│   ├── deploy-container-app.sh  # Phase 2: Container App deployment
+│   └── deploy.sh               # Legacy: Combined deployment (deprecated)
 └── README.md                   # This file
 ```
 
@@ -42,28 +53,44 @@ infra/
 1. **Azure CLI** - [Install Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 2. **Azure subscription** with appropriate permissions
 3. **Bicep CLI** - Comes with Azure CLI 2.20.0+
-4. **GitHub Personal Access Token** - With `read:packages` permission for pulling images from GitHub Packages
 
 ## Deployment
 
-### Option 1: Using the Deployment Script (Recommended)
+The deployment is split into two phases to solve the chicken-and-egg problem with container images:
+
+### Phase 1: Infrastructure Deployment
+
+Deploy the core infrastructure including ACR, databases, networking (but NOT the Container App):
 
 ```bash
 # Make the script executable
-chmod +x scripts/deploy.sh
+chmod +x scripts/deploy-infrastructure.sh
 
-# Set GitHub credentials
-export GITHUB_USERNAME="your-github-username"
-export GITHUB_TOKEN="ghp_your_personal_access_token"
+# Deploy infrastructure to development environment
+./scripts/deploy-infrastructure.sh --environment dev --location uksouth
 
-# Deploy to development environment
-./scripts/deploy.sh --environment dev --location eastus
-
-# Deploy to production environment
-./scripts/deploy.sh --environment prod --location eastus --subscription "your-subscription-id"
+# Deploy infrastructure to production environment
+./scripts/deploy-infrastructure.sh --environment prod --location uksouth --subscription "your-subscription-id"
 ```
 
-### Option 2: Manual Deployment
+### Phase 2: Container Image & App Deployment
+
+After Phase 1, push your container image to ACR using GitHub Actions, then deploy the Container App:
+
+```bash
+# Make the script executable
+chmod +x scripts/deploy-container-app.sh
+
+# Deploy Container App to development environment
+./scripts/deploy-container-app.sh --environment dev --image-tag latest
+
+# Deploy Container App to production environment
+./scripts/deploy-container-app.sh --environment prod --image-tag latest --subscription "your-subscription-id"
+```
+
+### Manual Deployment (Alternative)
+
+#### Phase 1: Infrastructure
 
 1. **Login to Azure:**
    ```bash
@@ -73,18 +100,35 @@ export GITHUB_TOKEN="ghp_your_personal_access_token"
 
 2. **Create Resource Group:**
    ```bash
-   az group create --name "rg-speek-it-dev" --location "eastus"
+   az group create --name "rg-speek-it-dev" --location "uksouth"
    ```
 
 3. **Deploy Infrastructure:**
    ```bash
    az deployment group create \
      --resource-group "rg-speek-it-dev" \
-     --template-file "main.bicep" \
-     --parameters "parameters/dev.bicepparam" \
-     --parameters postgresqlAdminPassword="YourSecurePassword123!" \
-     --parameters githubUsername="your-github-username" \
-     --parameters githubToken="ghp_your_personal_access_token"
+     --template-file "infrastructure.bicep" \
+     --parameters "parameters/infrastructure-dev.bicepparam" \
+     --parameters postgresqlAdminPassword="YourSecurePassword123!"
+   ```
+
+#### Phase 2: Container App
+
+4. **Push Container Image to ACR** (via GitHub Actions or manually)
+
+5. **Deploy Container App:**
+   ```bash
+   # Get infrastructure outputs first
+   OUTPUTS=$(az deployment group show --resource-group "rg-speek-it-dev" --name "infrastructure" --query "properties.outputs")
+   
+   # Deploy container app with the outputs
+   az deployment group create \
+     --resource-group "rg-speek-it-dev" \
+     --template-file "container-app.bicep" \
+     --parameters "parameters/container-app-dev.bicepparam" \
+     --parameters containerAppsEnvironmentId="$(echo $OUTPUTS | jq -r '.containerAppsEnvironmentId.value')" \
+     --parameters containerRegistryLoginServer="$(echo $OUTPUTS | jq -r '.containerRegistryLoginServer.value')" \
+     # ... (other parameters)
    ```
 
 ## Configuration
@@ -101,16 +145,18 @@ Update the parameter files in the `parameters/` directory:
 The following secrets need to be provided during deployment:
 
 - `postgresqlAdminPassword` - PostgreSQL administrator password
-- `githubUsername` - Your GitHub username
-- `githubToken` - GitHub personal access token with `read:packages` permission
 
 ### GitHub Actions Integration
 
-The infrastructure is integrated with GitHub Actions for CI/CD. The workflow automatically builds and pushes images to GitHub Packages using the built-in `GITHUB_TOKEN`.
+The infrastructure is integrated with GitHub Actions for CI/CD. The workflow builds and pushes images to both GitHub Packages and Azure Container Registry.
 
-For Azure deployment, set the following secret in your GitHub repository:
+Set the following in your GitHub repository:
 
-- `AZURE_LOGIN` - Azure service principal credentials for deploying to Container Apps
+**Required Secrets:**
+- `AZURE_LOGIN` - Azure service principal credentials for Azure CLI authentication
+
+**Required Variables:**
+- `ACR_REGISTRY_NAME` - Your Azure Container Registry name (e.g., "crspeekit")
 
 ## Network Architecture
 
@@ -128,11 +174,12 @@ VNet (10.0.0.0/16)
 
 ## Security Features
 
+- **Managed Identity Authentication** - Container Apps use managed identity to pull images from ACR (no credentials stored)
 - **Private networking** for all database and cache connections
 - **Private DNS zones** for name resolution
 - **Network security groups** with restricted access
 - **Service endpoints** for storage access
-- **Managed identities** for secure resource access
+- **Role-based access control** (RBAC) for ACR access
 - **TLS 1.2** minimum for all connections
 - **Firewall rules** to restrict database access
 
@@ -202,10 +249,10 @@ The Container App is configured with the following environment variables:
    - The deployment script automatically installs the vector extension
    - If it fails, manually connect and run: `CREATE EXTENSION IF NOT EXISTS vector;`
 
-2. **GitHub Packages Authentication**
-   - Ensure you have a GitHub personal access token with `read:packages` permission
-   - Token creation: https://github.com/settings/tokens/new
-   - Container Apps needs the token to pull images from ghcr.io
+2. **Azure Container Registry Access**
+   - Container Apps use managed identity for ACR authentication
+   - No credentials need to be stored or managed
+   - Ensure the managed identity has AcrPull role assignment (handled automatically)
 
 3. **Network Connectivity**
    - Check subnet delegations are correctly configured
