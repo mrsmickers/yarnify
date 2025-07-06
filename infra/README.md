@@ -1,0 +1,289 @@
+# Speek-It Azure Infrastructure
+
+This directory contains Azure Bicep templates for deploying the Speek-It application infrastructure to Azure.
+
+## Architecture Overview
+
+The infrastructure includes:
+
+- **Virtual Network (VNet)** with dedicated subnets for Container Apps, PostgreSQL, Redis, and Storage
+- **Azure Container Apps** for hosting the API service with auto-scaling
+- **Azure PostgreSQL Flexible Server** with vector extension for embeddings
+- **Azure Redis Cache** for session management and BullMQ queues
+- **Azure Blob Storage** for storing transcripts and recordings
+- **Azure Container Registry** for hosting Docker images with managed identity access
+- **Managed Identity** for secure, credential-free access to ACR
+- **Log Analytics Workspace** and **Application Insights** for monitoring
+- **Private endpoints** for secure database and storage access
+
+## Directory Structure
+
+```
+infra/
+├── infrastructure.bicep          # Phase 1: Core infrastructure template
+├── container-app.bicep          # Phase 2: Container App template  
+├── main.bicep                   # Legacy: Combined template (deprecated)
+├── parameters/
+│   ├── infrastructure-dev.bicepparam  # Phase 1 dev parameters
+│   ├── infrastructure-prod.bicepparam # Phase 1 prod parameters
+│   ├── container-app-dev.bicepparam   # Phase 2 dev parameters
+│   ├── container-app-prod.bicepparam  # Phase 2 prod parameters
+│   ├── dev.bicepparam           # Legacy parameters (deprecated)
+│   └── prod.bicepparam          # Legacy parameters (deprecated)
+├── modules/
+│   ├── networking.bicep         # Virtual network and subnets
+│   ├── container-registry.bicep # Azure Container Registry
+│   ├── managed-identity.bicep   # User-assigned managed identity
+│   ├── storage.bicep           # Azure Blob Storage with containers
+│   ├── postgresql.bicep        # PostgreSQL with vector extension
+│   ├── redis.bicep             # Redis Cache with private endpoint
+│   ├── log-analytics.bicep     # Log Analytics workspace
+│   ├── application-insights.bicep # Application Insights
+│   ├── container-apps-environment.bicep # Container Apps environment
+│   └── container-app.bicep     # Container App for API service
+├── scripts/
+│   ├── deploy-infrastructure.sh # Phase 1: Infrastructure deployment
+│   ├── deploy-container-app.sh  # Phase 2: Container App deployment
+│   └── deploy.sh               # Legacy: Combined deployment (deprecated)
+└── README.md                   # This file
+```
+
+## Prerequisites
+
+1. **Azure CLI** - [Install Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
+2. **Azure subscription** with appropriate permissions
+3. **Bicep CLI** - Comes with Azure CLI 2.20.0+
+
+## Deployment
+
+The deployment is split into two phases to solve the chicken-and-egg problem with container images:
+
+### Phase 1: Infrastructure Deployment
+
+Deploy the core infrastructure including ACR, databases, networking (but NOT the Container App):
+
+```bash
+# Make the script executable
+chmod +x scripts/deploy-infrastructure.sh
+
+# Deploy infrastructure to development environment
+./scripts/deploy-infrastructure.sh --environment dev --location uksouth
+
+# Deploy infrastructure to production environment
+./scripts/deploy-infrastructure.sh --environment prod --location uksouth --subscription "your-subscription-id"
+```
+
+### Phase 2: Container Image & App Deployment
+
+After Phase 1, push your container image to ACR using GitHub Actions, then deploy the Container App:
+
+```bash
+# Make the script executable
+chmod +x scripts/deploy-container-app.sh
+
+# Deploy Container App to development environment
+./scripts/deploy-container-app.sh --environment dev --image-tag latest
+
+# Deploy Container App to production environment
+./scripts/deploy-container-app.sh --environment prod --image-tag latest --subscription "your-subscription-id"
+```
+
+### Manual Deployment (Alternative)
+
+#### Phase 1: Infrastructure
+
+1. **Login to Azure:**
+   ```bash
+   az login
+   az account set --subscription "your-subscription-id"
+   ```
+
+2. **Create Resource Group:**
+   ```bash
+   az group create --name "rg-speek-it-dev" --location "uksouth"
+   ```
+
+3. **Deploy Infrastructure:**
+   ```bash
+   az deployment group create \
+     --resource-group "rg-speek-it-dev" \
+     --template-file "infrastructure.bicep" \
+     --parameters "parameters/infrastructure-dev.bicepparam" \
+     --parameters postgresqlAdminPassword="YourSecurePassword123!"
+   ```
+
+#### Phase 2: Container App
+
+4. **Push Container Image to ACR** (via GitHub Actions or manually)
+
+5. **Deploy Container App:**
+   ```bash
+   # Get infrastructure outputs first
+   OUTPUTS=$(az deployment group show --resource-group "rg-speek-it-dev" --name "infrastructure" --query "properties.outputs")
+   
+   # Deploy container app with the outputs
+   az deployment group create \
+     --resource-group "rg-speek-it-dev" \
+     --template-file "container-app.bicep" \
+     --parameters "parameters/container-app-dev.bicepparam" \
+     --parameters containerAppsEnvironmentId="$(echo $OUTPUTS | jq -r '.containerAppsEnvironmentId.value')" \
+     --parameters containerRegistryLoginServer="$(echo $OUTPUTS | jq -r '.containerRegistryLoginServer.value')" \
+     # ... (other parameters)
+   ```
+
+## Configuration
+
+### Environment Parameters
+
+Update the parameter files in the `parameters/` directory:
+
+- `dev.bicepparam` - Development environment settings
+- `prod.bicepparam` - Production environment settings
+
+### Required Secrets
+
+The following secrets need to be provided during deployment:
+
+- `postgresqlAdminPassword` - PostgreSQL administrator password
+
+### GitHub Actions Integration
+
+The infrastructure is integrated with GitHub Actions for CI/CD. The workflow builds and pushes images to both GitHub Packages and Azure Container Registry.
+
+Set the following in your GitHub repository:
+
+**Required Secrets:**
+- `AZURE_LOGIN` - Azure service principal credentials for Azure CLI authentication
+
+**Required Variables:**
+- `ACR_REGISTRY_NAME` - Your Azure Container Registry name (e.g., "crspeekit")
+
+## Network Architecture
+
+```
+VNet (10.0.0.0/16)
+├── Container Apps Subnet (10.0.1.0/24)
+│   └── Delegated to Microsoft.App/environments
+├── Database Subnet (10.0.2.0/24)
+│   └── Delegated to Microsoft.DBforPostgreSQL/flexibleServers
+├── Redis Subnet (10.0.3.0/24)
+│   └── Private endpoints enabled
+└── Storage Subnet (10.0.4.0/24)
+    └── Service endpoints for Microsoft.Storage
+```
+
+## Security Features
+
+- **Managed Identity Authentication** - Container Apps use managed identity to pull images from ACR (no credentials stored)
+- **Private networking** for all database and cache connections
+- **Private DNS zones** for name resolution
+- **Network security groups** with restricted access
+- **Service endpoints** for storage access
+- **Role-based access control** (RBAC) for ACR access
+- **TLS 1.2** minimum for all connections
+- **Firewall rules** to restrict database access
+
+## Monitoring and Logging
+
+- **Log Analytics Workspace** collects all application and infrastructure logs
+- **Application Insights** provides application performance monitoring
+- **Container Apps** automatically forward logs to Log Analytics
+- **Health checks** configured for container liveness and readiness
+
+## Scaling Configuration
+
+### Container Apps Auto-scaling
+
+- **Minimum replicas:** 1
+- **Maximum replicas:** 3
+- **Scaling trigger:** HTTP concurrent requests (100 requests)
+- **CPU allocation:** 0.5 cores
+- **Memory allocation:** 1 GB
+
+### Database Scaling
+
+- **PostgreSQL Flexible Server** with Burstable tier (Standard_B2s)
+- **Storage:** 32 GB with auto-grow enabled
+- **Backup retention:** 7 days
+
+### Redis Scaling
+
+- **Standard tier** with 1 GB cache
+- **High availability** in production environment
+
+## Environment Variables
+
+The Container App is configured with the following environment variables:
+
+- `NODE_ENV` - Runtime environment (production)
+- `DATABASE_URL` - PostgreSQL connection string
+- `REDIS_URL` - Redis connection string
+- `AZURE_STORAGE_CONNECTION_STRING` - Blob storage connection
+- `APPLICATIONINSIGHTS_CONNECTION_STRING` - Application Insights connection
+
+## Maintenance
+
+### Viewing Deployment Outputs
+
+```bash
+./scripts/deploy.sh --outputs --environment dev
+```
+
+### Cleanup Resources
+
+```bash
+./scripts/deploy.sh --cleanup --environment dev
+```
+
+### Updating Infrastructure
+
+1. Modify the Bicep templates
+2. Update parameter files if needed
+3. Run the deployment script again
+
+## Troubleshooting
+
+### Common Issues
+
+1. **PostgreSQL Vector Extension**
+   - The deployment script automatically installs the vector extension
+   - If it fails, manually connect and run: `CREATE EXTENSION IF NOT EXISTS vector;`
+
+2. **Azure Container Registry Access**
+   - Container Apps use managed identity for ACR authentication
+   - No credentials need to be stored or managed
+   - Ensure the managed identity has AcrPull role assignment (handled automatically)
+
+3. **Network Connectivity**
+   - Check subnet delegations are correctly configured
+   - Verify private DNS zones are linked to the VNet
+
+### Logs and Monitoring
+
+- Check Container Apps logs in Log Analytics
+- View Application Insights for performance metrics
+- Monitor resource usage in Azure Portal
+
+## Cost Optimization
+
+- Development environment uses Burstable/Basic tiers
+- Production environment can be scaled up as needed
+- Resources are tagged for cost tracking
+- Consider using Azure Dev/Test pricing for non-production environments
+
+## Support
+
+For issues with the infrastructure deployment:
+
+1. Check the deployment logs in Azure Portal
+2. Review the Bicep template validation errors
+3. Ensure all prerequisites are met
+4. Verify Azure subscription permissions
+
+## Security Best Practices
+
+- Regularly rotate database and registry passwords
+- Use Azure Key Vault for production secrets
+- Monitor access logs and unusual activity
+- Keep all services updated to latest versions
+- Follow principle of least privilege for access control
