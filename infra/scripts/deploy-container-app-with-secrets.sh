@@ -1,17 +1,15 @@
 #!/bin/bash
 
-# Azure Container App Deployment Script for Speek-It Application (Phase 2)
-# This script deploys the Container App after the infrastructure and image are ready
-# Note: For deployment with secrets, use deploy-container-app-with-secrets.sh
+# Azure Container App Deployment Script with Secrets for Speek-It Application
+# This script deploys the Container App with secrets from GitHub Actions
 
 set -e
 
 # Configuration
 SUBSCRIPTION_ID="470b7615-9fc2-4ab0-9f82-7541d20873cf"
 RESOURCE_GROUP_NAME="SpeekIT"
-LOCATION="uksouth"
-IMAGE_TAG="latest"
 ENVIRONMENT="dev"
+IMAGE_TAG="${1:-latest}"
 
 # Colors for output
 RED='\033[0;31m'
@@ -58,14 +56,8 @@ set_subscription() {
     fi
 }
 
-# Function to validate parameters
-validate_parameters() {
-    if [ -z "$LOCATION" ]; then
-        print_error "Location parameter is required"
-        exit 1
-    fi
-    
-    # Check for required environment variables (secrets)
+# Function to validate required secrets
+validate_secrets() {
     local missing_secrets=()
     
     if [ -z "$CONNECTWISE_PRIVATE_KEY" ]; then
@@ -85,7 +77,7 @@ validate_parameters() {
     fi
     
     if [ -z "$POSTGRESQL_ADMIN_PASSWORD" ]; then
-        missing_secrets+=("POSTGRESQL_ADMIN_PASSWORD")
+        print_warning "POSTGRESQL_ADMIN_PASSWORD not provided, will try to retrieve from deployment history"
     fi
     
     if [ ${#missing_secrets[@]} -gt 0 ]; then
@@ -94,36 +86,11 @@ validate_parameters() {
             echo "  - $secret"
         done
         print_error "Please set these environment variables before running this script."
-        print_error "Or use deploy-container-app-with-secrets.sh for deployment with secrets."
         exit 1
     fi
 }
 
-# Function to get infrastructure outputs
-get_infrastructure_outputs() {
-    print_status "Retrieving infrastructure deployment outputs..."
-    
-    # Check if infrastructure deployment exists
-    local infra_deployment=$(az deployment group list \
-        --resource-group "$RESOURCE_GROUP_NAME" \
-        --query "[?name=='infrastructure']" \
-        --output tsv 2>/dev/null || echo "")
-    
-    if [ -z "$infra_deployment" ]; then
-        print_error "Infrastructure deployment not found. Please run deploy-infrastructure.sh first."
-        exit 1
-    fi
-    
-    # Get outputs from infrastructure deployment
-    local outputs=$(az deployment group show \
-        --resource-group "$RESOURCE_GROUP_NAME" \
-        --name "infrastructure" \
-        --query "properties.outputs")
-    
-    echo "$outputs"
-}
-
-# Function to deploy container app
+# Function to deploy container app with secrets
 deploy_container_app() {
     local param_file="parameters/container-app-with-secrets-${ENVIRONMENT}.bicepparam"
     
@@ -134,8 +101,16 @@ deploy_container_app() {
     
     print_status "Deploying Container App with secrets to resource group: $RESOURCE_GROUP_NAME"
     print_status "Using parameter file: $param_file"
-    print_status "Container image tag: ${IMAGE_TAG}"
-    print_status "Environment: ${ENVIRONMENT}"
+    print_status "Image tag: $IMAGE_TAG"
+    
+    # Get PostgreSQL password if not provided
+    if [ -z "$POSTGRESQL_ADMIN_PASSWORD" ]; then
+        print_status "Retrieving PostgreSQL password from deployment parameters..."
+        # Note: This requires the password to be passed as a parameter when deploying
+        print_error "PostgreSQL admin password is required but not provided."
+        print_error "Please set POSTGRESQL_ADMIN_PASSWORD environment variable."
+        exit 1
+    fi
     
     # Deploy the container app template with secrets
     az deployment group create \
@@ -155,54 +130,38 @@ deploy_container_app() {
 
 # Function to show deployment outputs
 show_outputs() {
-    print_status "Retrieving Container App deployment outputs..."
+    print_status "Retrieving deployment outputs..."
     
-    # Get the container app deployment
+    # Get the latest deployment
     local deployment_name=$(az deployment group list \
         --resource-group "$RESOURCE_GROUP_NAME" \
-        --query "[?contains(name, 'container-app')][0].name" \
+        --query "[0].name" \
         --output tsv)
     
     if [ -n "$deployment_name" ]; then
-        local app_url=$(az deployment group show \
-            --resource-group "$RESOURCE_GROUP_NAME" \
-            --name "$deployment_name" \
-            --query "properties.outputs.applicationUrl.value" \
-            --output tsv)
-        
-        print_status "Container App URL: $app_url"
-        
         az deployment group show \
             --resource-group "$RESOURCE_GROUP_NAME" \
             --name "$deployment_name" \
             --query "properties.outputs" \
             --output table
     else
-        print_warning "No Container App deployments found in resource group: $RESOURCE_GROUP_NAME"
+        print_warning "No deployments found in resource group: $RESOURCE_GROUP_NAME"
     fi
 }
 
 # Main script logic
 main() {
-    print_status "Starting Speek-It Container App deployment to SpeekIT resource group"
+    print_status "Starting Container App deployment with secrets"
     
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -l|--location)
-                LOCATION="$2"
-                shift 2
-                ;;
-            -s|--subscription)
-                SUBSCRIPTION_ID="$2"
-                shift 2
-                ;;
-            -t|--image-tag)
-                IMAGE_TAG="$2"
-                shift 2
-                ;;
             -e|--environment)
                 ENVIRONMENT="$2"
+                shift 2
+                ;;
+            -t|--tag)
+                IMAGE_TAG="$2"
                 shift 2
                 ;;
             --outputs)
@@ -210,12 +169,10 @@ main() {
                 exit 0
                 ;;
             -h|--help)
-                echo "Usage: $0 [OPTIONS]"
+                echo "Usage: $0 [OPTIONS] [IMAGE_TAG]"
                 echo "Options:"
-                echo "  -l, --location       Azure region (default: uksouth)"
-                echo "  -s, --subscription   Azure subscription ID (default: preset)"
-                echo "  -t, --image-tag      Docker image tag (default: latest)"
                 echo "  -e, --environment    Environment name (default: dev)"
+                echo "  -t, --tag           Docker image tag (default: latest)"
                 echo "  --outputs           Show deployment outputs"
                 echo "  -h, --help          Show this help message"
                 echo ""
@@ -226,16 +183,14 @@ main() {
                 echo "  WORKOS_API_KEY"
                 echo "  POSTGRESQL_ADMIN_PASSWORD"
                 echo ""
-                echo "This deploys to the existing SpeekIT resource group in subscription 470b7615-9fc2-4ab0-9f82-7541d20873cf"
-                echo ""
                 echo "Example:"
-                echo "  OPENAI_API_KEY=sk-... POSTGRESQL_ADMIN_PASSWORD=... $0"
-                echo "  $0 --image-tag sha-abc123"
+                echo "  $0 v1.0.0"
+                echo "  OPENAI_API_KEY=sk-... $0 --tag latest"
                 exit 0
                 ;;
             *)
-                print_error "Unknown option: $1"
-                exit 1
+                IMAGE_TAG="$1"
+                shift
                 ;;
         esac
     done
@@ -243,14 +198,25 @@ main() {
     # Run pre-flight checks
     check_azure_cli
     check_azure_login
-    validate_parameters
     set_subscription
+    validate_secrets
     
     # Deploy container app
     deploy_container_app
     show_outputs
     
     print_status "Container App deployment completed successfully!"
+    
+    # Get the application URL
+    local app_url=$(az deployment group show \
+        --resource-group "$RESOURCE_GROUP_NAME" \
+        --name "container-app-with-secrets" \
+        --query "properties.outputs.applicationUrl.value" \
+        --output tsv 2>/dev/null || echo "URL not available")
+    
+    if [ "$app_url" != "URL not available" ]; then
+        print_status "Application URL: $app_url"
+    fi
 }
 
 # Change to the script directory

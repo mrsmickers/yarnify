@@ -22,8 +22,8 @@ param managedIdentityId string
 @description('Environment variables for the container')
 param environmentVariables array = []
 
-@description('Key Vault name for secrets')
-param keyVaultName string = ''
+@description('Secrets for the container')
+param secrets array = []
 
 @description('The minimum number of replicas')
 param minReplicas int = 1
@@ -72,33 +72,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
           identity: managedIdentityId
         }
       ]
-      secrets: [
-        {
-          name: 'database-url'
-          keyVaultUrl: 'https://${keyVaultName}.vault.azure.net/secrets/database-url'
-          identity: managedIdentityId
-        }
-        {
-          name: 'redis-url'
-          keyVaultUrl: 'https://${keyVaultName}.vault.azure.net/secrets/redis-url'
-          identity: managedIdentityId
-        }
-        {
-          name: 'storage-connection-string'
-          keyVaultUrl: 'https://${keyVaultName}.vault.azure.net/secrets/storage-connection-string'
-          identity: managedIdentityId
-        }
-        {
-          name: 'app-insights-connection-string'
-          keyVaultUrl: 'https://${keyVaultName}.vault.azure.net/secrets/app-insights-connection-string'
-          identity: managedIdentityId
-        }
-        {
-          name: 'openai-api-key'
-          keyVaultUrl: 'https://${keyVaultName}.vault.azure.net/secrets/openai-api-key'
-          identity: managedIdentityId
-        }
-      ]
+      secrets: secrets
     }
     template: {
       revisionSuffix: 'initial'
