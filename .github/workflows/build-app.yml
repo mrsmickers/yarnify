@@ -103,6 +103,15 @@ jobs:
           build-args: |
             commit_sha=${{ github.sha }}
             built_at=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
-      # - name: Webhook restart Container
-      #   run: |
-      #     curl --location --request POST 'https://dev.a9k.io/api/v1/deploy?uuid=wk0woc0wscwgw00480k8wk0s&force=false' --header 'Authorization: Bearer ${{ secrets.A9K_WEBHOOK_TOKEN }}'
+
+      - name: Deploy Container App with Secrets
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          CONNECTWISE_PRIVATE_KEY: ${{ secrets.CONNECTWISE_PRIVATE_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          VOIP_PASSWORD: ${{ secrets.VOIP_PASSWORD }}
+          WORKOS_API_KEY: ${{ secrets.WORKOS_API_KEY }}
+          POSTGRESQL_ADMIN_PASSWORD: ${{ secrets.POSTGRESQL_ADMIN_PASSWORD }}
+        run: |
+          cd infra
+          ./scripts/deploy-container-app-with-secrets.sh ${{ github.sha }}
