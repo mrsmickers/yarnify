@@ -6,12 +6,18 @@ on:
     paths:
       - 'apps/api/**'
       - 'apps/frontend/**'
+      - 'infra/scripts/**'
+      - 'infra/container-app-with-secrets.bicep'
+      - 'infra/parameters/container-app-with-secrets-dev.bicepparam'
       - '.github/workflows/build-app.yml'
   pull_request:
     branches: [main]
     paths:
       - 'apps/api/**'
       - 'apps/frontend/**'
+      - 'infra/scripts/**'
+      - 'infra/container-app-with-secrets.bicep'
+      - 'infra/parameters/container-app-with-secrets-dev.bicepparam'
       - '.github/workflows/build-app.yml'
 
 concurrency:
