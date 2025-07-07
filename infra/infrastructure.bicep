@@ -147,15 +147,14 @@ module containerAppsEnvironment 'modules/container-apps-environment.bicep' = {
   }
 }
 
-// Role Assignments for ACR (requires elevated permissions)
-// Deploy this separately if needed: az deployment group create --template-file role-assignments.bicep
-// module roleAssignments 'modules/role-assignments.bicep' = {
-//   name: 'role-assignments-deployment'
-//   params: {
-//     managedIdentityPrincipalId: managedIdentity.outputs.principalId
-//     containerRegistryId: containerRegistry.outputs.registryId
-//   }
-// }
+// Role Assignments for ACR
+module roleAssignments 'modules/role-assignments.bicep' = {
+  name: 'role-assignments-deployment'
+  params: {
+    managedIdentityPrincipalId: managedIdentity.outputs.principalId
+    containerRegistryId: containerRegistry.outputs.registryId
+  }
+}
 
 // Outputs
 output resourceGroupName string = resourceGroup().name

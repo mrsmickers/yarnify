@@ -18,10 +18,15 @@ resource keyVaultSecretsUserRole 'Microsoft.Authorization/roleAssignments@2022-0
   }
 }
 
+// Get reference to the ACR resource
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' existing = {
+  name: split(containerRegistryId, '/')[8] // Extract registry name from resource ID
+}
+
 // Role assignment for managed identity to pull from ACR
 resource acrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(containerRegistryId, managedIdentityPrincipalId, 'AcrPull')
-  scope: resourceGroup()
+  scope: containerRegistry
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d') // AcrPull role
     principalId: managedIdentityPrincipalId

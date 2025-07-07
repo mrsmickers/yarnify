@@ -86,9 +86,23 @@ resource database 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-06-0
   name: 'speekitdb'
 }
 
+// Role assignment for managed identity to pull from ACR
+resource acrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(containerRegistry.id, managedIdentity.properties.principalId, 'AcrPull')
+  scope: containerRegistry
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d') // AcrPull role
+    principalId: managedIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
 // Container App with secrets and environment variables
 module containerApp 'modules/container-app.bicep' = {
   name: 'container-app-deployment'
+  dependsOn: [
+    acrPullRoleAssignment
+  ]
   params: {
     containerAppName: namingConvention.containerApp
     location: location

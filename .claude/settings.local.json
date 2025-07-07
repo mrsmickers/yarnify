@@ -5,7 +5,14 @@
       "Bash(mkdir:*)",
       "Bash(chmod:*)",
       "Bash(rm:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(az deployment group list:*)",
+      "Bash(az group list:*)",
+      "Bash(az deployment group operation list:*)",
+      "Bash(az deployment operation group list:*)",
+      "Bash(az role assignment list:*)",
+      "Bash(az identity list:*)",
+      "Bash(az acr list:*)"
     ],
     "deny": []
   }
