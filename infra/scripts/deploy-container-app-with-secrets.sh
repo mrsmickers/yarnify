@@ -8,7 +8,6 @@ set -e
 # Configuration
 SUBSCRIPTION_ID="470b7615-9fc2-4ab0-9f82-7541d20873cf"
 RESOURCE_GROUP_NAME="SpeekIT"
-ENVIRONMENT="dev"
 IMAGE_TAG="${1:-latest}"
 
 # Colors for output
@@ -92,7 +91,7 @@ validate_secrets() {
 
 # Function to deploy container app with secrets
 deploy_container_app() {
-    local param_file="parameters/container-app-with-secrets-${ENVIRONMENT}.bicepparam"
+    local param_file="parameters/container-app-with-secrets-dev.bicepparam"
     
     if [ ! -f "$param_file" ]; then
         print_error "Parameter file not found: $param_file"
@@ -156,10 +155,6 @@ main() {
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -e|--environment)
-                ENVIRONMENT="$2"
-                shift 2
-                ;;
             -t|--tag)
                 IMAGE_TAG="$2"
                 shift 2
@@ -171,7 +166,6 @@ main() {
             -h|--help)
                 echo "Usage: $0 [OPTIONS] [IMAGE_TAG]"
                 echo "Options:"
-                echo "  -e, --environment    Environment name (default: dev)"
                 echo "  -t, --tag           Docker image tag (default: latest)"
                 echo "  --outputs           Show deployment outputs"
                 echo "  -h, --help          Show this help message"
