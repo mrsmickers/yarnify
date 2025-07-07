@@ -41,14 +41,14 @@ var commonTags = union(tags, {
 })
 
 var namingConvention = {
-  containerRegistry: 'cr${replace(namePrefix, '-', '')}${environment}'
-  managedIdentity: 'id-${namePrefix}-${environment}'
-  containerAppsEnvironment: 'cae-${namePrefix}-${environment}'
-  containerApp: 'ca-${namePrefix}-api-${environment}'
-  postgresql: 'psql-${namePrefix}-${environment}'
-  redis: 'redis-${namePrefix}-${environment}'
-  storageAccount: 'st${replace(namePrefix, '-', '')}${environment}'
-  applicationInsights: 'ai-${namePrefix}-${environment}'
+  containerRegistry: 'cr${replace(namePrefix, '-', '')}'
+  managedIdentity: 'id-${namePrefix}'
+  containerAppsEnvironment: 'cae-${namePrefix}'
+  containerApp: 'ca-${namePrefix}-api'
+  postgresql: 'psql-${namePrefix}'
+  redis: 'redis-${namePrefix}'
+  storageAccount: 'st${replace(namePrefix, '-', '')}'
+  applicationInsights: 'ai-${namePrefix}'
 }
 
 // Get existing resources

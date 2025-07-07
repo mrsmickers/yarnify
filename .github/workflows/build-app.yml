@@ -114,4 +114,7 @@ jobs:
           POSTGRESQL_ADMIN_PASSWORD: ${{ secrets.POSTGRESQL_ADMIN_PASSWORD }}
         run: |
           cd infra
-          ./scripts/deploy-container-app-with-secrets.sh ${{ github.sha }}
+          # Use the short SHA that matches the Docker tag
+          IMAGE_TAG="${{ github.sha }}"
+          SHORT_SHA="${IMAGE_TAG:0:7}"
+          ./scripts/deploy-container-app-with-secrets.sh "$SHORT_SHA"

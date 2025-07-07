@@ -18,3 +18,4 @@ param connectwisePrivateKey = '' // Will be provided at deployment time
 param openaiApiKey = '' // Will be provided at deployment time
 param voipPassword = '' // Will be provided at deployment time
 param workosApiKey = '' // Will be provided at deployment time
+param postgresqlAdminPassword = '' // Will be provided at deployment time
