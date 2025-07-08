@@ -203,7 +203,7 @@ module containerApp 'modules/container-app.bicep' = {
       }
       {
         name: 'WORKOS_CLIENT_ID'
-        value: 'client_01JW3XNW90FZ157R90W1YCK13S'
+        value: 'client_01JW3XNWSQ7CT7FA9F4VRYN4HE'
       }
       {
         name: 'FRONTEND_URL'
