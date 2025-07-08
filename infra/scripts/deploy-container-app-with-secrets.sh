@@ -111,22 +111,8 @@ deploy_container_app() {
         exit 1
     fi
     
-    # Ensure ACR role assignment exists
-    print_status "Ensuring ACR role assignment exists..."
-    local managed_identity_principal_id=$(az identity show --resource-group "$RESOURCE_GROUP_NAME" --name "id-speek-it" --query "principalId" --output tsv)
-    local acr_id=$(az acr show --resource-group "$RESOURCE_GROUP_NAME" --name "crspeekit" --query "id" --output tsv)
-    
-    # Check if role assignment already exists
-    local existing_assignment=$(az role assignment list --assignee "$managed_identity_principal_id" --scope "$acr_id" --role "AcrPull" --query "[0].id" --output tsv)
-    
-    if [ -z "$existing_assignment" ] || [ "$existing_assignment" == "null" ]; then
-        print_status "Creating AcrPull role assignment..."
-        az role assignment create --role "AcrPull" --assignee "$managed_identity_principal_id" --scope "$acr_id" || true
-        # Wait a moment for the role assignment to propagate
-        sleep 10
-    else
-        print_status "AcrPull role assignment already exists"
-    fi
+    # Using ACR admin credentials instead of managed identity
+    print_status "Using ACR admin credentials for container registry access"
     
     # Deploy the container app template with secrets
     az deployment group create \

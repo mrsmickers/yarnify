@@ -96,8 +96,13 @@ module containerApp 'modules/container-app.bicep' = {
     containerAppsEnvironmentId: containerAppsEnvironment.id
     containerImage: '${containerRegistry.properties.loginServer}/speek-it-api:${imageTag}'
     containerRegistryServer: containerRegistry.properties.loginServer
+    containerRegistryUsername: containerRegistry.listCredentials().username
     managedIdentityId: managedIdentity.id
     secrets: [
+      {
+        name: 'container-registry-password'
+        value: containerRegistry.listCredentials().passwords[0].value
+      }
       {
         name: 'database-url'
         value: 'postgresql://${postgresql.properties.administratorLogin}:${postgresqlAdminPassword}@${postgresql.properties.fullyQualifiedDomainName}:5432/${database.name}?sslmode=require'

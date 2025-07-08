@@ -16,6 +16,9 @@ param containerImage string
 @description('The container registry server')
 param containerRegistryServer string
 
+@description('The container registry username')
+param containerRegistryUsername string = ''
+
 @description('The managed identity resource ID for ACR access')
 param managedIdentityId string
 
@@ -69,7 +72,8 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
       registries: [
         {
           server: containerRegistryServer
-          identity: managedIdentityId
+          username: containerRegistryUsername
+          passwordSecretRef: 'container-registry-password'
         }
       ]
       secrets: secrets
