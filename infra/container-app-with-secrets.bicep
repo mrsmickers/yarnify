@@ -211,7 +211,7 @@ module containerApp 'modules/container-app.bicep' = {
       }
       {
         name: 'WORKOS_ORG_ID'
-        value: 'org_01JW5KB3VMM5T0MH96H471ECVJ'
+        value: 'org_01JZMKSC55TPF07GWM480YBEEA'
       }
       {
         name: 'EXTENSION_STARTS_WITH'
