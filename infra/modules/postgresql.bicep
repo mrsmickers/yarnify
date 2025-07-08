@@ -31,7 +31,7 @@ param tier string = 'Burstable'
 param storageSizeGB int = 32
 
 @description('The PostgreSQL version')
-param version string = '15'
+param version string = '16'
 
 // PostgreSQL Flexible Server
 resource postgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2023-06-01-preview' = {

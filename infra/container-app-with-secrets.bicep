@@ -207,7 +207,7 @@ module containerApp 'modules/container-app.bicep' = {
       }
       {
         name: 'FRONTEND_URL'
-        value: 'https://${namingConvention.containerApp}.${containerAppsEnvironment.properties.defaultDomain}'
+        value: 'https://speek-it.ingeniotech.co.uk'
       }
       {
         name: 'WORKOS_ORG_ID'
