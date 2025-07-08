@@ -171,6 +171,7 @@ output managedIdentityPrincipalId string = managedIdentity.outputs.principalId
 output containerAppsEnvironmentId string = containerAppsEnvironment.outputs.environmentId
 output postgresqlConnectionString string = postgresql.outputs.connectionString
 output redisConnectionString string = redis.outputs.connectionString
+output redisUrl string = redis.outputs.redisUrl
 output storageConnectionString string = storage.outputs.connectionString
 output applicationInsightsConnectionString string = applicationInsights.outputs.connectionString
 // output keyVaultName string = keyVault.outputs.keyVaultName

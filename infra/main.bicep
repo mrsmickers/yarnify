@@ -183,7 +183,7 @@ module containerApp 'modules/container-app.bicep' = if (deployContainerApp) {
       }
       {
         name: 'REDIS_URL'
-        value: redis.outputs.connectionString
+        value: redis.outputs.redisUrl
       }
       {
         name: 'AZURE_STORAGE_CONNECTION_STRING'

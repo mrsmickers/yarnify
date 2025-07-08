@@ -99,3 +99,4 @@ output sslPort int = redisCache.properties.sslPort
 output port int = redisCache.properties.port
 output primaryKey string = redisCache.listKeys().primaryKey
 output connectionString string = '${redisCache.properties.hostName}:${redisCache.properties.sslPort},password=${redisCache.listKeys().primaryKey},ssl=True,abortConnect=False'
+output redisUrl string = 'rediss://:${redisCache.listKeys().primaryKey}@${redisCache.properties.hostName}:${redisCache.properties.sslPort}/0'

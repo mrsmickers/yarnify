@@ -87,8 +87,24 @@ deploy_infrastructure() {
         exit 1
     fi
     
-    # Generate secure password for PostgreSQL
-    local postgres_password=$(generate_password)
+    # Check if PostgreSQL server already exists
+    local postgres_exists=$(az postgres flexible-server show \
+        --resource-group "$RESOURCE_GROUP_NAME" \
+        --name "psql-speek-it" \
+        --query "name" \
+        --output tsv 2>/dev/null || echo "")
+    
+    # Handle PostgreSQL password
+    local postgres_password=""
+    if [ -z "$postgres_exists" ]; then
+        postgres_password=$(generate_password)
+        print_status "Creating new PostgreSQL server with generated password"
+    else
+        print_status "PostgreSQL server already exists, using placeholder password"
+        # Use the existing password from environment or a placeholder
+        postgres_password="${POSTGRESQL_ADMIN_PASSWORD:-ExistingPasswordNotChanged123!}"
+        print_warning "Note: The existing PostgreSQL password will NOT be changed"
+    fi
     
     print_status "Deploying core infrastructure to resource group: $RESOURCE_GROUP_NAME"
     print_status "Using parameter file: $param_file"
@@ -104,8 +120,10 @@ deploy_infrastructure() {
     
     # Store credentials securely (you might want to use Azure Key Vault instead)
     print_status "Infrastructure deployment completed successfully!"
-    print_warning "Please store these credentials securely:"
-    echo "PostgreSQL Admin Password: $postgres_password"
+    if [ -z "$postgres_exists" ]; then
+        print_warning "Please store these credentials securely:"
+        echo "PostgreSQL Admin Password: $postgres_password"
+    fi
 }
 
 # Function to show deployment outputs

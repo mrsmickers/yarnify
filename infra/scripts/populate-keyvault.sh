@@ -61,7 +61,7 @@ main() {
     # Extract values
     local key_vault_name=$(echo "$outputs" | jq -r '.keyVaultName.value')
     local postgres_connection=$(echo "$outputs" | jq -r '.postgresqlConnectionString.value')
-    local redis_connection=$(echo "$outputs" | jq -r '.redisConnectionString.value')
+    local redis_url=$(echo "$outputs" | jq -r '.redisUrl.value')
     local storage_connection=$(echo "$outputs" | jq -r '.storageConnectionString.value')
     local app_insights_connection=$(echo "$outputs" | jq -r '.applicationInsightsConnectionString.value')
     
@@ -74,7 +74,7 @@ main() {
     
     # Set infrastructure secrets
     set_keyvault_secret "$key_vault_name" "database-url" "$postgres_connection"
-    set_keyvault_secret "$key_vault_name" "redis-url" "$redis_connection"
+    set_keyvault_secret "$key_vault_name" "redis-url" "$redis_url"
     set_keyvault_secret "$key_vault_name" "storage-connection-string" "$storage_connection"
     set_keyvault_secret "$key_vault_name" "app-insights-connection-string" "$app_insights_connection"
     
