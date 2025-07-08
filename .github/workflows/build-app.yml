@@ -10,6 +10,7 @@ on:
       - 'infra/container-app-with-secrets.bicep'
       - 'infra/parameters/container-app-with-secrets-dev.bicepparam'
       - '.github/workflows/build-app.yml'
+      - 'infra/**'
   pull_request:
     branches: [main]
     paths:
@@ -19,6 +20,7 @@ on:
       - 'infra/container-app-with-secrets.bicep'
       - 'infra/parameters/container-app-with-secrets-dev.bicepparam'
       - '.github/workflows/build-app.yml'
+      - 'infra/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

@@ -1,0 +1,158 @@
+name: Deploy Infrastructure
+
+on:
+  push:
+    branches: [main, azure-bicep]
+    paths:
+      - 'infra/**'
+      - '.github/workflows/deploy-infrastructure.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'infra/**'
+      - '.github/workflows/deploy-infrastructure.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - prod
+
+concurrency:
+  group: infra-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  RESOURCE_GROUP: SpeekIT
+  LOCATION: uksouth
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_LOGIN }}
+
+      - name: Validate Bicep templates
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            echo "Validating infrastructure.bicep..."
+            az deployment group validate \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --template-file infra/infrastructure.bicep \
+              --parameters @infra/parameters/infrastructure-prod.bicepparam \
+              --parameters postgresqlAdminPassword=${{ secrets.POSTGRESQL_ADMIN_PASSWORD }}
+
+  deploy-infrastructure:
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name != 'pull_request'
+    environment: production
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_LOGIN }}
+
+      - name: Deploy Infrastructure
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            echo "Deploying infrastructure to ${{ env.RESOURCE_GROUP }}..."
+            
+            # Deploy infrastructure
+            az deployment group create \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --template-file infra/infrastructure.bicep \
+              --parameters @infra/parameters/infrastructure-prod.bicepparam \
+              --parameters postgresqlAdminPassword=${{ secrets.POSTGRESQL_ADMIN_PASSWORD }} \
+              --name infrastructure-$(date +%Y%m%d%H%M%S)
+            
+            echo "Infrastructure deployment completed."
+
+      - name: Assign ACR Role
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            echo "Assigning ACR pull role to managed identity..."
+            
+            # Get deployment outputs
+            ACR_NAME=$(az deployment group show \
+              --resource-group "${{ env.RESOURCE_GROUP }}" \
+              --name "infrastructure" \
+              --query "properties.outputs.containerRegistryName.value" -o tsv)
+            
+            IDENTITY_PRINCIPAL_ID=$(az deployment group show \
+              --resource-group "${{ env.RESOURCE_GROUP }}" \
+              --name "infrastructure" \
+              --query "properties.outputs.managedIdentityPrincipalId.value" -o tsv)
+            
+            if [ -n "$ACR_NAME" ] && [ -n "$IDENTITY_PRINCIPAL_ID" ]; then
+              echo "ACR Name: $ACR_NAME"
+              echo "Managed Identity Principal ID: $IDENTITY_PRINCIPAL_ID"
+              
+              # Assign AcrPull role
+              az role assignment create \
+                --assignee "$IDENTITY_PRINCIPAL_ID" \
+                --role "AcrPull" \
+                --scope "/subscriptions/$(az account show --query id -o tsv)/resourceGroups/${{ env.RESOURCE_GROUP }}/providers/Microsoft.ContainerRegistry/registries/$ACR_NAME" \
+                || echo "Role assignment may already exist or require elevated permissions"
+            else
+              echo "Could not retrieve ACR name or managed identity principal ID"
+            fi
+
+      - name: Populate Key Vault
+        if: false  # Disabled for now as Key Vault is not currently used
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            echo "Populating Key Vault with secrets..."
+            cd infra/scripts
+            chmod +x populate-keyvault.sh
+            ./populate-keyvault.sh
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Summary
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            # Get deployment outputs
+            OUTPUTS=$(az deployment group show \
+              --resource-group "${{ env.RESOURCE_GROUP }}" \
+              --name "infrastructure" \
+              --query "properties.outputs" -o json)
+            
+            echo "### Resources Created:" >> $GITHUB_STEP_SUMMARY
+            echo "- **Resource Group:** ${{ env.RESOURCE_GROUP }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Container Registry:** $(echo $OUTPUTS | jq -r '.containerRegistryName.value')" >> $GITHUB_STEP_SUMMARY
+            echo "- **PostgreSQL Server:** $(echo $OUTPUTS | jq -r '.postgresqlServerName.value')" >> $GITHUB_STEP_SUMMARY
+            echo "- **Redis Cache:** $(echo $OUTPUTS | jq -r '.redisCacheName.value')" >> $GITHUB_STEP_SUMMARY
+            echo "- **Storage Account:** $(echo $OUTPUTS | jq -r '.storageAccountName.value')" >> $GITHUB_STEP_SUMMARY
+            echo "- **VNet:** $(echo $OUTPUTS | jq -r '.vnetName.value')" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY
+            echo "1. Container images will be built and deployed by the build workflow" >> $GITHUB_STEP_SUMMARY
+            echo "2. Monitor the resources in Azure Portal" >> $GITHUB_STEP_SUMMARY
