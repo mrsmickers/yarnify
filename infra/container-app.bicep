@@ -19,6 +19,9 @@ param containerRegistryLoginServer string
 @description('Managed Identity ID')
 param managedIdentityId string
 
+@description('Managed Identity Client ID')
+param managedIdentityClientId string
+
 @description('Key Vault name for retrieving secrets')
 param keyVaultName string
 
@@ -67,6 +70,10 @@ module containerApp 'modules/container-app.bicep' = {
       {
         name: 'OPENAI_API_KEY'
         secretRef: 'openai-api-key'
+      }
+      {
+        name: 'AZURE_CLIENT_ID'
+        value: managedIdentityClientId
       }
     ]
   }

@@ -26,7 +26,7 @@ param skuCapacity int = 1
 param enableNonSslPort bool = false
 
 @description('Redis version')
-param redisVersion string = '6'
+param redisVersion string = '6.2'
 
 // Redis Cache
 resource redisCache 'Microsoft.Cache/redis@2023-08-01' = {
@@ -47,7 +47,7 @@ resource redisCache 'Microsoft.Cache/redis@2023-08-01' = {
       'maxfragmentationmemory-reserved': '50'
       'maxmemory-delta': '50'
       'maxmemory-reserved': '50'
-      'maxmemory-policy': 'volatile-lru'
+      'maxmemory-policy': 'noeviction'
     }
   }
 }

@@ -168,6 +168,7 @@ output redisCacheName string = redis.outputs.cacheName
 output vnetName string = networking.outputs.vnetName
 output managedIdentityId string = managedIdentity.outputs.identityId
 output managedIdentityPrincipalId string = managedIdentity.outputs.principalId
+output managedIdentityClientId string = managedIdentity.outputs.clientId
 output containerAppsEnvironmentId string = containerAppsEnvironment.outputs.environmentId
 output postgresqlConnectionString string = postgresql.outputs.connectionString
 output redisConnectionString string = redis.outputs.connectionString

@@ -113,7 +113,7 @@ module containerApp 'modules/container-app.bicep' = {
       }
       {
         name: 'redis-url'
-        value: '${redis.properties.hostName}:${redis.properties.sslPort},password=${redis.listKeys().primaryKey},ssl=True,abortConnect=False'
+        value: 'rediss://:${redis.listKeys().primaryKey}@${redis.properties.hostName}:${redis.properties.sslPort}/0'
       }
       {
         name: 'azure-storage-connection-string'
@@ -228,6 +228,10 @@ module containerApp 'modules/container-app.bicep' = {
       {
         name: 'EMBEDDING_CHUNK_OVERLAP_TOKENS'
         value: '200'
+      }
+      {
+        name: 'AZURE_CLIENT_ID'
+        value: managedIdentity.properties.clientId
       }
     ]
   }

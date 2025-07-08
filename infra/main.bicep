@@ -193,6 +193,10 @@ module containerApp 'modules/container-app.bicep' = if (deployContainerApp) {
         name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
         value: applicationInsights.outputs.connectionString
       }
+      {
+        name: 'AZURE_CLIENT_ID'
+        value: managedIdentity.outputs.clientId
+      }
     ]
   }
 }
@@ -207,3 +211,4 @@ output postgresqlServerName string = postgresql.outputs.serverName
 output redisCacheName string = redis.outputs.cacheName
 output vnetName string = networking.outputs.vnetName
 output managedIdentityId string = managedIdentity.outputs.identityId
+output managedIdentityClientId string = managedIdentity.outputs.clientId
