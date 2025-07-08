@@ -169,6 +169,62 @@ module containerApp 'modules/container-app.bicep' = {
         name: 'WORKOS_API_KEY'
         secretRef: 'workos-api-key'
       }
+      {
+        name: 'VOIP_USERNAME'
+        value: 'Simon%20Smyth'
+      }
+      {
+        name: 'VOIP_BASE_URL'
+        value: 'https://voip.ingeniotech.co.uk'
+      }
+      {
+        name: 'CONNECTWISE_COMPANY_ID'
+        value: 'computereyez'
+      }
+      {
+        name: 'CONNECTWISE_URL'
+        value: 'api-eu.myconnectwise.net'
+      }
+      {
+        name: 'CONNECTWISE_PUBLIC_KEY'
+        value: 'i4xUd6K9cB9n7BBY'
+      }
+      {
+        name: 'CONNECTWISE_CLIENT_ID'
+        value: 'c847f56f-5f48-478e-bc94-abc5c329497d'
+      }
+      {
+        name: 'AZURE_STORAGE_CONTAINER_NAME'
+        value: 'storage'
+      }
+      {
+        name: 'WORKOS_CLIENT_ID'
+        value: 'client_01JW3XNW90FZ157R90W1YCK13S'
+      }
+      {
+        name: 'FRONTEND_URL'
+        value: 'https://${namingConvention.containerApp}.${containerAppsEnvironment.properties.defaultDomain}'
+      }
+      {
+        name: 'WORKOS_ORG_ID'
+        value: 'org_01JW5KB3VMM5T0MH96H471ECVJ'
+      }
+      {
+        name: 'EXTENSION_STARTS_WITH'
+        value: '56360'
+      }
+      {
+        name: 'VOIP_CUSTOMER_ID'
+        value: '21677'
+      }
+      {
+        name: 'EMBEDDING_CHUNK_SIZE_TOKENS'
+        value: '7500'
+      }
+      {
+        name: 'EMBEDDING_CHUNK_OVERLAP_TOKENS'
+        value: '200'
+      }
     ]
   }
 }
