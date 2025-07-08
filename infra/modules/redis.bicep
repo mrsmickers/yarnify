@@ -26,7 +26,7 @@ param skuCapacity int = 1
 param enableNonSslPort bool = false
 
 @description('Redis version')
-param redisVersion string = '6.2'
+param redisVersion string = '6'
 
 // Redis Cache
 resource redisCache 'Microsoft.Cache/redis@2023-08-01' = {
