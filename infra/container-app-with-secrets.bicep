@@ -34,6 +34,9 @@ param workosApiKey string
 @secure()
 param postgresqlAdminPassword string
 
+@description('Current timestamp for unique revision naming')
+param deploymentTimestamp string = utcNow()
+
 // Variables
 var commonTags = union(tags, {
   Environment: environment
@@ -98,7 +101,7 @@ module containerApp 'modules/container-app.bicep' = {
     containerRegistryServer: containerRegistry.properties.loginServer
     containerRegistryUsername: containerRegistry.listCredentials().username
     managedIdentityId: managedIdentity.id
-    deploymentTimestamp: utcNow()
+    deploymentTimestamp: deploymentTimestamp
     secrets: [
       {
         name: 'container-registry-password'
