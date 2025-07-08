@@ -100,6 +100,7 @@ module redis 'modules/redis.bicep' = {
     location: location
     tags: commonTags
     subnetId: networking.outputs.redisSubnetId
+    privateDnsZoneId: networking.outputs.redisPrivateDnsZoneId
   }
 }
 
@@ -147,14 +148,15 @@ module containerAppsEnvironment 'modules/container-apps-environment.bicep' = {
   }
 }
 
-// Role Assignments for ACR
-module roleAssignments 'modules/role-assignments.bicep' = {
-  name: 'role-assignments-deployment'
-  params: {
-    managedIdentityPrincipalId: managedIdentity.outputs.principalId
-    containerRegistryId: containerRegistry.outputs.registryId
-  }
-}
+// Role Assignments for ACR - Requires elevated permissions
+// Uncomment this after deployment with appropriate permissions or run assign-acr-role.sh script
+// module roleAssignments 'modules/role-assignments.bicep' = {
+//   name: 'role-assignments-deployment'
+//   params: {
+//     managedIdentityPrincipalId: managedIdentity.outputs.principalId
+//     containerRegistryId: containerRegistry.outputs.registryId
+//   }
+// }
 
 // Outputs
 output resourceGroupName string = resourceGroup().name

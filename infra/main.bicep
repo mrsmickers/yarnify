@@ -114,6 +114,7 @@ module redis 'modules/redis.bicep' = {
     location: location
     tags: commonTags
     subnetId: networking.outputs.redisSubnetId
+    privateDnsZoneId: networking.outputs.redisPrivateDnsZoneId
   }
 }
 

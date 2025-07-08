@@ -73,6 +73,13 @@ chmod +x scripts/deploy-infrastructure.sh
 ./scripts/deploy-infrastructure.sh --environment prod --location uksouth --subscription "your-subscription-id"
 ```
 
+**Note:** If you encounter permission errors during deployment related to role assignments, run the ACR role assignment script after the infrastructure deployment:
+
+```bash
+# Assign ACR pull permission to managed identity
+./scripts/assign-acr-role.sh
+```
+
 ### Phase 2: Container Image & App Deployment
 
 After Phase 1, push your container image to ACR using GitHub Actions, then deploy the Container App:
@@ -252,11 +259,17 @@ The Container App is configured with the following environment variables:
 2. **Azure Container Registry Access**
    - Container Apps use managed identity for ACR authentication
    - No credentials need to be stored or managed
-   - Ensure the managed identity has AcrPull role assignment (handled automatically)
+   - Role assignments require elevated permissions - if deployment fails, run `./scripts/assign-acr-role.sh` manually
 
 3. **Network Connectivity**
    - Check subnet delegations are correctly configured
    - Verify private DNS zones are linked to the VNet
+   - Ensure private endpoints have DNS zone groups configured
+
+4. **Redis Connection Issues**
+   - Verify the Redis private endpoint is properly linked to the private DNS zone
+   - Check that the connection string includes the proper hostname (not just "/:6380")
+   - Ensure the Redis URL environment variable is correctly set in Container Apps
 
 ### Logs and Monitoring
 

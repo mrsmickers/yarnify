@@ -10,6 +10,9 @@ param tags object = {}
 @description('The subnet ID for private endpoint')
 param subnetId string
 
+@description('The private DNS zone ID for Redis')
+param privateDnsZoneId string
+
 @description('The SKU family for the Redis cache')
 param skuFamily string = 'C'
 
@@ -66,6 +69,22 @@ resource redisPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = 
           groupIds: [
             'redisCache'
           ]
+        }
+      }
+    ]
+  }
+}
+
+// Private DNS Zone Group for Redis Private Endpoint
+resource redisPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-05-01' = {
+  parent: redisPrivateEndpoint
+  name: 'default'
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'privatelink-redis-cache-windows-net'
+        properties: {
+          privateDnsZoneId: privateDnsZoneId
         }
       }
     ]

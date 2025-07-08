@@ -12,7 +12,8 @@
       "Bash(az deployment operation group list:*)",
       "Bash(az role assignment list:*)",
       "Bash(az identity list:*)",
-      "Bash(az acr list:*)"
+      "Bash(az acr list:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }
