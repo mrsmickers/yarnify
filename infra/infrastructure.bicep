@@ -15,6 +15,9 @@ param postgresqlAdminUsername string
 @secure()
 param postgresqlAdminPassword string
 
+@description('Whether to deploy PostgreSQL (set to false to skip)')
+param deployPostgreSQL bool = true
+
 // Variables
 var commonTags = union(tags, {
   Project: 'speek-it'
@@ -75,11 +78,12 @@ module storage 'modules/storage.bicep' = {
     location: location
     tags: commonTags
     subnetId: networking.outputs.storageSubnetId
+    privateDnsZoneId: networking.outputs.storagePrivateDnsZoneId
   }
 }
 
 // PostgreSQL
-module postgresql 'modules/postgresql.bicep' = {
+module postgresql 'modules/postgresql.bicep' = if (deployPostgreSQL) {
   name: 'postgresql-deployment'
   params: {
     serverName: namingConvention.postgresql
@@ -163,14 +167,14 @@ output resourceGroupName string = resourceGroup().name
 output containerRegistryLoginServer string = containerRegistry.outputs.registryLoginServer
 output containerRegistryName string = containerRegistry.outputs.registryName
 output storageAccountName string = storage.outputs.storageAccountName
-output postgresqlServerName string = postgresql.outputs.serverName
+output postgresqlServerName string = deployPostgreSQL ? postgresql.outputs.serverName : namingConvention.postgresql
 output redisCacheName string = redis.outputs.cacheName
 output vnetName string = networking.outputs.vnetName
 output managedIdentityId string = managedIdentity.outputs.identityId
 output managedIdentityPrincipalId string = managedIdentity.outputs.principalId
 output managedIdentityClientId string = managedIdentity.outputs.clientId
 output containerAppsEnvironmentId string = containerAppsEnvironment.outputs.environmentId
-output postgresqlConnectionString string = postgresql.outputs.connectionString
+output postgresqlConnectionString string = deployPostgreSQL ? postgresql.outputs.connectionString : ''
 output redisConnectionString string = redis.outputs.connectionString
 output redisUrl string = redis.outputs.redisUrl
 output storageConnectionString string = storage.outputs.connectionString

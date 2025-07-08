@@ -4,9 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "concurrently -n \"API,FRONTEND\" -c \"yellow,cyan\" \"pnpm run dev:api\" \"pnpm run dev:frontend\"",
+    "dev:api": "cd apps/api && pnpm run start:dev",
+    "dev:frontend": "cd apps/frontend && pnpm run dev",
+    "start": "pnpm run dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.2.0"
+  }
 }

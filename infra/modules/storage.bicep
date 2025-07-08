@@ -10,6 +10,9 @@ param tags object = {}
 @description('The subnet ID for private endpoint')
 param subnetId string
 
+@description('The private DNS zone ID for Storage')
+param privateDnsZoneId string
+
 @description('The storage account SKU')
 param sku string = 'Standard_LRS'
 
@@ -97,6 +100,45 @@ resource tempContainer 'Microsoft.Storage/storageAccounts/blobServices/container
   properties: {
     publicAccess: 'None'
     metadata: {}
+  }
+}
+
+// Private Endpoint for Storage
+resource storagePrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
+  name: '${storageAccountName}-private-endpoint'
+  location: location
+  tags: tags
+  properties: {
+    subnet: {
+      id: subnetId
+    }
+    privateLinkServiceConnections: [
+      {
+        name: '${storageAccountName}-private-link'
+        properties: {
+          privateLinkServiceId: storageAccount.id
+          groupIds: [
+            'blob'
+          ]
+        }
+      }
+    ]
+  }
+}
+
+// Private DNS Zone Group for Storage Private Endpoint
+resource storagePrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-05-01' = {
+  parent: storagePrivateEndpoint
+  name: 'default'
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'privatelink-blob-core-windows-net'
+        properties: {
+          privateDnsZoneId: privateDnsZoneId
+        }
+      }
+    ]
   }
 }
 

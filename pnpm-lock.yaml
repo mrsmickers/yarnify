@@ -6,7 +6,11 @@ settings:
 
 importers:
 
-  .: {}
+  .:
+    devDependencies:
+      concurrently:
+        specifier: ^9.2.0
+        version: 9.2.0
 
   apps/agents:
     dependencies:
@@ -158,6 +162,9 @@ importers:
       rxjs:
         specifier: ^7.2.0
         version: 7.8.2
+      tiktoken:
+        specifier: ^1.0.21
+        version: 1.0.21
       zod:
         specifier: ^3.24.2
         version: 3.25.28
@@ -2537,8 +2544,8 @@ packages:
   '@xsai/generate-transcription@0.2.2':
     resolution: {integrity: sha512-c8UEXoMrlciQmy+CCWFTRD9XOOvxj33pB4GeTSzEgL6OCWNZs4EO2+S+k+39WlOuyRxcoxhq2rfKw2f1LleDug==}
 
-  '@xsai/shared@0.3.0-beta.3':
-    resolution: {integrity: sha512-oEwhwLeh2xXb5J0Wt/K/4zQrdBxBvFV9v3aG5UOr4AoZpXsUm3F6Hf+XB2aMX0KegFVhV2dhXe00f7XBa2vFeg==}
+  '@xsai/shared@0.3.0-beta.8':
+    resolution: {integrity: sha512-S7BYvluU7aA2Ti7HEblV3ISDZbF89VP2dDC5WCrylYlQIYoFlZjlhJhJL5c/+KwX+og0pvh5Y0iSPKdcoMmLmw==}
 
   '@xtuc/ieee754@1.2.0':
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}
@@ -2993,6 +3000,11 @@ packages:
   concat-stream@1.6.2:
     resolution: {integrity: sha512-27HBghJxjiZtIk3Ycvn/4kbJk/1uZuJFfuPEns6LaEvpvG1f0hTea8lilrouyo9mVc2GWdcEZ8OLoGmSADlrCw==}
     engines: {'0': node >= 0.8}
+
+  concurrently@9.2.0:
+    resolution: {integrity: sha512-IsB/fiXTupmagMW4MNp2lx2cdSN2FfZq78vF90LBB+zZHArbIQZjQtzXCiXnvTxCZSvXanTqFLWBjw2UkLx1SQ==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   conf@10.2.0:
     resolution: {integrity: sha512-8fLl9F04EJqjSqH+QjITQfJF8BrOVaYr1jewVgSRAEWePfxT0sku4w2hrGQ60BC/TNLGQ2pgxNlTbWQmMPFvXg==}
@@ -4789,6 +4801,7 @@ packages:
   multer@1.4.4-lts.1:
     resolution: {integrity: sha512-WeSGziVj6+Z2/MwQo3GvqzgR+9Uc+qt8SwHKh3gvNPiISKfsMfG4SvCOFYlxxgkXt7yIV2i1yczehm0EOKIxIg==}
     engines: {node: '>= 6.0.0'}
+    deprecated: Multer 1.x is impacted by a number of vulnerabilities, which have been patched in 2.x. You should upgrade to the latest 2.x version.
 
   mute-stream@0.0.8:
     resolution: {integrity: sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==}
@@ -5550,6 +5563,10 @@ packages:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
 
+  shell-quote@1.8.3:
+    resolution: {integrity: sha512-ObmnIF4hXNg1BqhnHmgbDETF8dLPCggZWBjkQfhZpbszZnYur5DUljTcCHii5LC3J5E0yeO/1LIMyH+UvHQgyw==}
+    engines: {node: '>= 0.4'}
+
   shelljs@0.8.5:
     resolution: {integrity: sha512-TiwcRcrkhHvbrZbnRcFYMLl30Dfov3HKqzp5tO5b4pt6G/SezKcYhmDg15zXVBswHmctSAQKznqNW2LO5tTDow==}
     engines: {node: '>=4'}
@@ -5795,6 +5812,9 @@ packages:
 
   through@2.3.8:
     resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==}
+
+  tiktoken@1.0.21:
+    resolution: {integrity: sha512-/kqtlepLMptX0OgbYD9aMYbM7EFrMZCL7EoHM8Psmg2FuhXoo/bH64KqOiZGGwa6oS9TPdSEDKBnV2LuB8+5vQ==}
 
   tinyglobby@0.2.14:
     resolution: {integrity: sha512-tX5e7OM1HnYr2+a2C/4V0htOcSQcoSTH9KgJnVvNm5zm/cyEWKJ7j7YutsH9CxMdtOkkLFy2AHrMci9IM8IPZQ==}
@@ -8871,13 +8891,13 @@ snapshots:
 
   '@xsai/generate-speech@0.2.2':
     dependencies:
-      '@xsai/shared': 0.3.0-beta.3
+      '@xsai/shared': 0.3.0-beta.8
 
   '@xsai/generate-transcription@0.2.2':
     dependencies:
-      '@xsai/shared': 0.3.0-beta.3
+      '@xsai/shared': 0.3.0-beta.8
 
-  '@xsai/shared@0.3.0-beta.3': {}
+  '@xsai/shared@0.3.0-beta.8': {}
 
   '@xtuc/ieee754@1.2.0': {}
 
@@ -9399,6 +9419,16 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 2.3.8
       typedarray: 0.0.6
+
+  concurrently@9.2.0:
+    dependencies:
+      chalk: 4.1.2
+      lodash: 4.17.21
+      rxjs: 7.8.2
+      shell-quote: 1.8.3
+      supports-color: 8.1.1
+      tree-kill: 1.2.2
+      yargs: 17.7.2
 
   conf@10.2.0:
     dependencies:
@@ -12401,6 +12431,8 @@ snapshots:
 
   shebang-regex@3.0.0: {}
 
+  shell-quote@1.8.3: {}
+
   shelljs@0.8.5:
     dependencies:
       glob: 7.2.3
@@ -12676,6 +12708,8 @@ snapshots:
   throttleit@2.1.0: {}
 
   through@2.3.8: {}
+
+  tiktoken@1.0.21: {}
 
   tinyglobby@0.2.14:
     dependencies:

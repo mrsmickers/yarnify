@@ -1,20 +1,19 @@
 import { Injectable, Logger } from '@nestjs/common';
-// TODO: Install and import a tokenizer like 'tiktoken' for accurate token counting
-// import { get_encoding } from 'tiktoken';
+import { get_encoding } from 'tiktoken';
 
 @Injectable()
 export class TextChunkingService {
   private readonly logger = new Logger(TextChunkingService.name);
 
-  // Placeholder for actual tokenizer
+  private readonly encoding = get_encoding('cl100k_base'); // Used by text-embedding-3-small
+
   private countTokens(text: string): number {
-    // Basic estimation: split by spaces. Replace with tiktoken for accuracy.
-    return text.split(/\s+/).length;
+    return this.encoding.encode(text).length;
   }
 
   chunkText(
     text: string,
-    chunkSizeTokens = 7500, // Default based on plan (e.g., for text-embedding-ada-002 max 8191)
+    chunkSizeTokens = 6000, // Reduced for safer margin with text-embedding-3-small (max 8191)
     overlapTokens = 200,
   ): string[] {
     if (!text) {
@@ -24,41 +23,60 @@ export class TextChunkingService {
     const chunks: string[] = [];
     let currentPosition = 0;
 
-    // Simple character-based chunking for now.
-    // For token-based chunking, this logic needs to be more sophisticated,
-    // iterating and using the tokenizer.
-    // This is a simplified version and might not respect token boundaries perfectly.
+    // Split text into sentences for better chunking boundaries
+    const sentences = text.split(/(?<=[.!?])\s+/);
+    let currentChunk = '';
+    let currentTokenCount = 0;
 
-    const estimatedCharsPerToken = 4; // Rough average
-    const chunkSizeChars = chunkSizeTokens * estimatedCharsPerToken;
-    const overlapChars = overlapTokens * estimatedCharsPerToken;
-
-    while (currentPosition < text.length) {
-      const endPosition = Math.min(
-        currentPosition + chunkSizeChars,
-        text.length,
-      );
-      chunks.push(text.substring(currentPosition, endPosition));
-      currentPosition = endPosition - overlapChars;
-      if (
-        currentPosition < endPosition - overlapChars + 1 &&
-        endPosition < text.length
-      ) {
-        // Ensure progress if overlap is large
-        currentPosition =
-          endPosition -
-          overlapChars +
-          Math.max(1, Math.floor(chunkSizeChars * 0.1)); // Move forward by at least 10% of chunk if stuck
+    for (const sentence of sentences) {
+      const sentenceTokens = this.countTokens(sentence);
+      
+      // If adding this sentence would exceed chunk size, save current chunk and start new one
+      if (currentTokenCount + sentenceTokens > chunkSizeTokens && currentChunk) {
+        chunks.push(currentChunk.trim());
+        
+        // Handle overlap by keeping some text from the end of the previous chunk
+        if (overlapTokens > 0) {
+          const overlapText = this.getOverlapText(currentChunk, overlapTokens);
+          currentChunk = overlapText + ' ' + sentence;
+          currentTokenCount = this.countTokens(currentChunk);
+        } else {
+          currentChunk = sentence;
+          currentTokenCount = sentenceTokens;
+        }
+      } else {
+        currentChunk += (currentChunk ? ' ' : '') + sentence;
+        currentTokenCount += sentenceTokens;
       }
-      if (endPosition === text.length) break;
     }
 
-    // A more robust approach would involve:
-    // 1. Splitting text into sentences or paragraphs.
-    // 2. Iteratively adding sentences/paragraphs to a chunk until chunkSizeTokens is approached.
-    // 3. Implementing overlap by taking some sentences/paragraphs from the end of the previous chunk.
+    // Add the last chunk if it has content
+    if (currentChunk.trim()) {
+      chunks.push(currentChunk.trim());
+    }
 
-    this.logger.log(`Chunked text into ${chunks.length} chunks.`);
-    return chunks.filter((chunk) => chunk.trim() !== ''); // Ensure no empty chunks
+    // Validate chunks don't exceed token limit
+    const validatedChunks = chunks.filter(chunk => {
+      const tokenCount = this.countTokens(chunk);
+      if (tokenCount > chunkSizeTokens) {
+        this.logger.warn(`Chunk exceeds token limit: ${tokenCount} tokens. Skipping.`);
+        return false;
+      }
+      return chunk.trim() !== '';
+    });
+
+    this.logger.log(`Chunked text into ${validatedChunks.length} chunks.`);
+    return validatedChunks;
+  }
+
+  private getOverlapText(text: string, overlapTokens: number): string {
+    const tokens = this.encoding.encode(text);
+    if (tokens.length <= overlapTokens) {
+      return text;
+    }
+    
+    const overlapTokensArray = tokens.slice(-overlapTokens);
+    const decoded = this.encoding.decode(overlapTokensArray);
+    return new TextDecoder().decode(decoded);
   }
 }

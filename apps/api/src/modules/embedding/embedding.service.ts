@@ -1,9 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OpenAIService } from '../openai/openai.service';
+import { get_encoding } from 'tiktoken';
 
 @Injectable()
 export class EmbeddingService {
   private readonly logger = new Logger(EmbeddingService.name);
+  private readonly encoding = get_encoding('cl100k_base'); // Used by text-embedding-3-small
 
   constructor(private readonly openaiService: OpenAIService) {}
 
@@ -18,12 +20,25 @@ export class EmbeddingService {
       return [];
     }
 
+    // Validate token count before sending to OpenAI
+    const tokenCount = this.encoding.encode(textChunk).length;
+    const maxTokens = 8191; // text-embedding-3-small limit
+    
+    if (tokenCount > maxTokens) {
+      this.logger.error(
+        `Text chunk exceeds token limit: ${tokenCount} tokens (max: ${maxTokens})`,
+      );
+      throw new Error(
+        `Text chunk exceeds token limit: ${tokenCount} tokens (max: ${maxTokens})`,
+      );
+    }
+
     try {
       this.logger.debug(
         `Generating embedding for chunk starting with: "${textChunk.substring(
           0,
           50,
-        )}..." using model ${model}`,
+        )}..." using model ${model} (${tokenCount} tokens)`,
       );
 
       const embeddings = await this.openaiService.createEmbeddings(

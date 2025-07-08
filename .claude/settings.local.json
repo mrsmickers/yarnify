@@ -13,7 +13,11 @@
       "Bash(az role assignment list:*)",
       "Bash(az identity list:*)",
       "Bash(az acr list:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(./deploy-storage-update.sh:*)",
+      "Bash(az network private-endpoint list:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm run:*)"
     ],
     "deny": []
   }

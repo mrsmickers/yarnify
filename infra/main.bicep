@@ -89,6 +89,7 @@ module storage 'modules/storage.bicep' = {
     location: location
     tags: commonTags
     subnetId: networking.outputs.storageSubnetId
+    privateDnsZoneId: networking.outputs.storagePrivateDnsZoneId
   }
 }
 
