@@ -43,6 +43,9 @@ param cpu string = '0.5'
 @description('Memory allocation for the container')
 param memory string = '1Gi'
 
+@description('Current timestamp for unique revision naming')
+param deploymentTimestamp string = utcNow()
+
 // Container App
 resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
   name: containerAppName
@@ -79,7 +82,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
       secrets: secrets
     }
     template: {
-      revisionSuffix: 'initial'
+      revisionSuffix: uniqueString(deployment().name, deploymentTimestamp)
       containers: [
         {
           name: 'api'

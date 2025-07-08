@@ -98,6 +98,7 @@ module containerApp 'modules/container-app.bicep' = {
     containerRegistryServer: containerRegistry.properties.loginServer
     containerRegistryUsername: containerRegistry.listCredentials().username
     managedIdentityId: managedIdentity.id
+    deploymentTimestamp: utcNow()
     secrets: [
       {
         name: 'container-registry-password'
