@@ -1,93 +1,75 @@
 import {
-  Injectable,
-  UnauthorizedException,
-  Logger,
   ForbiddenException,
+  Injectable,
+  Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
-import { passportJwtSecret } from 'jwks-rsa'; // Corrected import
-import { WorkOS } from '@workos-inc/node';
 import { Request } from 'express';
 import { ClsService } from 'nestjs-cls';
 import {
   ClsStore,
   JwtPayload,
-} from '../../common/interfaces/cls-store.interface'; // Import JwtPayload
+} from '../../common/interfaces/cls-store.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   private readonly logger = new Logger(JwtStrategy.name);
+  private readonly expectedTenant: string;
 
   constructor(
-    private readonly configService: ConfigService, // To get WORKOS_CLIENT_ID
-    private readonly workos: WorkOS, // Inject WorkOS client if needed for other operations
-    private readonly cls: ClsService<ClsStore>, // Use ClsStore generic
+    private readonly configService: ConfigService,
+    private readonly cls: ClsService<ClsStore>,
   ) {
-    const workosClientId = configService.getOrThrow<string>('WORKOS_CLIENT_ID');
-    const jwksUri = workos.userManagement.getJwksUrl(workosClientId);
-    // Use console.log as this.logger is not available before super()
+    const secret = configService.getOrThrow<string>('AUTH_JWT_SECRET');
+    const tenant =
+      configService.get<string>('ENTRA_EXPECTED_TENANT') ||
+      configService.getOrThrow<string>('ENTRA_TENANT_ID');
+
     super({
-      secretOrKeyProvider: passportJwtSecret({
-        // Use the direct import
-        cache: true,
-        rateLimit: true,
-        jwksRequestsPerMinute: 5,
-        jwksUri: jwksUri,
-      }),
+      secretOrKey: secret,
+      algorithms: ['HS256'],
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req: Request) => {
-          // extract access token from cookie
           const token = req.cookies?.['access_token'];
           if (!token) {
-            console.warn('[JwtStrategy] No access token found in cookies.');
-            return null; // Return null if no token found
+            Logger.warn('[JwtStrategy] No access token found in cookies.');
+            return null;
           }
-
-          return token; // Return the token if found
+          return token;
         },
       ]),
-      algorithms: ['RS256'],
     });
+
+    this.expectedTenant = tenant;
   }
 
   async validate(payload: JwtPayload): Promise<JwtPayload> {
-    // Use JwtPayload for payload and return
-
     if (!payload) {
-      this.logger.warn(
-        '[JwtStrategy] Payload is null or undefined. Throwing UnauthorizedException.',
-      );
-      throw new UnauthorizedException(
-        'Invalid token: No payload received by validate method',
-      );
+      this.logger.warn('Payload missing from JWT validate call.');
+      throw new UnauthorizedException('Invalid token');
     }
 
-    // check org ID matches environment variable
-    const expectedOrgId =
-      this.configService.getOrThrow<string>('WORKOS_ORG_ID');
-    if (payload.org_id !== expectedOrgId) {
-      this.logger.warn(
-        `[JwtStrategy] Org ID mismatch. Expected: ${expectedOrgId}, Received: ${
-          payload.org_id
-        }. Payload: ${JSON.stringify(payload)}`,
-      );
-      throw new ForbiddenException(`Invalid token: Org ID mismatch.`);
-    }
-
-    // Example: Check for an absolutely essential claim like 'sub' (subject/user ID)
-    // The token you provided has a 'sub', so this shouldn't fail for that token.
     if (!payload.sub) {
-      this.logger.warn(
-        `[JwtStrategy] Essential 'sub' claim missing in payload. Payload: ${JSON.stringify(
-          payload,
-        )}`,
-      );
-      throw new UnauthorizedException("Invalid token: 'sub' claim missing.");
+      this.logger.warn('JWT payload missing sub');
+      throw new UnauthorizedException('Invalid token payload');
     }
 
-    this.cls.set('userId', payload.sub); // Store only the user ID (sub)
-    return payload; // Still return the full payload for Passport to attach to req.user
+    if (!payload.tid) {
+      this.logger.warn('JWT payload missing tenant id (tid)');
+      throw new UnauthorizedException('Invalid tenant information in token');
+    }
+
+    if (payload.tid !== this.expectedTenant) {
+      this.logger.warn(
+        `Tenant mismatch. Expected ${this.expectedTenant}, received ${payload.tid}`,
+      );
+      throw new ForbiddenException('Invalid tenant');
+    }
+
+    this.cls.set('userId', payload.sub);
+    return payload;
   }
 }

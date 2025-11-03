@@ -1,117 +1,293 @@
-import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
-import { WorkOS } from '@workos-inc/node';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import {
+  AuthorizationCodeRequest,
+  AuthorizationUrlRequest,
+  ConfidentialClientApplication,
+  RefreshTokenRequest,
+  AuthenticationResult,
+} from '@azure/msal-node';
 import * as jwt from 'jsonwebtoken';
-import { JwksClient } from 'jwks-rsa';
+import { PrismaService } from '../prisma/prisma.service';
+
+// Extended type to include refreshToken which exists at runtime but isn't in newer MSAL types
+interface AuthenticationResultWithRefreshToken extends AuthenticationResult {
+  refreshToken?: string;
+}
+
+interface SessionTokenPayload extends jwt.JwtPayload {
+  sub: string;
+  oid?: string;
+  tid: string;
+  email?: string;
+  name?: string;
+  roles?: string[];
+}
+
+interface EntraTokenClaims extends Record<string, unknown> {
+  oid?: string;
+  sub?: string;
+  tid?: string;
+  preferred_username?: string;
+  email?: string;
+  name?: string;
+  roles?: string[];
+}
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
-  private jwksClient: JwksClient;
-  private workosClientId: string;
+  private readonly msalClient: ConfidentialClientApplication;
+  private readonly redirectUri: string;
+  private readonly scopes: string[];
+  private readonly jwtSecret: string;
+  private readonly jwtTtlSeconds: number;
+  private readonly expectedTenantId: string;
 
   constructor(
-    private readonly workos: WorkOS,
     private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
   ) {
-    this.workosClientId =
-      this.configService.getOrThrow<string>('WORKOS_CLIENT_ID');
-    this.jwksClient = new JwksClient({
-      jwksUri: `https://api.workos.com/jwks/${this.workosClientId}`,
-      cache: true, // Cache the signing key
-      rateLimit: true, // Prevent abuse
-      jwksRequestsPerMinute: 5, // Default value
-    });
-  }
-  // Removed extra closing brace that was here
+    const tenantId = this.configService.getOrThrow<string>('ENTRA_TENANT_ID');
+    const clientId = this.configService.getOrThrow<string>('ENTRA_CLIENT_ID');
+    const clientSecret = this.configService.getOrThrow<string>(
+      'ENTRA_CLIENT_SECRET',
+    );
+    const authorityHost = this.configService.get<string>(
+      'ENTRA_AUTHORITY_HOST',
+      'https://login.microsoftonline.com',
+    );
+    const authority = `${authorityHost.replace(/\/$/, '')}/${tenantId}`;
 
-  private getKey(header: jwt.JwtHeader, callback: jwt.SigningKeyCallback) {
-    if (!header.kid) {
-      this.logger.error('JWT header missing kid');
-      return callback(new Error('JWT header missing kid'));
+    const configuredRedirect = this.configService.get<string>(
+      'AUTH_REDIRECT_URI',
+    );
+    const fallbackRedirect = `${this.configService.getOrThrow<string>(
+      'FRONTEND_URL',
+    )}/api/v1/auth/callback`;
+    this.redirectUri = configuredRedirect || fallbackRedirect;
+
+    const configuredScopes = this.configService.get<string>('ENTRA_SCOPES');
+    const baseScopes = configuredScopes
+      ? configuredScopes
+          .split(',')
+          .map((scope) => scope.trim())
+          .filter(Boolean)
+      : ['openid', 'profile', 'offline_access'];
+    // Ensure mandatory scopes are present exactly once
+    const scopeSet = new Set([
+      ...baseScopes,
+      'openid',
+      'profile',
+      'offline_access',
+    ]);
+    this.scopes = Array.from(scopeSet);
+
+    this.jwtSecret = this.configService.getOrThrow<string>('AUTH_JWT_SECRET');
+    const ttlFromEnv = Number(
+      this.configService.get<string>('AUTH_JWT_TTL_SECONDS', '3600'),
+    );
+    this.jwtTtlSeconds = Number.isFinite(ttlFromEnv) && ttlFromEnv > 0
+      ? ttlFromEnv
+      : 3600;
+
+    this.expectedTenantId = this.configService.get<string>(
+      'ENTRA_EXPECTED_TENANT',
+    ) || tenantId;
+
+    this.msalClient = new ConfidentialClientApplication({
+      auth: {
+        clientId,
+        authority,
+        clientSecret,
+      },
+      system: {
+        loggerOptions: {
+          loggerCallback: (level, message, containsPii) => {
+            if (containsPii) {
+              return;
+            }
+            this.logger.debug(`[MSAL:${level}] ${message}`);
+          },
+          piiLoggingEnabled: false,
+          logLevel: 2, // info
+        },
+      },
+    });
+
+    this.logger.log(
+      `Auth service initialised with redirect ${this.redirectUri} and scopes ${this.scopes.join(', ')}`,
+    );
+  }
+
+  async getAuthorizationUrl(state?: string): Promise<string> {
+    const request: AuthorizationUrlRequest = {
+      scopes: this.scopes,
+      redirectUri: this.redirectUri,
+      prompt: 'select_account',
+      responseMode: 'query',
+    };
+    if (state) {
+      request.state = state;
     }
-    this.jwksClient.getSigningKey(header.kid, (err, key) => {
-      if (err) {
-        this.logger.error('Error getting signing key from JWKS', err);
-        return callback(err);
-      }
-      const signingKey = key.getPublicKey();
-      callback(null, signingKey);
-    });
-  }
 
-  async getAuthorizationUrl(redirectUri: string): Promise<string> {
-    const authorizationUrl = this.workos.userManagement.getAuthorizationUrl({
-      provider: 'authkit',
-      redirectUri: redirectUri,
-      clientId: this.workosClientId,
-    });
+    const authorizationUrl = await this.msalClient.getAuthCodeUrl(request);
     this.logger.debug(`Generated authorization URL: ${authorizationUrl}`);
     return authorizationUrl;
   }
 
   async getProfileAndToken(code: string) {
-    const data = await this.workos.userManagement.authenticateWithCode({
+    const tokenRequest: AuthorizationCodeRequest = {
       code,
-      clientId: this.workosClientId,
-    });
-    const profile = data.user;
-    const accessToken = data.accessToken;
-    const refreshToken = data.refreshToken;
-    return { profile, accessToken, refreshToken };
-  }
+      scopes: this.scopes,
+      redirectUri: this.redirectUri,
+    };
 
-  async verifyToken(token: string): Promise<jwt.JwtPayload | string> {
-    return new Promise((resolve, reject) => {
-      jwt.verify(
-        token,
-        this.getKey.bind(this),
-        { algorithms: ['RS256'] },
-        (err, decoded) => {
-          if (err) {
-            this.logger.error('JWT verification failed', err);
-            return reject(new UnauthorizedException('Invalid token'));
-          }
-          resolve(decoded);
-        },
-      );
-    });
-  }
-
-  async refreshAccessToken(
-    refreshToken: string,
-  ): Promise<{ accessToken: string; refreshToken: string; profile: any }> {
     try {
-      this.logger.debug('Attempting to refresh access token');
-      const {
+      const result = (await this.msalClient.acquireTokenByCode(
+        tokenRequest,
+      )) as AuthenticationResultWithRefreshToken;
+      if (!result?.idTokenClaims) {
+        this.logger.error('Entra response missing ID token claims');
+        throw new UnauthorizedException('Unable to authenticate');
+      }
+
+      this.assertTenant(result.idTokenClaims as EntraTokenClaims);
+      const session = this.buildSessionPayload(
+        result.idTokenClaims as EntraTokenClaims,
+      );
+      
+      // Sync user to database on login
+      await this.syncUserToDatabase(session);
+      
+      const accessToken = this.signSession(session);
+
+      if (!result.refreshToken) {
+        this.logger.warn(
+          'No refresh token returned. Token refresh will not work. Ensure offline_access scope is granted.',
+        );
+      }
+
+      return {
+        profile: session,
         accessToken,
-        refreshToken: newRefreshToken,
-        user,
-      } = await this.workos.userManagement.authenticateWithRefreshToken({
-        clientId: this.workosClientId,
-        refreshToken,
-      });
-      this.logger.debug('Successfully refreshed access token');
-      return { accessToken, refreshToken: newRefreshToken, profile: user };
+        refreshToken: result.refreshToken || '', // Empty string if no refresh token
+      };
     } catch (error) {
-      this.logger.error('Failed to refresh access token', error);
+      this.logger.error('Failed to exchange code for tokens', error as Error);
+      throw new UnauthorizedException('Unable to authenticate');
+    }
+  }
+
+  async refreshAccessToken(refreshToken: string) {
+    const request: RefreshTokenRequest = {
+      refreshToken,
+      scopes: this.scopes,
+    };
+
+    try {
+      const result = (await this.msalClient.acquireTokenByRefreshToken(
+        request,
+      )) as AuthenticationResultWithRefreshToken;
+      if (!result?.idTokenClaims) {
+        this.logger.error('Refresh response missing ID token claims');
+        throw new UnauthorizedException('Unable to refresh token');
+      }
+
+      this.assertTenant(result.idTokenClaims as EntraTokenClaims);
+      const session = this.buildSessionPayload(
+        result.idTokenClaims as EntraTokenClaims,
+      );
+      const accessToken = this.signSession(session);
+
+      return {
+        accessToken,
+        refreshToken: result.refreshToken || refreshToken,
+        profile: session,
+      };
+    } catch (error) {
+      this.logger.error('Failed to refresh access token', error as Error);
       throw new UnauthorizedException('Failed to refresh access token');
     }
   }
 
-  async getUserProfile(userId: string): Promise<any> {
-    try {
-      const profile = await this.workos.userManagement.getUser(userId);
-      this.logger.debug(
-        `Retrieved profile for userId ${userId}: ${JSON.stringify(profile)}`,
+  private signSession(payload: SessionTokenPayload): string {
+    return jwt.sign(payload, this.jwtSecret, {
+      expiresIn: this.jwtTtlSeconds,
+    });
+  }
+
+  private buildSessionPayload(claims: EntraTokenClaims): SessionTokenPayload {
+    const oid = (claims.oid || claims.sub) as string | undefined;
+    if (!oid) {
+      this.logger.error('ID token claims missing oid/sub');
+      throw new UnauthorizedException('Invalid identity token');
+    }
+
+    const tid = claims.tid as string | undefined;
+    if (!tid) {
+      this.logger.error('ID token claims missing tenant id');
+      throw new UnauthorizedException('Invalid identity token');
+    }
+
+    const email = (claims.preferred_username || claims.email) as
+      | string
+      | undefined;
+
+    return {
+      sub: oid,
+      oid,
+      tid,
+      email,
+      name: claims.name as string | undefined,
+      roles: Array.isArray(claims.roles) ? (claims.roles as string[]) : undefined,
+    };
+  }
+
+  private assertTenant(claims: EntraTokenClaims) {
+    const tid = claims.tid as string | undefined;
+    if (!tid || tid !== this.expectedTenantId) {
+      this.logger.error(
+        `Tenant mismatch. Expected ${this.expectedTenantId}, received ${tid}`,
       );
-      return profile;
+      throw new UnauthorizedException('Invalid tenant');
+    }
+  }
+
+  /**
+   * Sync user from Entra ID to local database.
+   * Creates or updates user record on each login.
+   */
+  private async syncUserToDatabase(session: SessionTokenPayload) {
+    try {
+      await this.prisma.entraUser.upsert({
+        where: { oid: session.oid },
+        update: {
+          email: session.email || '',
+          displayName: session.name,
+          lastLoginAt: new Date(),
+          lastSyncedAt: new Date(),
+          // Update role only if roles claim exists and includes 'admin'
+          ...(session.roles && {
+            role: session.roles.includes('admin') ? 'admin' : 'user',
+          }),
+        },
+        create: {
+          oid: session.oid,
+          email: session.email || '',
+          displayName: session.name,
+          role: session.roles?.includes('admin') ? 'admin' : 'user',
+          enabled: true,
+          lastLoginAt: new Date(),
+        },
+      });
+      this.logger.log(`User synced: ${session.email}`);
     } catch (error) {
       this.logger.error(
-        `Failed to retrieve profile for userId ${userId}`,
-        error,
+        `Failed to sync user ${session.email} to database`,
+        error as Error,
       );
-      throw new UnauthorizedException('Failed to retrieve user profile');
+      // Don't throw - login should still work even if DB sync fails
     }
   }
 }

@@ -10,11 +10,12 @@ import { TranscriptionModule } from './modules/transcription/transcription.modul
 import { CallAnalysisModule } from './modules/call-analysis/call-analysis.module';
 import { ConnectwiseManageModule } from './modules/connectwise-manage/connectwise-manage.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { AdminModule } from './modules/admin/admin.module';
 import { ClsModule } from 'nestjs-cls';
 import { EmbeddingModule } from './modules/embedding/embedding.module';
 import { TextChunkingModule } from './modules/text-chunking/text-chunking.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
+// import { ServeStaticModule } from '@nestjs/serve-static';
+// import { join } from 'path';
 
 @Module({
   imports: [
@@ -46,15 +47,10 @@ import { join } from 'path';
     CallAnalysisModule,
     ConnectwiseManageModule,
     AuthModule,
+    AdminModule,
     EmbeddingModule,
     TextChunkingModule,
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'client'),
-      serveStaticOptions: {
-        fallthrough: true,
-      },
-      renderPath: '*',
-    }),
+    // ServeStaticModule removed - frontend is separate on port 5173
   ],
   controllers: [AppController],
   providers: [AppService],

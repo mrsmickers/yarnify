@@ -10,10 +10,11 @@ export interface JwtPayload {
   nbf?: number; // Not Before
   iat?: number; // Issued At
   jti?: string; // JWT ID
-  // Add any other custom claims from your WorkOS JWT
   email?: string;
-  org_id?: string;
-  sid?: string; // Session ID from WorkOS token
+  name?: string;
+  tid?: string; // Tenant ID
+  oid?: string; // Object ID from Entra
+  roles?: string[];
 }
 
 export interface ClsStore {

@@ -111,3 +111,22 @@ model CallTranscriptEmbedding {
   @@index([callId])
   @@index([callId, chunkSequence])
 }
+
+// User management for Entra ID authenticated users
+model EntraUser {
+  id           String    @id @default(cuid())
+  oid          String    @unique // Object ID from Microsoft Entra ID
+  email        String    @unique
+  displayName  String?
+  role         String    @default("user") // 'admin' or 'user'
+  enabled      Boolean   @default(true) // Can be disabled by admin
+  lastLoginAt  DateTime?
+  lastSyncedAt DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([email])
+  @@index([oid])
+  @@index([role])
+  @@map("entra_users")
+}
