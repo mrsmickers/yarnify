@@ -40,7 +40,7 @@ param deploymentTimestamp string = utcNow()
 // Variables
 var commonTags = union(tags, {
   Environment: environment
-  Project: 'speek-it'
+  Project: 'Yarnify'
 })
 
 var namingConvention = {
@@ -86,7 +86,7 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' existing
 // Get database for connection string
 resource database 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-06-01-preview' existing = {
   parent: postgresql
-  name: 'speekitdb'
+  name: 'yarnifydb'
 }
 
 // Container App with secrets and environment variables
@@ -97,7 +97,7 @@ module containerApp 'modules/container-app.bicep' = {
     location: location
     tags: commonTags
     containerAppsEnvironmentId: containerAppsEnvironment.id
-    containerImage: '${containerRegistry.properties.loginServer}/speek-it-api:${imageTag}'
+    containerImage: '${containerRegistry.properties.loginServer}/yarnify-api:${imageTag}'
     containerRegistryServer: containerRegistry.properties.loginServer
     containerRegistryUsername: containerRegistry.listCredentials().username
     managedIdentityId: managedIdentity.id
@@ -207,7 +207,7 @@ module containerApp 'modules/container-app.bicep' = {
       }
       {
         name: 'FRONTEND_URL'
-        value: 'https://speek-it.ingeniotech.co.uk'
+        value: 'https://yarnify.ingeniotech.co.uk'
       }
       {
         name: 'WORKOS_ORG_ID'

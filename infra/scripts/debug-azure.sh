@@ -14,7 +14,7 @@ echo "Current subscription ID:"
 az account show --query id -o tsv
 
 echo ""
-echo "=== Checking for SpeekIT Resource Group ==="
+echo "=== Checking for Yarnify Resource Group ==="
 
 # Check if logged in to the right subscription
 EXPECTED_SUB="470b7615-9fc2-4ab0-9f82-7541d20873cf"
@@ -41,7 +41,7 @@ az group list --query "[].{Name:name, Location:location}" -o table
 
 echo ""
 echo "=== Checking specific resource group names ==="
-for rg in "SpeekIT" "speekit" "SPEEKIT" "Speekit" "speek-it"; do
+for rg in "Yarnify" "yarnify" "YARNIFY" "YarnifyApp" "yarnify-app"; do
     echo -n "Checking '$rg': "
     if az group exists --name "$rg" | grep -q "true"; then
         echo "EXISTS ✓"
@@ -54,8 +54,8 @@ done
 
 echo ""
 echo "=== Checking with pattern matching ==="
-echo "Resource groups containing 'speek' (case-insensitive):"
-az group list --query "[?contains(toLower(name), 'speek')].{Name:name, Location:location}" -o table
+echo "Resource groups containing 'yarnify' (case-insensitive):"
+az group list --query "[?contains(toLower(name), 'yarnify')].{Name:name, Location:location}" -o table
 
 echo ""
 echo "Resource groups containing 'it' (case-insensitive):"

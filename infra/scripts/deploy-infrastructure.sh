@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Azure Infrastructure Deployment Script for Speek-It Application (Phase 1)
+# Azure Infrastructure Deployment Script for Yarnify Application (Phase 1)
 # This script deploys the core infrastructure including ACR, but NOT the Container App
 
 set -e
 
 # Configuration
 SUBSCRIPTION_ID="470b7615-9fc2-4ab0-9f82-7541d20873cf"
-RESOURCE_GROUP_NAME="SpeekIT"
+RESOURCE_GROUP_NAME="Yarnify"
 LOCATION="uksouth"
 
 # Colors for output
@@ -90,7 +90,7 @@ deploy_infrastructure() {
     # Check if PostgreSQL server already exists
     local postgres_exists=$(az postgres flexible-server show \
         --resource-group "$RESOURCE_GROUP_NAME" \
-        --name "psql-speek-it" \
+        --name "psql-yarnify" \
         --query "name" \
         --output tsv 2>/dev/null || echo "")
     
@@ -149,7 +149,7 @@ show_outputs() {
 
 # Main script logic
 main() {
-    print_status "Starting Speek-It infrastructure deployment to SpeekIT resource group"
+    print_status "Starting Yarnify infrastructure deployment to Yarnify resource group"
     
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
@@ -174,7 +174,7 @@ main() {
                 echo "  --outputs           Show deployment outputs"
                 echo "  -h, --help          Show this help message"
                 echo ""
-                echo "This deploys to the existing SpeekIT resource group in subscription 470b7615-9fc2-4ab0-9f82-7541d20873cf"
+                echo "This deploys to the existing Yarnify resource group in subscription 470b7615-9fc2-4ab0-9f82-7541d20873cf"
                 echo ""
                 echo "Examples:"
                 echo "  $0                    # Deploy infrastructure"

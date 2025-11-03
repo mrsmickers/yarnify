@@ -133,7 +133,7 @@ resource nsgContainerApps 'Microsoft.Network/networkSecurityGroups@2023-05-01' =
 
 // Private DNS Zone for PostgreSQL
 resource postgresPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
-  name: 'speek-it.postgres.database.azure.com'
+  name: 'yarnify.postgres.database.azure.com'
   location: 'global'
   tags: tags
 }

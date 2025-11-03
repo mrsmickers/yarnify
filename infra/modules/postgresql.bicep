@@ -73,7 +73,7 @@ resource postgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2023-06-01-
 // Database for the application
 resource database 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-06-01-preview' = {
   parent: postgresqlServer
-  name: 'speekitdb'
+  name: 'yarnifydb'
   properties: {
     charset: 'utf8'
     collation: 'en_US.utf8'

@@ -5,7 +5,7 @@
 
 set -e
 
-RESOURCE_GROUP="SpeekIT"
+RESOURCE_GROUP="Yarnify"
 LOCATION="uksouth"
 
 echo "Deploying infrastructure updates (excluding PostgreSQL)..."

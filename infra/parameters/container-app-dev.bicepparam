@@ -2,13 +2,13 @@ using '../container-app.bicep'
 
 param environment = 'dev'
 param location = 'UK South'
-param namePrefix = 'speek-it'
+param namePrefix = 'yarnify'
 param imageTag = 'latest'
 
 param tags = {
   Owner: 'Development Team'
   CostCenter: 'Engineering'
-  Project: 'Speek-It'
+  Project: 'Yarnify'
 }
 
 // These parameters will be retrieved from the infrastructure deployment outputs

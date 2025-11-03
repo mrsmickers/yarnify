@@ -11,7 +11,7 @@ param tags object = {}
 param githubOrganization string = 'ingenio-Tech'
 
 @description('GitHub repository name')
-param githubRepository string = 'speek-it'
+param githubRepository string = 'yarnify'
 
 @description('GitHub environment name (optional)')
 param githubEnvironment string = ''

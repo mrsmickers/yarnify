@@ -28,12 +28,12 @@ export function Navigation() {
             <NavLink to="/" className="flex-shrink-0">
               <img
                 src="/cj-logo.png"
-                alt="Speek It Logo"
+                alt="Yarnify Logo"
                 className="hidden sm:block h-[60px]"
               />
               <img
                 src="/cj-logo-sm.png"
-                alt="Speek It Logo"
+                alt="Yarnify Logo"
                 className="h-12 sm:hidden"
               />
             </NavLink>

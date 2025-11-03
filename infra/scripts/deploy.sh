@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Azure Infrastructure Deployment Script for Speek-It Application
+# Azure Infrastructure Deployment Script for Yarnify Application
 # This script deploys the Bicep templates to Azure
 
 set -e
 
 # Configuration
 SUBSCRIPTION_ID=""
-RESOURCE_GROUP_PREFIX="rg-speek-it"
+RESOURCE_GROUP_PREFIX="rg-yarnify"
 LOCATION="uksouth"
 ENVIRONMENT="dev"
 
@@ -77,7 +77,7 @@ create_resource_group() {
     az group create \
         --name "$rg_name" \
         --location "$LOCATION" \
-        --tags Environment="$ENVIRONMENT" Project="speek-it"
+        --tags Environment="$ENVIRONMENT" Project="Yarnify"
     
     echo "$rg_name"
 }
@@ -163,7 +163,7 @@ cleanup() {
 
 # Main script logic
 main() {
-    print_status "Starting Speek-It infrastructure deployment"
+    print_status "Starting Yarnify infrastructure deployment"
     
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 export const HomePage = () => (
   <div className="page-container">
     <div className="content-section">
-      <h1 className="text-3xl font-bold mb-4">Welcome to Speek It</h1>
+      <h1 className="text-3xl font-bold mb-4">Welcome to Yarnify</h1>
       <p className="text-gray-600 mb-6">
         Monitor and analyze your VoIP calls with AI-powered insights.
       </p>

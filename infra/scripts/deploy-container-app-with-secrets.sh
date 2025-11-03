@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Azure Container App Deployment Script with Secrets for Speek-It Application
+# Azure Container App Deployment Script with Secrets for Yarnify Application
 # This script deploys the Container App with secrets from GitHub Actions
 
 set -e
 
 # Configuration
 SUBSCRIPTION_ID="470b7615-9fc2-4ab0-9f82-7541d20873cf"
-RESOURCE_GROUP_NAME="SpeekIT"
+RESOURCE_GROUP_NAME="Yarnify"
 IMAGE_TAG="${1:-latest}"
 
 # Colors for output

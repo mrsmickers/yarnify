@@ -27,8 +27,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  ACR_REGISTRY: ${{ vars.ACR_REGISTRY_NAME || 'crspeekit' }}
-  ACR_IMAGE_NAME: speek-it-api
+  ACR_REGISTRY: ${{ vars.ACR_REGISTRY_NAME || 'cryarnify' }}
+  ACR_IMAGE_NAME: yarnify-api
 
 jobs:
   build-and-push:

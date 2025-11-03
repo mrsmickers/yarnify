@@ -5,7 +5,7 @@
 set -e
 
 # Configuration
-RESOURCE_GROUP_NAME="SpeekIT"
+RESOURCE_GROUP_NAME="Yarnify"
 
 # Colors for output
 GREEN='\033[0;32m'

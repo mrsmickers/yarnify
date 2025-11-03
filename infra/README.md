@@ -1,6 +1,6 @@
-# Speek-It Azure Infrastructure
+# Yarnify Azure Infrastructure
 
-This directory contains Azure Bicep templates for deploying the Speek-It application infrastructure to Azure.
+This directory contains Azure Bicep templates for deploying the Yarnify application infrastructure to Azure.
 
 ## Architecture Overview
 
@@ -107,13 +107,13 @@ chmod +x scripts/deploy-container-app.sh
 
 2. **Create Resource Group:**
    ```bash
-   az group create --name "rg-speek-it-dev" --location "uksouth"
+   az group create --name "rg-yarnify-dev" --location "uksouth"
    ```
 
 3. **Deploy Infrastructure:**
    ```bash
    az deployment group create \
-     --resource-group "rg-speek-it-dev" \
+     --resource-group "rg-yarnify-dev" \
      --template-file "infrastructure.bicep" \
      --parameters "parameters/infrastructure-dev.bicepparam" \
      --parameters postgresqlAdminPassword="YourSecurePassword123!"
@@ -126,11 +126,11 @@ chmod +x scripts/deploy-container-app.sh
 5. **Deploy Container App:**
    ```bash
    # Get infrastructure outputs first
-   OUTPUTS=$(az deployment group show --resource-group "rg-speek-it-dev" --name "infrastructure" --query "properties.outputs")
+   OUTPUTS=$(az deployment group show --resource-group "rg-yarnify-dev" --name "infrastructure" --query "properties.outputs")
    
    # Deploy container app with the outputs
    az deployment group create \
-     --resource-group "rg-speek-it-dev" \
+     --resource-group "rg-yarnify-dev" \
      --template-file "container-app.bicep" \
      --parameters "parameters/container-app-dev.bicepparam" \
      --parameters containerAppsEnvironmentId="$(echo $OUTPUTS | jq -r '.containerAppsEnvironmentId.value')" \
@@ -163,7 +163,7 @@ Set the following in your GitHub repository:
 - `AZURE_LOGIN` - Azure service principal credentials for Azure CLI authentication
 
 **Required Variables:**
-- `ACR_REGISTRY_NAME` - Your Azure Container Registry name (e.g., "crspeekit")
+- `ACR_REGISTRY_NAME` - Your Azure Container Registry name (e.g., "cryarnify")
 
 ## Network Architecture
 

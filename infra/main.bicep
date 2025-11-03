@@ -28,7 +28,7 @@ param deployContainerApp bool = false
 // Variables
 var commonTags = union(tags, {
   Environment: environment
-  Project: 'speek-it'
+  Project: 'Yarnify'
 })
 
 var namingConvention = {
@@ -170,7 +170,7 @@ module containerApp 'modules/container-app.bicep' = if (deployContainerApp) {
     location: location
     tags: commonTags
     containerAppsEnvironmentId: containerAppsEnvironment.outputs.environmentId
-    containerImage: '${containerRegistry.outputs.registryLoginServer}/speek-it-api:${imageTag}'
+    containerImage: '${containerRegistry.outputs.registryLoginServer}/yarnify-api:${imageTag}'
     containerRegistryServer: containerRegistry.outputs.registryLoginServer
     managedIdentityId: managedIdentity.outputs.identityId
     environmentVariables: [

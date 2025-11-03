@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Script to populate Key Vault with secrets for the Speek-It application
+# Script to populate Key Vault with secrets for the Yarnify application
 
 set -e
 
 # Configuration
-RESOURCE_GROUP_NAME="SpeekIT"
+RESOURCE_GROUP_NAME="Yarnify"
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -53,7 +53,7 @@ set_keyvault_secret() {
 
 # Main function
 main() {
-    print_status "Populating Key Vault with secrets for Speek-It application"
+    print_status "Populating Key Vault with secrets for Yarnify application"
     
     # Get infrastructure outputs
     local outputs=$(get_infrastructure_outputs)

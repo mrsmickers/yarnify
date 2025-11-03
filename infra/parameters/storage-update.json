@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "namePrefix": {
-      "value": "speek-it"
+      "value": "yarnify"
     },
     "location": {
       "value": "UK South"
@@ -12,12 +12,12 @@
       "value": {
         "Owner": "Production Team",
         "CostCenter": "Engineering",
-        "Project": "Speek-It",
+        "Project": "Yarnify",
         "Criticality": "High"
       }
     },
     "postgresqlAdminUsername": {
-      "value": "speekitadmin"
+      "value": "yarnifyadmin"
     },
     "deployPostgreSQL": {
       "value": false

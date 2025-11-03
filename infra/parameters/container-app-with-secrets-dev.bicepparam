@@ -2,12 +2,12 @@ using '../container-app-with-secrets.bicep'
 
 param environment = 'dev'
 param location = 'UK South'
-param namePrefix = 'speek-it'
+param namePrefix = 'yarnify'
 
 param tags = {
   Owner: 'Development Team'
   CostCenter: 'Engineering'
-  Project: 'Speek-It'
+  Project: 'Yarnify'
 }
 
 // Image tag will be provided at deployment time

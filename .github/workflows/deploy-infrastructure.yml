@@ -27,7 +27,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  RESOURCE_GROUP: SpeekIT
+  RESOURCE_GROUP: Yarnify
   LOCATION: uksouth
 
 jobs:
@@ -78,7 +78,7 @@ jobs:
             # Check if PostgreSQL server already exists
             POSTGRES_EXISTS=$(az postgres flexible-server show \
               --resource-group "${{ env.RESOURCE_GROUP }}" \
-              --name "psql-speek-it" \
+              --name "psql-yarnify" \
               --query "name" \
               --output tsv 2>/dev/null || echo "")
             

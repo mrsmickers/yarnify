@@ -5,7 +5,7 @@ param location string = resourceGroup().location
 param tags object = {}
 
 @description('The name prefix for all resources')
-param namePrefix string = 'speek-it'
+param namePrefix string = 'yarnify'
 
 @description('The Docker image tag to deploy')
 param imageTag string = 'latest'
@@ -27,7 +27,7 @@ param keyVaultName string
 
 // Variables
 var commonTags = union(tags, {
-  Project: 'speek-it'
+  Project: 'Yarnify'
 })
 
 var namingConvention = {
@@ -42,7 +42,7 @@ module containerApp 'modules/container-app.bicep' = {
     location: location
     tags: commonTags
     containerAppsEnvironmentId: containerAppsEnvironmentId
-    containerImage: '${containerRegistryLoginServer}/speek-it-api:${imageTag}'
+    containerImage: '${containerRegistryLoginServer}/yarnify-api:${imageTag}'
     containerRegistryServer: containerRegistryLoginServer
     managedIdentityId: managedIdentityId
     keyVaultName: keyVaultName

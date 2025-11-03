@@ -20,7 +20,7 @@ const LogoutPage = () => {
           Signing you out...
         </h1>
         <p className="text-gray-600 mb-6">
-          Thank you for using Speek It. See you next time!
+          Thank you for using Yarnify. See you next time!
         </p>
       </div>
     </div>

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Azure Container App Deployment Script for Speek-It Application (Phase 2)
+# Azure Container App Deployment Script for Yarnify Application (Phase 2)
 # This script deploys the Container App after the infrastructure and image are ready
 # Note: For deployment with secrets, use deploy-container-app-with-secrets.sh
 
@@ -8,7 +8,7 @@ set -e
 
 # Configuration
 SUBSCRIPTION_ID="470b7615-9fc2-4ab0-9f82-7541d20873cf"
-RESOURCE_GROUP_NAME="SpeekIT"
+RESOURCE_GROUP_NAME="Yarnify"
 LOCATION="uksouth"
 IMAGE_TAG="latest"
 ENVIRONMENT="dev"
@@ -184,7 +184,7 @@ show_outputs() {
 
 # Main script logic
 main() {
-    print_status "Starting Speek-It Container App deployment to SpeekIT resource group"
+    print_status "Starting Yarnify Container App deployment to Yarnify resource group"
     
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
@@ -226,7 +226,7 @@ main() {
                 echo "  WORKOS_API_KEY"
                 echo "  POSTGRESQL_ADMIN_PASSWORD"
                 echo ""
-                echo "This deploys to the existing SpeekIT resource group in subscription 470b7615-9fc2-4ab0-9f82-7541d20873cf"
+                echo "This deploys to the existing Yarnify resource group in subscription 470b7615-9fc2-4ab0-9f82-7541d20873cf"
                 echo ""
                 echo "Example:"
                 echo "  OPENAI_API_KEY=sk-... POSTGRESQL_ADMIN_PASSWORD=... $0"

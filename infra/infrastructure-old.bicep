@@ -5,7 +5,7 @@ param location string = resourceGroup().location
 param tags object = {}
 
 @description('The name prefix for all resources')
-param namePrefix string = 'speek-it'
+param namePrefix string = 'yarnify'
 
 @description('PostgreSQL administrator username')
 @secure()
@@ -17,7 +17,7 @@ param postgresqlAdminPassword string
 
 // Variables
 var commonTags = union(tags, {
-  Project: 'speek-it'
+  Project: 'Yarnify'
 })
 
 var namingConvention = {
