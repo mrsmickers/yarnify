@@ -1,39 +1,72 @@
 import { Link } from 'react-router-dom'
+import { PageHeader } from '@/components/layout/PageHeader'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 // Home page component
 export const HomePage = () => (
-  <div className="page-container">
-    <div className="content-section">
-      <h1 className="text-3xl font-bold mb-4">Welcome to Yarnify</h1>
-      <p className="text-gray-600 mb-6">
-        Monitor and analyze your VoIP calls with AI-powered insights.
-      </p>
-      <Link
-        to="/dashboard"
-        className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow-sm hover:bg-blue-700 transition-colors duration-200"
-      >
-        Go to VoIP Dashboard
-      </Link>
-    </div>
+  <div className="space-y-10">
+    <PageHeader
+      title="Welcome to Yarnify"
+      description="Monitor and analyse Ingenio call experiences with AI-powered insights and beautifully structured dashboards."
+      actions={
+        <Button asChild>
+          <Link to="/dashboard">Enter dashboard</Link>
+        </Button>
+      }
+    />
+    <Card className="border border-border/80 bg-card/70 backdrop-blur-sm dark:border-[#242F3F]">
+      <CardHeader>
+        <CardTitle>What&apos;s new</CardTitle>
+        <CardDescription>
+          Explore the redesigned Ingenio experience with a unified navigation system and
+          refreshed analytics.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-4 sm:grid-cols-2">
+        <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
+          <p className="text-sm font-semibold text-foreground">
+            Tailored dashboards
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            RBAC-ready workspaces deliver the right intelligence to every team.
+          </p>
+        </div>
+        <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
+          <p className="text-sm font-semibold text-foreground">
+            Ingenio design system
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Yarnify now matches Ingenio’s navigation rail, spacing, and colour tokens.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   </div>
 )
 
 // Not Found page component
 export const NotFoundPage = () => (
-  <div className="page-container min-h-[80vh] flex items-center justify-center">
-    <div className="content-section text-center">
-      <h1 className="text-4xl font-bold text-gray-900 mb-4">
-        404 - Page Not Found
-      </h1>
-      <p className="text-gray-600 mb-6">
-        The page you're looking for doesn't exist or has been moved.
-      </p>
-      <Link
-        to="/"
-        className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow-sm hover:bg-blue-700 transition-colors duration-200"
-      >
-        Go Home
-      </Link>
-    </div>
+  <div className="flex min-h-[60vh] items-center justify-center">
+    <Card className="max-w-md border border-border/80 bg-card/70 p-8 text-center shadow-lg dark:border-[#242F3F]">
+      <CardHeader className="space-y-3 text-center">
+        <CardTitle className="text-2xl font-semibold">Page not found</CardTitle>
+        <CardDescription>
+          The page you’re after has moved or no longer exists. Let’s get you back on
+          track.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex justify-center">
+        <Button asChild>
+          <Link to="/">Return home</Link>
+        </Button>
+      </CardContent>
+    </Card>
   </div>
 )

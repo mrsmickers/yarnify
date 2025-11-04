@@ -1,4 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 // import { Input } from '@/components/ui/input' // No longer needed
@@ -16,7 +22,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover' // Added Popover
-import { CalendarIcon, FilterXIcon, RotateCcwIcon } from 'lucide-react' // Added Icons
+import {
+  CalendarIcon,
+  FilterXIcon,
+  RefreshCcwIcon,
+  RotateCcwIcon,
+} from 'lucide-react' // Added Icons
 import { cn } from '@/lib/utils' // Added cn
 import dayjs from 'dayjs' // Switch to dayjs
 
@@ -36,6 +47,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Skeleton } from '@/components/ui/skeleton'
+import { PageHeader } from '@/components/layout/PageHeader'
 
 interface CallStat {
   title: string
@@ -189,7 +201,7 @@ const VoipDashboardPage = () => {
         {
           title: 'Total Calls',
           value: paginatedCallsData?.total || 0,
-          colorClass: 'border-blue-500',
+          colorClass: 'border-[#DEDC00]',
         },
         {
           title: 'Positive Sentiment',
@@ -201,7 +213,7 @@ const VoipDashboardPage = () => {
                   100
                 ).toFixed(0)}%`
               : '0%',
-          colorClass: 'border-green-500',
+          colorClass: 'border-[#F8AB08]',
         },
         {
           title: 'Negative Sentiment',
@@ -213,12 +225,12 @@ const VoipDashboardPage = () => {
                   100
                 ).toFixed(0)}%`
               : '0%',
-          colorClass: 'border-red-500',
+          colorClass: 'border-[#F87171]',
         },
         {
           title: 'AI Confidence',
           value: `${metrics.averageConfidence}%`,
-          colorClass: 'border-purple-500',
+          colorClass: 'border-[#824192]',
         },
       ])
     }
@@ -374,31 +386,57 @@ const VoipDashboardPage = () => {
     const errorMessage =
       (error as { message?: string })?.message || 'An unknown error occurred'
     return (
-      <div className="container mx-auto p-8 text-center text-red-500">
-        Error loading data: {errorMessage}
+      <div className="flex min-h-[40vh] items-center justify-center">
+        <Card className="max-w-md border border-destructive/20 bg-card/70 p-8 text-center shadow-lg dark:border-[#442323]">
+          <CardHeader className="space-y-3 text-center">
+            <CardTitle className="text-xl font-semibold text-destructive">
+              We couldn’t load your dashboard
+            </CardTitle>
+            <CardDescription>{errorMessage}</CardDescription>
+          </CardHeader>
+          <CardContent className="flex justify-center">
+            <Button variant="outline" onClick={() => refetch()}>
+              Try again
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     )
   }
 
   return (
-    <div className="page-container space-y-8">
-      <div className="bg-white rounded-lg shadow-sm p-8 border border-gray-100">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          VoIP Call Sentiment Dashboard
-        </h1>
-        <p className="text-gray-600">
-          Track customer interactions and identify opportunities for improvement
-        </p>
-      </div>
+    <div className="space-y-10">
+      <PageHeader
+        title="VoIP Intelligence"
+        description="Monitor conversation quality, sentiment trends, and operational performance across every client call in real time."
+        actions={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => {
+                handleClearFilters()
+                setShowFilters(false)
+              }}
+            >
+              <RotateCcwIcon className="mr-2 h-4 w-4" />
+              Reset view
+            </Button>
+            <Button onClick={() => refetch()}>
+              <RefreshCcwIcon className="mr-2 h-4 w-4" />
+              Refresh data
+            </Button>
+          </>
+        }
+      />
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {isLoading && stats.length === 0 ? (
           <>
             {Array.from({ length: 4 }).map((_, index) => (
               <Card
                 key={`skeleton-stat-${index}`}
-                className="border-l-4 border-gray-200"
+                className="border-l-4 border-border/60 bg-card/60 backdrop-blur-sm"
               >
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <Skeleton className="h-4 w-3/4" />
@@ -412,17 +450,23 @@ const VoipDashboardPage = () => {
           </>
         ) : (
           stats.map((stat) => (
-            <Card key={stat.title} className={`border-l-4 ${stat.colorClass}`}>
+            <Card
+              key={stat.title}
+              className={cn(
+                'border-l-4 border-border/60 bg-card/70 backdrop-blur-sm shadow-[0_16px_40px_-28px_rgba(12,17,27,0.9)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_24px_45px_-28px_rgba(12,17,27,0.85)] dark:border-[#242F3F]',
+                stat.colorClass
+              )}
+            >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+                <CardTitle className="text-sm font-medium text-foreground/80">
                   {stat.title}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-semibold text-foreground">
                   {stat.value}
                   {stat.percentage && (
-                    <span className="text-xs text-muted-foreground ml-1">
+                    <span className="ml-2 text-xs font-medium text-muted-foreground">
                       ({stat.percentage})
                     </span>
                   )}
@@ -431,10 +475,10 @@ const VoipDashboardPage = () => {
             </Card>
           ))
         )}
-      </div>
+      </section>
 
       {/* Call List Table */}
-      <Card>
+      <Card className="border border-border/80 bg-card/70 backdrop-blur-sm dark:border-[#242F3F]">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle>Call List</CardTitle>
@@ -480,9 +524,9 @@ const VoipDashboardPage = () => {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="px-6 pb-4 border-b"
+            className="border-b border-border/70 px-6 pb-4"
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-4">
+            <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
               {/* Company Filter */}
               <div className="space-y-1">
                 <Label htmlFor="companyFilter">Company</Label>

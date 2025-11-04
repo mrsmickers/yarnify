@@ -1,5 +1,13 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Loader2 } from 'lucide-react'
 
 const LogoutPage = () => {
   const navigate = useNavigate()
@@ -14,15 +22,21 @@ const LogoutPage = () => {
   }, [navigate])
 
   return (
-    <div className="page-container min-h-[80vh] flex items-center justify-center">
-      <div className="content-section text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Signing you out...
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Thank you for using Yarnify. See you next time!
-        </p>
-      </div>
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <Card className="max-w-md border border-border/80 bg-card/70 p-8 text-center shadow-lg dark:border-[#242F3F]">
+        <CardHeader className="space-y-3 text-center">
+          <CardTitle className="text-2xl font-semibold">
+            Signing you out…
+          </CardTitle>
+          <CardDescription>
+            Thank you for using Yarnify. We&apos;ll redirect you in a moment.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center gap-3 text-sm text-muted-foreground">
+          <Loader2 className="h-6 w-6 animate-spin text-[#DEDC00]" />
+          <p>Your session is closing securely.</p>
+        </CardContent>
+      </Card>
     </div>
   )
 }

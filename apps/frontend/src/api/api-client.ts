@@ -2181,3 +2181,589 @@ export function useAuthControllerRefreshToken<TData = Awaited<ReturnType<typeof 
 
   return query;
 }
+
+
+
+
+/**
+ * @summary List all users (admin only)
+ */
+export const adminControllerListUsers = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return axiosInstance<void>(
+      {url: `/api/v1/admin/users`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+export const getAdminControllerListUsersQueryKey = () => {
+    return [`/api/v1/admin/users`] as const;
+    }
+
+    
+export const getAdminControllerListUsersInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof adminControllerListUsers>>>, TError = void>( options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof adminControllerListUsers>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminControllerListUsersQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminControllerListUsers>>> = ({ signal }) => adminControllerListUsers(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof adminControllerListUsers>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminControllerListUsersInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof adminControllerListUsers>>>
+export type AdminControllerListUsersInfiniteQueryError = void
+
+
+export function useAdminControllerListUsersInfinite<TData = InfiniteData<Awaited<ReturnType<typeof adminControllerListUsers>>>, TError = void>(
+  options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof adminControllerListUsers>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminControllerListUsers>>,
+          TError,
+          Awaited<ReturnType<typeof adminControllerListUsers>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminControllerListUsersInfinite<TData = InfiniteData<Awaited<ReturnType<typeof adminControllerListUsers>>>, TError = void>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof adminControllerListUsers>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminControllerListUsers>>,
+          TError,
+          Awaited<ReturnType<typeof adminControllerListUsers>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminControllerListUsersInfinite<TData = InfiniteData<Awaited<ReturnType<typeof adminControllerListUsers>>>, TError = void>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof adminControllerListUsers>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List all users (admin only)
+ */
+
+export function useAdminControllerListUsersInfinite<TData = InfiniteData<Awaited<ReturnType<typeof adminControllerListUsers>>>, TError = void>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof adminControllerListUsers>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getAdminControllerListUsersInfiniteQueryOptions(options)
+
+  const query = useInfiniteQuery(queryOptions , queryClient) as  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+export const getAdminControllerListUsersQueryOptions = <TData = Awaited<ReturnType<typeof adminControllerListUsers>>, TError = void>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerListUsers>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminControllerListUsersQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminControllerListUsers>>> = ({ signal }) => adminControllerListUsers(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminControllerListUsers>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminControllerListUsersQueryResult = NonNullable<Awaited<ReturnType<typeof adminControllerListUsers>>>
+export type AdminControllerListUsersQueryError = void
+
+
+export function useAdminControllerListUsers<TData = Awaited<ReturnType<typeof adminControllerListUsers>>, TError = void>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerListUsers>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminControllerListUsers>>,
+          TError,
+          Awaited<ReturnType<typeof adminControllerListUsers>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminControllerListUsers<TData = Awaited<ReturnType<typeof adminControllerListUsers>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerListUsers>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminControllerListUsers>>,
+          TError,
+          Awaited<ReturnType<typeof adminControllerListUsers>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminControllerListUsers<TData = Awaited<ReturnType<typeof adminControllerListUsers>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerListUsers>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List all users (admin only)
+ */
+
+export function useAdminControllerListUsers<TData = Awaited<ReturnType<typeof adminControllerListUsers>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerListUsers>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getAdminControllerListUsersQueryOptions(options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Enable a user (admin only)
+ */
+export const adminControllerEnableUser = (
+    id: string,
+ ) => {
+      
+      
+      return axiosInstance<void>(
+      {url: `/api/v1/admin/users/${id}/enable`, method: 'PATCH'
+    },
+      );
+    }
+  
+
+
+export const getAdminControllerEnableUserMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerEnableUser>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof adminControllerEnableUser>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['adminControllerEnableUser'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminControllerEnableUser>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  adminControllerEnableUser(id,)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminControllerEnableUserMutationResult = NonNullable<Awaited<ReturnType<typeof adminControllerEnableUser>>>
+    
+    export type AdminControllerEnableUserMutationError = unknown
+
+    /**
+ * @summary Enable a user (admin only)
+ */
+export const useAdminControllerEnableUser = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerEnableUser>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof adminControllerEnableUser>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+
+      const mutationOptions = getAdminControllerEnableUserMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+/**
+ * @summary Disable a user (admin only)
+ */
+export const adminControllerDisableUser = (
+    id: string,
+ ) => {
+      
+      
+      return axiosInstance<void>(
+      {url: `/api/v1/admin/users/${id}/disable`, method: 'PATCH'
+    },
+      );
+    }
+  
+
+
+export const getAdminControllerDisableUserMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerDisableUser>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof adminControllerDisableUser>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['adminControllerDisableUser'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminControllerDisableUser>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  adminControllerDisableUser(id,)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminControllerDisableUserMutationResult = NonNullable<Awaited<ReturnType<typeof adminControllerDisableUser>>>
+    
+    export type AdminControllerDisableUserMutationError = unknown
+
+    /**
+ * @summary Disable a user (admin only)
+ */
+export const useAdminControllerDisableUser = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerDisableUser>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof adminControllerDisableUser>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+
+      const mutationOptions = getAdminControllerDisableUserMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+/**
+ * @summary Get system statistics (admin only)
+ */
+export const adminControllerGetStats = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return axiosInstance<void>(
+      {url: `/api/v1/admin/stats`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+export const getAdminControllerGetStatsQueryKey = () => {
+    return [`/api/v1/admin/stats`] as const;
+    }
+
+    
+export const getAdminControllerGetStatsInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof adminControllerGetStats>>>, TError = unknown>( options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof adminControllerGetStats>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminControllerGetStatsQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminControllerGetStats>>> = ({ signal }) => adminControllerGetStats(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof adminControllerGetStats>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminControllerGetStatsInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof adminControllerGetStats>>>
+export type AdminControllerGetStatsInfiniteQueryError = unknown
+
+
+export function useAdminControllerGetStatsInfinite<TData = InfiniteData<Awaited<ReturnType<typeof adminControllerGetStats>>>, TError = unknown>(
+  options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof adminControllerGetStats>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminControllerGetStats>>,
+          TError,
+          Awaited<ReturnType<typeof adminControllerGetStats>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminControllerGetStatsInfinite<TData = InfiniteData<Awaited<ReturnType<typeof adminControllerGetStats>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof adminControllerGetStats>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminControllerGetStats>>,
+          TError,
+          Awaited<ReturnType<typeof adminControllerGetStats>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminControllerGetStatsInfinite<TData = InfiniteData<Awaited<ReturnType<typeof adminControllerGetStats>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof adminControllerGetStats>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get system statistics (admin only)
+ */
+
+export function useAdminControllerGetStatsInfinite<TData = InfiniteData<Awaited<ReturnType<typeof adminControllerGetStats>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof adminControllerGetStats>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getAdminControllerGetStatsInfiniteQueryOptions(options)
+
+  const query = useInfiniteQuery(queryOptions , queryClient) as  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+export const getAdminControllerGetStatsQueryOptions = <TData = Awaited<ReturnType<typeof adminControllerGetStats>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetStats>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminControllerGetStatsQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminControllerGetStats>>> = ({ signal }) => adminControllerGetStats(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetStats>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminControllerGetStatsQueryResult = NonNullable<Awaited<ReturnType<typeof adminControllerGetStats>>>
+export type AdminControllerGetStatsQueryError = unknown
+
+
+export function useAdminControllerGetStats<TData = Awaited<ReturnType<typeof adminControllerGetStats>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetStats>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminControllerGetStats>>,
+          TError,
+          Awaited<ReturnType<typeof adminControllerGetStats>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminControllerGetStats<TData = Awaited<ReturnType<typeof adminControllerGetStats>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetStats>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminControllerGetStats>>,
+          TError,
+          Awaited<ReturnType<typeof adminControllerGetStats>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminControllerGetStats<TData = Awaited<ReturnType<typeof adminControllerGetStats>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetStats>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get system statistics (admin only)
+ */
+
+export function useAdminControllerGetStats<TData = Awaited<ReturnType<typeof adminControllerGetStats>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetStats>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getAdminControllerGetStatsQueryOptions(options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Test all API connections
+ */
+export const systemControllerTestApiConnections = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return axiosInstance<void>(
+      {url: `/api/v1/system/test-api-connections`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+export const getSystemControllerTestApiConnectionsQueryKey = () => {
+    return [`/api/v1/system/test-api-connections`] as const;
+    }
+
+    
+export const getSystemControllerTestApiConnectionsInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof systemControllerTestApiConnections>>>, TError = unknown>( options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof systemControllerTestApiConnections>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSystemControllerTestApiConnectionsQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof systemControllerTestApiConnections>>> = ({ signal }) => systemControllerTestApiConnections(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseInfiniteQueryOptions<Awaited<ReturnType<typeof systemControllerTestApiConnections>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type SystemControllerTestApiConnectionsInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof systemControllerTestApiConnections>>>
+export type SystemControllerTestApiConnectionsInfiniteQueryError = unknown
+
+
+export function useSystemControllerTestApiConnectionsInfinite<TData = InfiniteData<Awaited<ReturnType<typeof systemControllerTestApiConnections>>>, TError = unknown>(
+  options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof systemControllerTestApiConnections>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof systemControllerTestApiConnections>>,
+          TError,
+          Awaited<ReturnType<typeof systemControllerTestApiConnections>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSystemControllerTestApiConnectionsInfinite<TData = InfiniteData<Awaited<ReturnType<typeof systemControllerTestApiConnections>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof systemControllerTestApiConnections>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof systemControllerTestApiConnections>>,
+          TError,
+          Awaited<ReturnType<typeof systemControllerTestApiConnections>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSystemControllerTestApiConnectionsInfinite<TData = InfiniteData<Awaited<ReturnType<typeof systemControllerTestApiConnections>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof systemControllerTestApiConnections>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Test all API connections
+ */
+
+export function useSystemControllerTestApiConnectionsInfinite<TData = InfiniteData<Awaited<ReturnType<typeof systemControllerTestApiConnections>>>, TError = unknown>(
+  options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof systemControllerTestApiConnections>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getSystemControllerTestApiConnectionsInfiniteQueryOptions(options)
+
+  const query = useInfiniteQuery(queryOptions , queryClient) as  UseInfiniteQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+export const getSystemControllerTestApiConnectionsQueryOptions = <TData = Awaited<ReturnType<typeof systemControllerTestApiConnections>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof systemControllerTestApiConnections>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSystemControllerTestApiConnectionsQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof systemControllerTestApiConnections>>> = ({ signal }) => systemControllerTestApiConnections(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof systemControllerTestApiConnections>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type SystemControllerTestApiConnectionsQueryResult = NonNullable<Awaited<ReturnType<typeof systemControllerTestApiConnections>>>
+export type SystemControllerTestApiConnectionsQueryError = unknown
+
+
+export function useSystemControllerTestApiConnections<TData = Awaited<ReturnType<typeof systemControllerTestApiConnections>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof systemControllerTestApiConnections>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof systemControllerTestApiConnections>>,
+          TError,
+          Awaited<ReturnType<typeof systemControllerTestApiConnections>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSystemControllerTestApiConnections<TData = Awaited<ReturnType<typeof systemControllerTestApiConnections>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof systemControllerTestApiConnections>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof systemControllerTestApiConnections>>,
+          TError,
+          Awaited<ReturnType<typeof systemControllerTestApiConnections>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSystemControllerTestApiConnections<TData = Awaited<ReturnType<typeof systemControllerTestApiConnections>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof systemControllerTestApiConnections>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Test all API connections
+ */
+
+export function useSystemControllerTestApiConnections<TData = Awaited<ReturnType<typeof systemControllerTestApiConnections>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof systemControllerTestApiConnections>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getSystemControllerTestApiConnectionsQueryOptions(options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}

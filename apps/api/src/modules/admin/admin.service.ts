@@ -1,11 +1,20 @@
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ConnectwiseManageService } from '../connectwise-manage/connectwise-manage.service';
+import { OpenAIService } from '../openai/openai.service';
+import { CallRecordingService } from '../voip/call-recording.service';
+import { dayjs } from '../../lib/dayjs';
 
 @Injectable()
 export class AdminService {
   private readonly logger = new Logger(AdminService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly connectwiseService: ConnectwiseManageService,
+    private readonly openaiService: OpenAIService,
+    private readonly voipService: CallRecordingService,
+  ) {}
 
   /**
    * List all users in the system with their basic info and status.
@@ -95,6 +104,78 @@ export class AdminService {
         loginsLast7Days: recentLogins,
       },
     };
+  }
+
+  /**
+   * Test all API connections and return their status
+   */
+  async testApiConnections() {
+    const results = {
+      local: { status: 'success', message: 'Local API is operational', responseTime: 0 },
+      connectwise: { status: 'unknown', message: '', responseTime: 0 },
+      openai: { status: 'unknown', message: '', responseTime: 0 },
+      voip: { status: 'unknown', message: '', responseTime: 0 },
+    };
+
+    // Test ConnectWise
+    try {
+      const startTime = Date.now();
+      // Try to fetch a contact list (with empty conditions to just test connectivity)
+      await this.connectwiseService.getCompanyByPhoneNumber('+1234567890');
+      results.connectwise = {
+        status: 'success',
+        message: 'ConnectWise API is accessible',
+        responseTime: Date.now() - startTime,
+      };
+    } catch (error) {
+      results.connectwise = {
+        status: 'error',
+        message: error.message || 'Failed to connect to ConnectWise API',
+        responseTime: 0,
+      };
+    }
+
+    // Test OpenAI
+    try {
+      const startTime = Date.now();
+      const client = this.openaiService.getClient();
+      // Simple API test - list models
+      await client.models.list();
+      results.openai = {
+        status: 'success',
+        message: 'OpenAI API is accessible',
+        responseTime: Date.now() - startTime,
+      };
+    } catch (error) {
+      results.openai = {
+        status: 'error',
+        message: error.message || 'Failed to connect to OpenAI API',
+        responseTime: 0,
+      };
+    }
+
+    // Test VoIP
+    try {
+      const startTime = Date.now();
+      // Test with a small date range (today)
+      const today = dayjs();
+      const startDateUnix = today.startOf('day').unix().toString();
+      const endDateUnix = today.endOf('day').unix().toString();
+      await this.voipService.listCallRecordings(startDateUnix, endDateUnix);
+      results.voip = {
+        status: 'success',
+        message: 'VoIP API is accessible',
+        responseTime: Date.now() - startTime,
+      };
+    } catch (error) {
+      results.voip = {
+        status: 'error',
+        message: error.message || 'Failed to connect to VoIP API',
+        responseTime: 0,
+      };
+    }
+
+    return results;
   }
 }
 

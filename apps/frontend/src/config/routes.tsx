@@ -2,6 +2,8 @@ import { NotFoundPage } from '../routes'
 import VoipDashboardPage from '../pages/VoipDashboardPage'
 import CallDetailPage from '../pages/CallDetailPage'
 import LogoutPage from '../pages/LogoutPage'
+import PersonalSettingsPage from '../pages/PersonalSettingsPage'
+import AdminConsolePage from '../pages/AdminConsolePage'
 
 // Route configuration
 export const routes = [
@@ -20,6 +22,14 @@ export const routes = [
   {
     path: '/logout',
     element: <LogoutPage />,
+  },
+  {
+    path: '/settings',
+    element: <PersonalSettingsPage />,
+  },
+  {
+    path: '/admin',
+    element: <AdminConsolePage />,
   },
   {
     path: '*',
