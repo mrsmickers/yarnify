@@ -1,15 +1,13 @@
 import { type ReactNode, useMemo, useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import {
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
-  LayoutDashboard,
+  KeyRound,
   Menu,
-  Moon,
   PhoneCall,
-  Settings,
-  ShieldCheck,
-  Sun,
+  Users,
   UserCircle2,
   X,
 } from 'lucide-react'
@@ -24,9 +22,10 @@ type AppShellProps = {
 
 type NavItem = {
   label: string
-  path: string
+  path?: string
   icon: LucideIcon
   end?: boolean
+  children?: NavItem[]
 }
 
 type NavSection = {
@@ -38,15 +37,10 @@ const workspaceNav: NavSection = {
   title: 'Workspace',
   items: [
     {
-      label: 'VoIP Overview',
+      label: 'VoIP Dashboard',
       path: '/',
-      icon: LayoutDashboard,
-      end: true,
-    },
-    {
-      label: 'Call Intelligence',
-      path: '/dashboard',
       icon: PhoneCall,
+      end: true,
     },
   ],
 }
@@ -55,17 +49,24 @@ const adminNav: NavSection = {
   title: 'Admin',
   items: [
     {
-      label: 'Admin Console',
-      path: '/admin',
-      icon: ShieldCheck,
+      label: 'User Management',
+      path: '/admin/users',
+      icon: Users,
+    },
+    {
+      label: 'API Credentials',
+      path: '/admin/api-credentials',
+      icon: KeyRound,
     },
   ],
 }
 
 export function AppShell({ children }: AppShellProps) {
-  const { theme, toggleTheme } = useTheme()
+  const { theme } = useTheme()
+  const location = useLocation()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
 
   const sidebarStyle = useMemo(
     () => ({
@@ -94,6 +95,18 @@ export function AppShell({ children }: AppShellProps) {
 
   const closeMobileSidebar = () => setIsMobileOpen(false)
 
+  const toggleExpanded = (label: string) => {
+    setExpandedItems((prev) => {
+      const next = new Set(prev)
+      if (next.has(label)) {
+        next.delete(label)
+      } else {
+        next.add(label)
+      }
+      return next
+    })
+  }
+
   const renderNavSection = (section: NavSection) => (
     <div key={section.title} className="space-y-2">
       <p
@@ -107,62 +120,132 @@ export function AppShell({ children }: AppShellProps) {
         {section.title}
       </p>
       <div className="space-y-1">
-        {section.items.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            end={item.end}
-            onClick={closeMobileSidebar}
-            aria-label={isCollapsed ? item.label : undefined}
-            title={isCollapsed ? item.label : undefined}
-          >
-            {({ isActive }) => (
-              <div
-                className={cn(
-                  'group relative flex items-center rounded-xl px-3 py-2 text-sm font-medium transition-colors',
-                  hoverClass,
-                  isCollapsed ? 'justify-center px-2' : 'gap-3',
-                  isActive && 'opacity-100 shadow-sm'
-                )}
-                style={
-                  isActive
-                    ? {
-                        backgroundColor: 'var(--accent)',
-                        color: activeForeground,
-                      }
-                    : undefined
-                }
-              >
-                <item.icon
-                  className={cn(
-                    'h-5 w-5 shrink-0',
-                    !isActive && 'text-white/80',
-                    theme === 'light' && !isActive && 'text-sidebar-foreground',
-                    isActive && (theme === 'dark' ? 'text-[#1C2533]' : 'text-[#222E40]')
-                  )}
-                  aria-hidden
-                />
-                {!isCollapsed && (
-                  <span
-                    className={cn(
-                      'whitespace-nowrap transition-all',
-                      !isActive && 'text-white/80',
-                      theme === 'light' && !isActive && 'text-sidebar-foreground'
-                    )}
-                  >
-                    {item.label}
-                  </span>
-                )}
-              </div>
-            )}
-          </NavLink>
-        ))}
+        {section.items.map((item) => renderNavItem(item))}
       </div>
     </div>
   )
 
+  const renderNavItem = (item: NavItem, isSubItem = false) => {
+    const hasChildren = item.children && item.children.length > 0
+    const isExpanded = expandedItems.has(item.label)
+    const isChildActive = item.children?.some(child => 
+      child.path && location.pathname.startsWith(child.path)
+    )
+
+    if (hasChildren) {
+      return (
+        <div key={item.label}>
+          <button
+            type="button"
+            onClick={() => toggleExpanded(item.label)}
+            className={cn(
+              'group relative flex w-full items-center rounded-xl px-3 py-2 text-sm font-medium transition-colors',
+              hoverClass,
+              isCollapsed ? 'justify-center px-2' : 'gap-3',
+              isChildActive && 'opacity-100'
+            )}
+            aria-label={isCollapsed ? item.label : undefined}
+            title={isCollapsed ? item.label : undefined}
+          >
+            <item.icon
+              className={cn(
+                'h-5 w-5 shrink-0',
+                'text-white/80',
+                theme === 'light' && 'text-sidebar-foreground',
+                isChildActive && (theme === 'dark' ? 'text-[#DEDC00]' : 'text-[#824192]')
+              )}
+              aria-hidden
+            />
+            {!isCollapsed && (
+              <>
+                <span
+                  className={cn(
+                    'flex-1 whitespace-nowrap text-left transition-all',
+                    'text-white/80',
+                    theme === 'light' && 'text-sidebar-foreground',
+                    isChildActive && (theme === 'dark' ? 'text-[#DEDC00]' : 'text-[#824192]')
+                  )}
+                >
+                  {item.label}
+                </span>
+                <ChevronDown
+                  className={cn(
+                    'h-4 w-4 shrink-0 transition-transform',
+                    'text-white/60',
+                    theme === 'light' && 'text-sidebar-foreground/60',
+                    isExpanded && 'rotate-180'
+                  )}
+                  aria-hidden
+                />
+              </>
+            )}
+          </button>
+          {!isCollapsed && isExpanded && item.children && (
+            <div className="ml-4 mt-1 space-y-1 border-l-2 border-white/10 pl-2 dark:border-white/10">
+              {item.children.map((child) => renderNavItem(child, true))}
+            </div>
+          )}
+        </div>
+      )
+    }
+
+    // Regular nav item with link
+    return (
+      <NavLink
+        key={item.path}
+        to={item.path!}
+        end={item.end}
+        onClick={closeMobileSidebar}
+        aria-label={isCollapsed ? item.label : undefined}
+        title={isCollapsed ? item.label : undefined}
+      >
+        {({ isActive }) => (
+          <div
+            className={cn(
+              'group relative flex items-center rounded-xl px-3 py-2 text-sm font-medium transition-colors',
+              hoverClass,
+              isCollapsed ? 'justify-center px-2' : 'gap-3',
+              isActive && 'opacity-100 shadow-sm',
+              isSubItem && 'text-xs'
+            )}
+            style={
+              isActive
+                ? {
+                    backgroundColor: 'var(--accent)',
+                    color: activeForeground,
+                  }
+                : undefined
+            }
+          >
+            <item.icon
+              className={cn(
+                'h-5 w-5 shrink-0',
+                !isActive && 'text-white/80',
+                theme === 'light' && !isActive && 'text-sidebar-foreground',
+                isActive && (theme === 'dark' ? 'text-[#1C2533]' : 'text-[#222E40]'),
+                isSubItem && 'h-4 w-4'
+              )}
+              aria-hidden
+            />
+            {!isCollapsed && (
+              <span
+                className={cn(
+                  'whitespace-nowrap transition-all',
+                  !isActive && 'text-white/80',
+                  theme === 'light' && !isActive && 'text-sidebar-foreground'
+                )}
+              >
+                {item.label}
+              </span>
+            )}
+          </div>
+        )}
+      </NavLink>
+    )
+  }
+
   const sidebarContent = (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-1 flex-col">
       <div
         className={cn(
           'flex items-center',
@@ -228,14 +311,15 @@ export function AppShell({ children }: AppShellProps) {
         <div
           className={cn(
             'flex items-center gap-3 rounded-xl bg-white/5 px-3 py-3',
-            theme === 'light' && 'bg-[#F3F4F6]'
+            theme === 'light' && 'bg-[#F3F4F6]',
+            isCollapsed && 'justify-center'
           )}
         >
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white">
             <UserCircle2 className="h-6 w-6" aria-hidden />
           </div>
           {!isCollapsed && (
-            <div className="min-w-0">
+            <div className="flex min-w-0 flex-1 flex-col">
               <p className="truncate text-sm font-medium text-white dark:text-white">
                 Jordan Smith
               </p>
@@ -252,46 +336,6 @@ export function AppShell({ children }: AppShellProps) {
             </div>
           )}
         </div>
-        <div
-          className={cn(
-            'mt-3 flex items-center justify-between rounded-xl px-3 py-3 text-sm text-white',
-            theme === 'light' && 'text-sidebar-foreground'
-          )}
-        >
-          {!isCollapsed && <span>Theme</span>}
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={toggleTheme}
-            className={cn(
-              'h-9 w-9 rounded-full border border-white/10 bg-white/5 text-white/80 transition-colors hover:text-white',
-              theme === 'light' &&
-                'border-[#E2E8F0] bg-white text-sidebar-foreground hover:text-sidebar-foreground'
-            )}
-            aria-label="Toggle theme"
-          >
-            {theme === 'dark' ? (
-              <Sun className="h-4 w-4" />
-            ) : (
-              <Moon className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-        {!isCollapsed && (
-          <NavLink
-            to="/settings"
-            onClick={closeMobileSidebar}
-            className={cn(
-              'mt-3 flex items-center gap-3 rounded-xl border border-white/10 px-3 py-3 text-sm font-medium text-white transition-colors hover:border-[#DEDC00]',
-              theme === 'light' &&
-                'border-[#E2E8F0] text-sidebar-foreground hover:border-[#824192]'
-            )}
-          >
-            <Settings className="h-5 w-5 shrink-0" aria-hidden />
-            <span>Workspace preferences</span>
-          </NavLink>
-        )}
       </div>
     </div>
   )
@@ -338,7 +382,7 @@ export function AppShell({ children }: AppShellProps) {
       >
         <aside
           className={cn(
-            'relative z-30 hidden shrink-0 border-r shadow-lg md:block',
+            'relative z-30 hidden shrink-0 border-r shadow-lg md:sticky md:top-0 md:flex md:h-screen md:flex-col md:overflow-hidden md:self-start',
             isCollapsed ? 'w-[4.25rem]' : 'w-64'
           )}
           style={sidebarStyle}

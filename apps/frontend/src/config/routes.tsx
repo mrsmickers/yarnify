@@ -4,6 +4,8 @@ import CallDetailPage from '../pages/CallDetailPage'
 import LogoutPage from '../pages/LogoutPage'
 import PersonalSettingsPage from '../pages/PersonalSettingsPage'
 import AdminConsolePage from '../pages/AdminConsolePage'
+import UserManagementPage from '../pages/UserManagementPage'
+import ApiCredentialsPage from '../pages/ApiCredentialsPage'
 
 // Route configuration
 export const routes = [
@@ -30,6 +32,14 @@ export const routes = [
   {
     path: '/admin',
     element: <AdminConsolePage />,
+  },
+  {
+    path: '/admin/users',
+    element: <UserManagementPage />,
+  },
+  {
+    path: '/admin/api-credentials',
+    element: <ApiCredentialsPage />,
   },
   {
     path: '*',

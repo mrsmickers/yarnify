@@ -407,7 +407,7 @@ const VoipDashboardPage = () => {
   return (
     <div className="space-y-10">
       <PageHeader
-        title="VoIP Intelligence"
+        title="VoIP Dashboard"
         description="Monitor conversation quality, sentiment trends, and operational performance across every client call in real time."
         actions={
           <>
