@@ -5,6 +5,7 @@ import { VersioningType, Logger } from '@nestjs/common'; // Added Logger
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'; // Added Swagger
 import * as cookieParser from 'cookie-parser'; // Added cookieParser
 import { ZodValidationPipe } from 'nestjs-zod'; // Added ZodValidationPipe
+import { ZodValidationExceptionFilter } from './common/filters/zod-validation-exception.filter';
 // import { VoltAgent } from '@voltagent/core';
 // import { SupervisorAgentService } from './modules/agents/agents/supervisor/supervisor.service';
 
@@ -15,6 +16,7 @@ async function bootstrap() {
   app.use(cookieParser()); // Use cookie-parser middleware
   app.enableCors(); // Enable CORS
   app.useGlobalPipes(new ZodValidationPipe()); // Use ZodValidationPipe globally
+  app.useGlobalFilters(new ZodValidationExceptionFilter()); // Catch Zod validation errors
 
   // // Get agent service instances from the NestJS application context
   // const supervisorAgent = app.get(SupervisorAgentService);

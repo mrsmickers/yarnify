@@ -4,9 +4,12 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  FileText,
+  Headphones,
   KeyRound,
   Menu,
   PhoneCall,
+  Settings2,
   Users,
   UserCircle2,
   X,
@@ -15,6 +18,7 @@ import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useTheme } from '@/theme/theme-provider'
 import { Button } from '@/components/ui/button'
+import { useCurrentUser } from '@/hooks/useCurrentUser'
 
 type AppShellProps = {
   children: ReactNode
@@ -54,6 +58,21 @@ const adminNav: NavSection = {
       icon: Users,
     },
     {
+      label: 'Agent Management',
+      path: '/admin/agents',
+      icon: Headphones,
+    },
+    {
+      label: 'Prompt Management',
+      path: '/admin/prompts',
+      icon: FileText,
+    },
+    {
+      label: 'LLM Management',
+      path: '/admin/llms',
+      icon: Settings2,
+    },
+    {
       label: 'API Credentials',
       path: '/admin/api-credentials',
       icon: KeyRound,
@@ -67,6 +86,14 @@ export function AppShell({ children }: AppShellProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
+  const { data: currentUser } = useCurrentUser()
+
+  const userDisplayName =
+    currentUser?.name?.trim() ||
+    currentUser?.email?.trim() ||
+    'Signed-in user'
+  const userEmail = currentUser?.email?.trim() || ''
+  const userDepartment = currentUser?.department?.trim() || ''
 
   const sidebarStyle = useMemo(
     () => ({
@@ -321,12 +348,22 @@ export function AppShell({ children }: AppShellProps) {
           {!isCollapsed && (
             <div className="flex min-w-0 flex-1 flex-col">
               <p className="truncate text-sm font-medium text-white dark:text-white">
-                Jordan Smith
+                {userDisplayName}
               </p>
+              {userEmail ? (
+                <p className="truncate text-xs text-white/70 dark:text-white/70">
+                  {userEmail}
+                </p>
+              ) : null}
+              {userDepartment ? (
+                <p className="truncate text-xs text-white/60 dark:text-white/60">
+                  {userDepartment}
+                </p>
+              ) : null}
               <NavLink
                 to="/settings"
                 className={cn(
-                  'text-xs font-medium text-[#DEDC00] transition-colors hover:text-[#F8AB08]',
+                  'mt-1 text-xs font-medium text-[#DEDC00] transition-colors hover:text-[#F8AB08]',
                   theme === 'light' && 'text-[#824192] hover:text-[#9C4BB3]'
                 )}
                 onClick={closeMobileSidebar}

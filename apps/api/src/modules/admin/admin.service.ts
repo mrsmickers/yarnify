@@ -1,9 +1,23 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  Logger,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
+import { createId } from '@paralleldrive/cuid2';
 import { PrismaService } from '../prisma/prisma.service';
 import { ConnectwiseManageService } from '../connectwise-manage/connectwise-manage.service';
 import { OpenAIService } from '../openai/openai.service';
 import { CallRecordingService } from '../voip/call-recording.service';
 import { dayjs } from '../../lib/dayjs';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDepartmentDto } from './dto/update-user-department.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import {
+  PENDING_ENTRA_OID_PREFIX,
+  isPendingEntraOid,
+} from '../../common/constants/entra.constants';
 
 @Injectable()
 export class AdminService {
@@ -20,12 +34,13 @@ export class AdminService {
    * List all users in the system with their basic info and status.
    */
   async listUsers() {
-    return this.prisma.entraUser.findMany({
+    const users = await this.prisma.entraUser.findMany({
       select: {
         id: true,
         oid: true,
         email: true,
         displayName: true,
+        department: true,
         role: true,
         enabled: true,
         lastLoginAt: true,
@@ -38,6 +53,95 @@ export class AdminService {
         { createdAt: 'desc' },
       ],
     });
+
+    return users.map((user) => this.maskPendingOid(user));
+  }
+
+  /**
+   * Provision a user so they can authenticate via Entra.
+   */
+  async createUser(payload: CreateUserDto) {
+    const now = new Date();
+    const normalizedEmail = payload.email.toLowerCase();
+    const sanitizedDisplayName = payload.displayName.trim();
+    const enabled = payload.enabled ?? true;
+
+    const baseCreateData = {
+      oid: payload.oid?.trim() ?? null,
+      email: normalizedEmail,
+      displayName: sanitizedDisplayName,
+      department: payload.department,
+      role: payload.role,
+      enabled,
+      lastLoginAt: null,
+      lastSyncedAt: now,
+    };
+
+    try {
+      const user = await this.prisma.entraUser.create({
+        data: baseCreateData,
+      });
+
+      this.logger.log(
+        `Provisioned Entra user ${user.email} (${user.oid ?? 'oid-pending'})`,
+      );
+
+      return {
+        success: true,
+        user: this.maskPendingOid(user),
+      };
+    } catch (error) {
+      if (!payload.oid && this.isOidNullConstraint(error)) {
+        this.logger.warn(
+          `OID column rejected null for ${normalizedEmail}. Re-attempting with pending placeholder.`,
+        );
+
+        try {
+          const fallbackUser = await this.prisma.entraUser.create({
+            data: {
+              ...baseCreateData,
+              oid: `${PENDING_ENTRA_OID_PREFIX}${createId()}`,
+            },
+          });
+
+          this.logger.log(
+            `Provisioned Entra user ${fallbackUser.email} with pending OID placeholder`,
+          );
+
+          return {
+            success: true,
+            user: this.maskPendingOid(fallbackUser),
+          };
+        } catch (fallbackError) {
+          this.logger.error(
+            `Fallback provisioning failed for ${normalizedEmail}`,
+            fallbackError as Error,
+          );
+        }
+      }
+
+      this.logger.error(
+        `Failed to create Entra user ${normalizedEmail}`,
+        error as Error,
+      );
+
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        (error as { code?: string }).code === 'P2002'
+      ) {
+        const meta = (error as { meta?: { target?: string | string[] } }).meta;
+        const target = Array.isArray(meta?.target)
+          ? meta?.target.join(', ')
+          : meta?.target;
+        throw new ConflictException(
+          `A user already exists with the same ${target || 'unique field'}.`,
+        );
+      }
+
+      throw new BadRequestException('Unable to create user');
+    }
   }
 
   /**
@@ -68,6 +172,106 @@ export class AdminService {
       };
     } catch (error) {
       this.logger.error(`Failed to update user status: ${error}`);
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+  }
+
+  /**
+   * Update a user's RBAC role.
+   */
+  async updateUserRole(id: string, role: 'admin' | 'user') {
+    try {
+      const user = await this.prisma.entraUser.update({
+        where: { id },
+        data: {
+          role,
+          updatedAt: new Date(),
+        },
+      });
+
+      this.logger.log(
+        `User ${user.email} (${user.id}) department updated to ${user.department}`,
+      );
+
+      return {
+        success: true,
+        user: {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          department: user.department,
+        },
+      };
+    } catch (error) {
+      this.logger.error(`Failed to update user role: ${error}`);
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+  }
+
+  /**
+   * Update a user's department.
+   */
+  async updateUserDepartment(id: string, payload: UpdateUserDepartmentDto) {
+    try {
+      const user = await this.prisma.entraUser.update({
+        where: { id },
+        data: {
+          department: payload.department.trim(),
+          updatedAt: new Date(),
+        },
+      });
+
+      this.logger.log(
+        `User ${user.email} (${user.id}) role updated to ${user.role}`,
+      );
+
+      return {
+        success: true,
+        user: this.maskPendingOid(user),
+      };
+    } catch (error) {
+      this.logger.error(`Failed to update user department: ${error}`);
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+  }
+
+  /**
+   * Update a user's information (display name, department, role, enabled status).
+   */
+  async updateUser(id: string, payload: UpdateUserDto) {
+    try {
+      const updateData: {
+        displayName: string;
+        department: string;
+        role?: 'admin' | 'user';
+        enabled?: boolean;
+        updatedAt: Date;
+      } = {
+        displayName: payload.displayName.trim(),
+        department: payload.department,
+        updatedAt: new Date(),
+      };
+
+      if (payload.role !== undefined) {
+        updateData.role = payload.role;
+      }
+      if (payload.enabled !== undefined) {
+        updateData.enabled = payload.enabled;
+      }
+
+      const user = await this.prisma.entraUser.update({
+        where: { id },
+        data: updateData,
+      });
+
+      this.logger.log(`User ${user.email} (${user.id}) updated`);
+
+      return {
+        success: true,
+        user: this.maskPendingOid(user),
+      };
+    } catch (error) {
+      this.logger.error(`Failed to update user: ${error}`);
       throw new NotFoundException(`User with ID ${id} not found`);
     }
   }
@@ -177,5 +381,34 @@ export class AdminService {
 
     return results;
   }
-}
 
+  private maskPendingOid<T extends { oid: string | null }>(user: T): T {
+    if (user.oid && isPendingEntraOid(user.oid)) {
+      return { ...user, oid: null };
+    }
+    return user;
+  }
+
+  private isOidNullConstraint(error: unknown): boolean {
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      (error as { code?: string }).code === 'P2011'
+    ) {
+      const meta = (error as {
+        meta?: { constraint?: string; field_name?: string };
+      }).meta;
+      const constraint = meta?.constraint ?? meta?.field_name;
+      return typeof constraint === 'string'
+        ? constraint.includes('oid')
+        : true;
+    }
+
+    if (error instanceof Error) {
+      return /column "oid".*null value/i.test(error.message);
+    }
+
+    return false;
+  }
+}

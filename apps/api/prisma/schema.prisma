@@ -34,13 +34,18 @@ model Company {
 }
 
 model Agent {
-  id        String   @id @default(cuid())
-  name      String
-  email     String?
-  extension String?  @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  calls     Call[]
+  id            String         @id @default(cuid())
+  name          String
+  email         String?
+  extension     String?        @unique
+  entraUserId   String?        @unique // Link to EntraUser for login account mapping
+  entraUser     EntraUser?     @relation(fields: [entraUserId], references: [id])
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  calls         Call[]
+  keywordAlerts KeywordAlert[]
+
+  @@index([entraUserId])
 }
 
 model Call {
@@ -64,22 +69,29 @@ model Call {
   Agents                  Agent?                    @relation(fields: [agentsId], references: [id])
   agentsId                String?
   CallTranscriptEmbedding CallTranscriptEmbedding[]
+  keywordAlerts           KeywordAlert[]
 
   @@index([companyId])
 }
 
 model CallAnalysis {
-  id        String   @id @default(cuid())
-  companyId String?
-  callId    String
+  id                String             @id @default(cuid())
+  companyId         String?
+  callId            String
   /// [CallAnalysisData]
-  data      Json
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  Company   Company? @relation(fields: [companyId], references: [id])
-  Call      Call?
+  data              Json
+  promptTemplateId  String?
+  llmConfigId       String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  Company           Company?           @relation(fields: [companyId], references: [id])
+  Call              Call?
+  promptTemplate    PromptTemplate?    @relation("PromptUsedInCall", fields: [promptTemplateId], references: [id])
+  llmConfig         LLMConfiguration?  @relation("LLMUsedInCall", fields: [llmConfigId], references: [id])
 
   @@index([callId])
+  @@index([promptTemplateId])
+  @@index([llmConfigId])
 }
 
 model ProcessingLog {
@@ -115,18 +127,100 @@ model CallTranscriptEmbedding {
 // User management for Entra ID authenticated users
 model EntraUser {
   id           String    @id @default(cuid())
-  oid          String    @unique // Object ID from Microsoft Entra ID
+  oid          String?   @unique // Object ID from Microsoft Entra ID
   email        String    @unique
   displayName  String?
+  department   String?
   role         String    @default("user") // 'admin' or 'user'
   enabled      Boolean   @default(true) // Can be disabled by admin
   lastLoginAt  DateTime?
   lastSyncedAt DateTime  @default(now())
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+  agent        Agent?    // Reverse relation for agent mapping
 
   @@index([email])
   @@index([oid])
   @@index([role])
   @@map("entra_users")
+}
+
+// Prompt templates for AI operations
+model PromptTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  useCase     String // TRANSCRIPTION_REFINEMENT, CALL_ANALYSIS, CUSTOM
+  content     String   @db.Text
+  isActive    Boolean  @default(false)
+  version     Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?
+
+  usedInCalls CallAnalysis[] @relation("PromptUsedInCall")
+
+  @@index([useCase])
+  @@index([isActive])
+  @@map("prompt_templates")
+}
+
+// LLM configuration for different use cases
+model LLMConfiguration {
+  id          String   @id @default(cuid())
+  name        String
+  useCase     String // TRANSCRIPTION, TRANSCRIPTION_REFINEMENT, CALL_ANALYSIS, EMBEDDINGS
+  modelName   String
+  provider    String   @default("openai")
+  isActive    Boolean  @default(false)
+  settings    Json // { temperature, max_tokens, top_p, frequency_penalty, etc. }
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?
+
+  usedInCalls CallAnalysis[] @relation("LLMUsedInCall")
+
+  @@index([useCase])
+  @@index([isActive])
+  @@map("llm_configurations")
+}
+
+// Department-level keyword triggers for training alerts
+model DepartmentKeywordTrigger {
+  id              String   @id @default(cuid())
+  department      String?
+  keyword         String
+  isActive        Boolean  @default(true)
+  triggerType     String   @default("TRAINING_ALERT")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  createdBy       String?
+
+  triggeredAlerts KeywordAlert[]
+
+  @@index([department])
+  @@index([isActive])
+  @@map("department_keyword_triggers")
+}
+
+// Keyword alert instances when triggers are matched
+model KeywordAlert {
+  id          String   @id @default(cuid())
+  callId      String
+  triggerId   String
+  agentId     String?
+  matchedText String
+  context     String   @db.Text
+  reviewedAt  DateTime?
+  reviewedBy  String?
+  createdAt   DateTime @default(now())
+
+  call    Call                     @relation(fields: [callId], references: [id])
+  trigger DepartmentKeywordTrigger @relation(fields: [triggerId], references: [id])
+  agent   Agent?                   @relation(fields: [agentId], references: [id])
+
+  @@index([callId])
+  @@index([triggerId])
+  @@index([agentId])
+  @@index([reviewedAt])
+  @@map("keyword_alerts")
 }

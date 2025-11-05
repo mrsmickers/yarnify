@@ -18,6 +18,7 @@ import {
   RefreshTokenResponseDto,
 } from './dto/refresh-token.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { PrismaService } from '../prisma/prisma.service';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -29,6 +30,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
     private readonly cls: ClsService<ClsStore>,
+    private readonly prisma: PrismaService,
   ) {
     this.frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL');
     this.logger.log(`FRONTEND_URL configured as: ${this.frontendUrl}`);
@@ -99,6 +101,24 @@ export class AuthController {
         '[/auth/profile] CLS did not have userId. Falling back to JWT payload.',
       );
     }
+    let department: string | null = null;
+    let role: string | null = null;
+
+    if (payload.oid) {
+      const storedUser = await this.prisma.entraUser.findUnique({
+        where: { oid: payload.oid },
+        select: { department: true, role: true },
+      });
+      department = storedUser?.department ?? null;
+      role = storedUser?.role ?? null;
+    } else if (payload.email) {
+      const storedUser = await this.prisma.entraUser.findUnique({
+        where: { email: payload.email.toLowerCase() },
+        select: { department: true, role: true },
+      });
+      department = storedUser?.department ?? null;
+      role = storedUser?.role ?? null;
+    }
 
     return {
       userId: payload.sub,
@@ -106,6 +126,8 @@ export class AuthController {
       name: payload.name || null,
       tenantId: payload.tid || null,
       roles: payload.roles || [],
+      department,
+      role,
     };
   }
 
@@ -134,6 +156,7 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Failed to refresh token.' })
   async refreshToken(@Req() req: Request, @Res() res: Response): Promise<void> {
     const tokenToRefresh = req.cookies['refresh_token'];
+    const currentAccessToken = req.cookies['access_token'];
 
     if (!tokenToRefresh) {
       this.logger.warn('Refresh token endpoint called without cookie');
@@ -147,8 +170,31 @@ export class AuthController {
       const secureCookies =
         this.configService.get<string>('NODE_ENV') === 'production';
 
+      // Extract session info from current token (if available)
+      let currentSessionStart: number | undefined;
+      let currentRefreshCount: number | undefined;
+      
+      if (currentAccessToken) {
+        try {
+          // Decode without verifying (we just need the payload for sessionStart/refreshCount)
+          const decoded = require('jsonwebtoken').decode(currentAccessToken) as {
+            sessionStart?: number;
+            refreshCount?: number;
+          };
+          currentSessionStart = decoded?.sessionStart;
+          currentRefreshCount = decoded?.refreshCount;
+        } catch (decodeError) {
+          this.logger.warn('Could not decode current access token', decodeError as Error);
+          // Continue anyway - service will treat as new session
+        }
+      }
+
       const { accessToken, refreshToken: newRefreshToken } =
-        await this.authService.refreshAccessToken(tokenToRefresh);
+        await this.authService.refreshAccessToken(
+          tokenToRefresh,
+          currentSessionStart,
+          currentRefreshCount,
+        );
 
       res.cookie('access_token', accessToken, {
         httpOnly: true,
@@ -170,6 +216,11 @@ export class AuthController {
     } catch (error) {
       this.logger.error('Failed to refresh token', error as Error);
       res.clearCookie('refresh_token', {
+        httpOnly: true,
+        secure: this.configService.get<string>('NODE_ENV') === 'production',
+        sameSite: 'lax',
+      });
+      res.clearCookie('access_token', {
         httpOnly: true,
         secure: this.configService.get<string>('NODE_ENV') === 'production',
         sameSite: 'lax',

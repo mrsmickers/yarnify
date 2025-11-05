@@ -5,7 +5,10 @@ import LogoutPage from '../pages/LogoutPage'
 import PersonalSettingsPage from '../pages/PersonalSettingsPage'
 import AdminConsolePage from '../pages/AdminConsolePage'
 import UserManagementPage from '../pages/UserManagementPage'
+import AgentManagementPage from '../pages/AgentManagementPage'
 import ApiCredentialsPage from '../pages/ApiCredentialsPage'
+import PromptManagementPage from '../pages/PromptManagementPage'
+import LLMManagementPage from '../pages/LLMManagementPage'
 
 // Route configuration
 export const routes = [
@@ -38,8 +41,20 @@ export const routes = [
     element: <UserManagementPage />,
   },
   {
+    path: '/admin/agents',
+    element: <AgentManagementPage />,
+  },
+  {
     path: '/admin/api-credentials',
     element: <ApiCredentialsPage />,
+  },
+  {
+    path: '/admin/prompts',
+    element: <PromptManagementPage />,
+  },
+  {
+    path: '/admin/llms',
+    element: <LLMManagementPage />,
   },
   {
     path: '*',

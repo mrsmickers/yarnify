@@ -18,6 +18,7 @@ import { AgentRepository } from './repositories/agent.repository';
 import { EmbeddingModule } from '../embedding/embedding.module';
 import { TextChunkingModule } from '../text-chunking/text-chunking.module';
 import { CallTranscriptEmbeddingRepository } from './repositories/call-transcript-embedding.repository';
+import { PromptManagementModule } from '../prompt-management/prompt-management.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CallTranscriptEmbeddingRepository } from './repositories/call-transcrip
     ConnectwiseManageModule,
     EmbeddingModule, // For EmbeddingService
     TextChunkingModule, // For TextChunkingService
+    PromptManagementModule, // For PromptManagementService and LLMConfigService
   ],
   controllers: [CallAnalysisController], // Added controller
   providers: [
@@ -51,6 +53,7 @@ import { CallTranscriptEmbeddingRepository } from './repositories/call-transcrip
     CompanyRepository,
     CallAnalysisRepository,
     ProcessingLogRepository,
+    AgentRepository,
     CallTranscriptEmbeddingRepository,
   ],
 })

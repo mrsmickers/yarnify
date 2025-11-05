@@ -430,9 +430,9 @@ export class CallProcessingConsumer extends WorkerHost {
       Phone Number: ${externalPhoneNumber}\n
       Transcript: ${transcript}`;
 
-      const analysisResult = await this.callAnalysisService.analyzeTranscript(
-        promptTranscript,
-      ); // Existing service method
+      const { analysis, promptTemplateId, llmConfigId } = 
+        await this.callAnalysisService.analyzeTranscript(promptTranscript);
+      
       await this.processingLogRepository.create({
         callId: callEntity.id,
         companyId: companyEntity?.id,
@@ -440,11 +440,13 @@ export class CallProcessingConsumer extends WorkerHost {
         message: 'Transcript analysis successful.',
       });
 
-      // 6. Save analysis result
+      // 6. Save analysis result with historical tracking
       const callAnalysisEntity = await this.callAnalysisRepository.create({
         callId: callEntity.id,
         companyId: companyEntity?.id,
-        data: analysisResult,
+        data: analysis,
+        promptTemplateId,
+        llmConfigId,
       });
       callEntity = await this.callRepository.update(callEntity.id, {
         callAnalysisId: callAnalysisEntity.id,

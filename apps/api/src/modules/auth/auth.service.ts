@@ -9,6 +9,8 @@ import {
 } from '@azure/msal-node';
 import * as jwt from 'jsonwebtoken';
 import { PrismaService } from '../prisma/prisma.service';
+import type { EntraUser } from '../../../generated/prisma';
+import { isPendingEntraOid } from '../../common/constants/entra.constants';
 
 // Extended type to include refreshToken which exists at runtime but isn't in newer MSAL types
 interface AuthenticationResultWithRefreshToken extends AuthenticationResult {
@@ -22,6 +24,8 @@ interface SessionTokenPayload extends jwt.JwtPayload {
   email?: string;
   name?: string;
   roles?: string[];
+  sessionStart?: number; // Unix timestamp of when session started (for absolute timeout)
+  refreshCount?: number; // Number of times token has been refreshed (for max refresh limit)
 }
 
 interface EntraTokenClaims extends Record<string, unknown> {
@@ -43,6 +47,8 @@ export class AuthService {
   private readonly jwtSecret: string;
   private readonly jwtTtlSeconds: number;
   private readonly expectedTenantId: string;
+  private readonly absoluteSessionTimeoutHours: number;
+  private readonly maxTokenRefreshes: number;
 
   constructor(
     private readonly configService: ConfigService,
@@ -95,6 +101,22 @@ export class AuthService {
       'ENTRA_EXPECTED_TENANT',
     ) || tenantId;
 
+    // Security: Absolute session timeout (default 24 hours for sensitive data)
+    const absoluteTimeoutFromEnv = Number(
+      this.configService.get<string>('AUTH_ABSOLUTE_SESSION_TIMEOUT_HOURS', '24'),
+    );
+    this.absoluteSessionTimeoutHours = Number.isFinite(absoluteTimeoutFromEnv) && absoluteTimeoutFromEnv > 0
+      ? absoluteTimeoutFromEnv
+      : 24;
+
+    // Security: Maximum number of token refreshes before requiring re-login
+    const maxRefreshesFromEnv = Number(
+      this.configService.get<string>('AUTH_MAX_TOKEN_REFRESHES', '24'),
+    );
+    this.maxTokenRefreshes = Number.isFinite(maxRefreshesFromEnv) && maxRefreshesFromEnv > 0
+      ? maxRefreshesFromEnv
+      : 24;
+
     this.msalClient = new ConfidentialClientApplication({
       auth: {
         clientId,
@@ -117,6 +139,9 @@ export class AuthService {
 
     this.logger.log(
       `Auth service initialised with redirect ${this.redirectUri} and scopes ${this.scopes.join(', ')}`,
+    );
+    this.logger.log(
+      `Security: JWT TTL=${this.jwtTtlSeconds}s, Absolute timeout=${this.absoluteSessionTimeoutHours}h, Max refreshes=${this.maxTokenRefreshes}`,
     );
   }
 
@@ -155,10 +180,15 @@ export class AuthService {
       this.assertTenant(result.idTokenClaims as EntraTokenClaims);
       const session = this.buildSessionPayload(
         result.idTokenClaims as EntraTokenClaims,
+        Date.now(), // Session start time for absolute timeout
+        0, // Initial refresh count
       );
       
-      // Sync user to database on login
-      await this.syncUserToDatabase(session);
+      // Ensure user is provisioned locally before issuing a session
+      const syncedUser = await this.syncExistingUser(session);
+      session.roles = this.mapRoleToClaims(syncedUser.role);
+      session.email = syncedUser.email || session.email;
+      session.name = syncedUser.displayName || session.name;
       
       const accessToken = this.signSession(session);
 
@@ -174,12 +204,15 @@ export class AuthService {
         refreshToken: result.refreshToken || '', // Empty string if no refresh token
       };
     } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
       this.logger.error('Failed to exchange code for tokens', error as Error);
       throw new UnauthorizedException('Unable to authenticate');
     }
   }
 
-  async refreshAccessToken(refreshToken: string) {
+  async refreshAccessToken(refreshToken: string, currentSessionStart?: number, currentRefreshCount?: number) {
     const request: RefreshTokenRequest = {
       refreshToken,
       scopes: this.scopes,
@@ -195,9 +228,34 @@ export class AuthService {
       }
 
       this.assertTenant(result.idTokenClaims as EntraTokenClaims);
+      
+      // Inherit session start time from current token (or use now if not provided)
+      const sessionStart = currentSessionStart || Date.now();
+      const refreshCount = (currentRefreshCount || 0) + 1;
+      
+      // Security: Check absolute session timeout (24 hours by default)
+      const sessionAgeHours = (Date.now() - sessionStart) / (1000 * 60 * 60);
+      if (sessionAgeHours > this.absoluteSessionTimeoutHours) {
+        this.logger.warn(
+          `Session exceeded absolute timeout (${sessionAgeHours.toFixed(1)}h > ${this.absoluteSessionTimeoutHours}h). Requiring re-login.`,
+        );
+        throw new UnauthorizedException('Session expired. Please log in again.');
+      }
+      
+      // Security: Check maximum refresh count
+      if (refreshCount > this.maxTokenRefreshes) {
+        this.logger.warn(
+          `Session exceeded maximum refresh count (${refreshCount} > ${this.maxTokenRefreshes}). Requiring re-login.`,
+        );
+        throw new UnauthorizedException('Session expired. Please log in again.');
+      }
+      
       const session = this.buildSessionPayload(
         result.idTokenClaims as EntraTokenClaims,
+        sessionStart,
+        refreshCount,
       );
+      await this.applyLocalRole(session);
       const accessToken = this.signSession(session);
 
       return {
@@ -206,6 +264,9 @@ export class AuthService {
         profile: session,
       };
     } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
       this.logger.error('Failed to refresh access token', error as Error);
       throw new UnauthorizedException('Failed to refresh access token');
     }
@@ -217,7 +278,11 @@ export class AuthService {
     });
   }
 
-  private buildSessionPayload(claims: EntraTokenClaims): SessionTokenPayload {
+  private buildSessionPayload(
+    claims: EntraTokenClaims,
+    sessionStart?: number,
+    refreshCount?: number,
+  ): SessionTokenPayload {
     const oid = (claims.oid || claims.sub) as string | undefined;
     if (!oid) {
       this.logger.error('ID token claims missing oid/sub');
@@ -241,6 +306,8 @@ export class AuthService {
       email,
       name: claims.name as string | undefined,
       roles: Array.isArray(claims.roles) ? (claims.roles as string[]) : undefined,
+      sessionStart, // Unix timestamp of session start (for absolute timeout)
+      refreshCount, // Number of refreshes (for max refresh limit)
     };
   }
 
@@ -254,40 +321,117 @@ export class AuthService {
     }
   }
 
-  /**
-   * Sync user from Entra ID to local database.
-   * Creates or updates user record on each login.
-   */
-  private async syncUserToDatabase(session: SessionTokenPayload) {
-    try {
-      await this.prisma.entraUser.upsert({
-        where: { oid: session.oid },
-        update: {
-          email: session.email || '',
-          displayName: session.name,
-          lastLoginAt: new Date(),
-          lastSyncedAt: new Date(),
-          // Update role only if roles claim exists and includes 'admin'
-          ...(session.roles && {
-            role: session.roles.includes('admin') ? 'admin' : 'user',
-          }),
-        },
-        create: {
-          oid: session.oid,
-          email: session.email || '',
-          displayName: session.name,
-          role: session.roles?.includes('admin') ? 'admin' : 'user',
-          enabled: true,
-          lastLoginAt: new Date(),
-        },
-      });
-      this.logger.log(`User synced: ${session.email}`);
-    } catch (error) {
-      this.logger.error(
-        `Failed to sync user ${session.email} to database`,
-        error as Error,
-      );
-      // Don't throw - login should still work even if DB sync fails
+  private mapRoleToClaims(role: string): string[] {
+    return role === 'admin' ? ['admin', 'user'] : ['user'];
+  }
+
+  private normalizeEmail(email?: string | null): string | null {
+    if (!email) {
+      return null;
     }
+
+    const trimmed = email.trim();
+    return trimmed.length > 0 ? trimmed.toLowerCase() : null;
+  }
+
+  private ensureUserIsActive(user: EntraUser): EntraUser {
+    if (!user.enabled) {
+      this.logger.warn(`Disabled user ${user.email} attempted to authenticate`);
+      throw new UnauthorizedException('User account disabled');
+    }
+
+    return user;
+  }
+
+  private async findProvisionedUser(
+    session: SessionTokenPayload,
+  ): Promise<EntraUser> {
+    const normalizedEmail = this.normalizeEmail(session.email);
+
+    if (session.oid) {
+      const byOid = await this.prisma.entraUser.findUnique({
+        where: { oid: session.oid },
+      });
+
+      if (byOid) {
+        return this.ensureUserIsActive(byOid);
+      }
+    }
+
+    if (normalizedEmail) {
+      const byEmail = await this.prisma.entraUser.findUnique({
+        where: { email: normalizedEmail },
+      });
+
+      if (byEmail) {
+        this.ensureUserIsActive(byEmail);
+
+        if (session.oid && (!byEmail.oid || isPendingEntraOid(byEmail.oid))) {
+          return this.prisma.entraUser.update({
+            where: { id: byEmail.id },
+            data: { oid: session.oid },
+          });
+        }
+
+        return byEmail;
+      }
+    }
+
+    this.logger.warn(
+      `Unprovisioned user attempting login (oid=${session.oid || 'n/a'}, email=${normalizedEmail || 'n/a'})`,
+    );
+    throw new UnauthorizedException('User not provisioned for Yarnify');
+  }
+
+  private async applyLocalRole(session: SessionTokenPayload): Promise<void> {
+    const user = await this.findProvisionedUser(session);
+
+    session.roles = this.mapRoleToClaims(user.role);
+    session.email = user.email || session.email;
+    session.name = user.displayName ?? session.name;
+
+    await this.prisma.entraUser.update({
+      where: { id: user.id },
+      data: {
+        lastSyncedAt: new Date(),
+      },
+    });
+  }
+
+  private async syncExistingUser(
+    session: SessionTokenPayload,
+  ): Promise<EntraUser> {
+    const user = await this.findProvisionedUser(session);
+    const now = new Date();
+    const normalizedEmail = this.normalizeEmail(session.email) ?? user.email;
+    const normalizedDisplayName =
+      typeof session.name === 'string' && session.name.trim().length > 0
+        ? session.name.trim()
+        : user.displayName;
+
+    const updateData: {
+      email: string;
+      displayName: string | null;
+      lastLoginAt: Date;
+      lastSyncedAt: Date;
+      oid?: string;
+    } = {
+      email: normalizedEmail,
+      displayName: normalizedDisplayName,
+      lastLoginAt: now,
+      lastSyncedAt: now,
+    };
+
+    if (session.oid && (!user.oid || isPendingEntraOid(user.oid))) {
+      updateData.oid = session.oid;
+    }
+
+    const updatedUser = await this.prisma.entraUser.update({
+      where: { id: user.id },
+      data: updateData,
+    });
+
+    this.logger.log(`User authenticated: ${updatedUser.email}`);
+    return updatedUser;
   }
 }

@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useState } from 'react'
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react'
 import { Check } from 'lucide-react'
 
 import {
@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import { Theme, useTheme } from '@/theme/theme-provider'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { useCurrentUser } from '@/hooks/useCurrentUser'
 
 const THEME_OPTIONS: Array<{
   value: Theme
@@ -34,13 +35,32 @@ const THEME_OPTIONS: Array<{
 ]
 
 export default function PersonalSettingsPage() {
-  const { theme, setTheme, toggleTheme } = useTheme()
+  const { theme, setTheme } = useTheme()
+  const { data: profileData } = useCurrentUser()
+  const hasHydratedProfile = useRef(false)
+  const fallbackTimezone =
+    Intl.DateTimeFormat().resolvedOptions().timeZone || ''
   const [profile, setProfile] = useState({
-    displayName: 'Jordan Smith',
-    jobTitle: 'Customer Success Lead',
-    email: 'jordan.smith@example.com',
-    timezone: 'Europe/London',
+    displayName: '',
+    jobTitle: '',
+    email: '',
+    department: '',
+    role: '',
+    timezone: fallbackTimezone,
   })
+
+  useEffect(() => {
+    if (profileData && !hasHydratedProfile.current) {
+      setProfile((current) => ({
+        ...current,
+        displayName: profileData.name ?? current.displayName,
+        email: profileData.email ?? current.email,
+        department: profileData.department ?? current.department,
+        role: profileData.role ?? current.role,
+      }))
+      hasHydratedProfile.current = true
+    }
+  }, [profileData])
 
   const handleProfileChange =
     (field: keyof typeof profile) => (event: ChangeEvent<HTMLInputElement>) => {
@@ -79,13 +99,28 @@ export default function PersonalSettingsPage() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="jobTitle">Role</Label>
+                <Label htmlFor="role">Role</Label>
                 <Input
-                  id="jobTitle"
-                  value={profile.jobTitle}
-                  onChange={handleProfileChange('jobTitle')}
-                  placeholder="Role or team"
+                  id="role"
+                  value={profile.role === 'admin' ? 'Admin' : profile.role === 'user' ? 'User' : ''}
+                  disabled
+                  className="bg-muted capitalize"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Your role is managed by administrators
+                </p>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="department">Department</Label>
+                <Input
+                  id="department"
+                  value={profile.department ? profile.department.charAt(0).toUpperCase() + profile.department.slice(1) : ''}
+                  disabled
+                  className="bg-muted capitalize"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Your department is managed by administrators
+                </p>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
@@ -158,22 +193,6 @@ export default function PersonalSettingsPage() {
                   </button>
                 )
               })}
-            </div>
-            <div className="flex justify-between rounded-lg border border-dashed border-border/70 bg-muted/30 p-4 text-sm">
-              <div>
-                <p className="font-medium text-foreground">Need a different mode?</p>
-                <p className="text-muted-foreground">
-                  Toggle instantly whenever you need to adjust to your environment.
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={toggleTheme}
-                className="self-start"
-              >
-                Toggle theme
-              </Button>
             </div>
           </CardContent>
         </Card>

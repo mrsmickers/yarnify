@@ -14,6 +14,7 @@ import { AdminModule } from './modules/admin/admin.module';
 import { ClsModule } from 'nestjs-cls';
 import { EmbeddingModule } from './modules/embedding/embedding.module';
 import { TextChunkingModule } from './modules/text-chunking/text-chunking.module';
+import { PromptManagementModule } from './modules/prompt-management/prompt-management.module';
 // import { ServeStaticModule } from '@nestjs/serve-static';
 // import { join } from 'path';
 
@@ -50,6 +51,7 @@ import { TextChunkingModule } from './modules/text-chunking/text-chunking.module
     AdminModule,
     EmbeddingModule,
     TextChunkingModule,
+    PromptManagementModule,
     // ServeStaticModule removed - frontend is separate on port 5173
   ],
   controllers: [AppController],

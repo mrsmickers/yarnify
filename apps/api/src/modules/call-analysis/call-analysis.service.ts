@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { openai } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { instructions, callAnalysisSchema, CallAnalysisOutput } from './prompt';
@@ -16,27 +16,58 @@ import { Prisma } from '@db'; // Use @db alias - This is the correct one
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { CallProcessingProducerService } from './call-processing.producer.service';
+import { PromptManagementService } from '../prompt-management/prompt-management.service';
+import { LLMConfigService } from '../prompt-management/llm-config.service';
 // Removed: import { Prisma } from '../../../../generated/prisma';
 
 @Injectable()
 export class CallAnalysisService {
+  private readonly logger = new Logger(CallAnalysisService.name);
+
   constructor(
     private readonly callRepository: CallRepository,
     private readonly config: ConfigService,
     private readonly db: PrismaService,
     private readonly callProcessingProducer: CallProcessingProducerService, // Added
+    private readonly promptService: PromptManagementService,
+    private readonly llmConfigService: LLMConfigService,
   ) {}
+  
   // Renamed from NewCallAnalysisService
-  async analyzeTranscript(transcript: string): Promise<CallAnalysisOutput> {
+  async analyzeTranscript(transcript: string): Promise<{
+    analysis: CallAnalysisOutput;
+    promptTemplateId?: string;
+    llmConfigId?: string;
+  }> {
+    // Fetch active prompt and LLM config from database
+    const activePrompt = await this.promptService.findActiveByUseCase('CALL_ANALYSIS');
+    const activeLLMConfig = await this.llmConfigService.findActiveByUseCase('CALL_ANALYSIS');
+
+    // Use database values if available, otherwise fall back to hardcoded defaults
+    const systemPrompt = activePrompt?.content || instructions;
+    const modelName = activeLLMConfig?.modelName || 'gpt-4o';
+    const settings = (activeLLMConfig?.settings as any) || {};
+
+    this.logger.log(`Analyzing transcript with model: ${modelName}, prompt: ${activePrompt?.name || 'default'}`);
+
     const { object } = await generateObject({
-      model: openai('gpt-4o'),
+      model: openai(modelName, {
+        structuredOutputs: settings.response_format === 'json_object',
+      }),
       schema: callAnalysisSchema,
       prompt: transcript,
-      system: instructions,
+      system: systemPrompt,
+      temperature: settings.temperature,
+      maxTokens: settings.max_tokens,
+      topP: settings.top_p,
+      frequencyPenalty: settings.frequency_penalty,
+      presencePenalty: settings.presence_penalty,
     });
 
     return {
-      ...object,
+      analysis: { ...object },
+      promptTemplateId: activePrompt?.id,
+      llmConfigId: activeLLMConfig?.id,
     };
   }
 
@@ -63,21 +94,29 @@ export class CallAnalysisService {
 
   async extractInternalPhoneNumber(obj: CallRecordResponse['data']) {
     const extensionStartsWith =
-      this.config.get<string>('EXTENSION_STARTS_WITH') || '0';
+      this.config.get<string>('EXTENSION_STARTS_WITH') || '56360';
 
     const fields = [
-      obj.callerid_internal,
-      obj.cnumber,
-      obj.dnumber,
-      obj.snumber,
+      { name: 'snumber', value: obj.snumber }, // Source number - often the internal extension for outbound
+      { name: 'callerid_internal', value: obj.callerid_internal },
+      { name: 'cnumber', value: obj.cnumber },
+      { name: 'dnumber', value: obj.dnumber },
     ];
-    for (const raw of fields) {
-      if (typeof raw === 'string') {
-        // Check for extension first
-        const extensionMatch = raw.match(
-          new RegExp(`${extensionStartsWith}\\d+`),
+
+    for (const field of fields) {
+      if (typeof field.value === 'string') {
+        // Try to extract any number that starts with the extension prefix
+        const extensionMatch = field.value.match(
+          new RegExp(`(${extensionStartsWith}\\d+)`),
         );
-        if (extensionMatch) return extensionMatch[0];
+        if (extensionMatch) {
+          // Found a potential extension
+          const extracted = extensionMatch[1];
+          // Ensure it's a reasonable length (5-15 digits)
+          if (extracted.length >= 5 && extracted.length <= 15) {
+            return extracted;
+          }
+        }
       }
     }
     return undefined;

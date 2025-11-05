@@ -120,20 +120,23 @@ export class OpenAIService {
   }
 
   /**
-   * Refine a transcript using OpenAI GPT-4o for better readability.
+   * Refine a transcript using OpenAI GPT for better readability.
    */
   async refineTranscript(
     rawTranscript: string,
-    model = 'gpt-4o', // Use gpt-4o for refinement
-    options?: Partial<OpenAI.Chat.ChatCompletionCreateParams>,
+    model = 'gpt-4o',
+    systemPrompt?: string,
+    settings?: any,
   ): Promise<string> {
     this.logger.log(`Refining transcript with model: ${model}`);
+
+    const defaultSystemPrompt = 
+      'You are a helpful assistant that refines raw speech-to-text transcripts. Your goal is to make the transcript more readable by correcting grammar, punctuation, and sentence structure. If possible, identify different speakers and format the transcript accordingly (e.g., Speaker 1:, Speaker 2:). Do not summarize or change the meaning of the content. Output only the refined transcript text.';
 
     const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
       {
         role: 'system',
-        content:
-          'You are a helpful assistant that refines raw speech-to-text transcripts. Your goal is to make the transcript more readable by correcting grammar, punctuation, and sentence structure. If possible, identify different speakers and format the transcript accordingly (e.g., Speaker 1:, Speaker 2:). Do not summarize or change the meaning of the content. Output only the refined transcript text.',
+        content: systemPrompt || defaultSystemPrompt,
       },
       {
         role: 'user',
@@ -143,8 +146,11 @@ export class OpenAIService {
 
     try {
       const completion = await this.createChatCompletion(messages, model, {
-        temperature: 0.2, // Lower temperature for more deterministic output
-        ...options,
+        temperature: settings?.temperature ?? 0.2,
+        max_tokens: settings?.max_tokens,
+        top_p: settings?.top_p,
+        frequency_penalty: settings?.frequency_penalty,
+        presence_penalty: settings?.presence_penalty,
       });
 
       const refinedText = completion.choices[0]?.message?.content?.trim();

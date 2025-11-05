@@ -67,4 +67,71 @@ export class AgentRepository {
   ): Promise<number> {
     return prisma.agent.count(args);
   }
+
+  async findAllWithRelations(
+    prisma: Prisma.TransactionClient = this.prisma,
+  ): Promise<Agent[]> {
+    return prisma.agent.findMany({
+      include: {
+        entraUser: {
+          select: {
+            id: true,
+            email: true,
+            displayName: true,
+          },
+        },
+        _count: {
+          select: {
+            calls: true,
+          },
+        },
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    });
+  }
+
+  async findByIdWithRelations(
+    id: string,
+    prisma: Prisma.TransactionClient = this.prisma,
+  ): Promise<Agent | null> {
+    return prisma.agent.findUnique({
+      where: { id },
+      include: {
+        entraUser: {
+          select: {
+            id: true,
+            email: true,
+            displayName: true,
+          },
+        },
+        _count: {
+          select: {
+            calls: true,
+          },
+        },
+      },
+    });
+  }
+
+  async upsertByExtension(
+    extension: string,
+    name: string,
+    email?: string,
+    prisma: Prisma.TransactionClient = this.prisma,
+  ): Promise<Agent> {
+    return prisma.agent.upsert({
+      where: { extension },
+      create: {
+        name,
+        extension,
+        email: email || null,
+      },
+      update: {
+        name,
+        email: email || null,
+      },
+    });
+  }
 }

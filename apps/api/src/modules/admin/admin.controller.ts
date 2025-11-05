@@ -6,12 +6,31 @@ import {
   Param,
   UseGuards,
   Logger,
+  UsePipes,
+  Post,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AdminService } from './admin.service';
+import { ZodValidationPipe } from 'nestjs-zod';
+import {
+  UpdateUserRoleDto,
+  UpdateUserRoleSchema,
+} from './dto/update-user-role.dto';
+import {
+  CreateUserDto,
+  CreateUserSchema,
+} from './dto/create-user.dto';
+import {
+  UpdateUserDepartmentDto,
+  UpdateUserDepartmentSchema,
+} from './dto/update-user-department.dto';
+import {
+  UpdateUserDto,
+  UpdateUserSchema,
+} from './dto/update-user.dto';
 
 /**
  * Admin-only endpoints for user management.
@@ -42,6 +61,18 @@ export class AdminController {
     return this.adminService.listUsers();
   }
 
+  @Post('users')
+  @UsePipes(new ZodValidationPipe(CreateUserSchema))
+  @ApiOperation({ summary: 'Create a user (admin only)' })
+  @ApiResponse({
+    status: 201,
+    description: 'User created successfully',
+  })
+  async createUser(@Body() body: CreateUserDto) {
+    this.logger.log(`Admin creating user: ${body.email}`);
+    return this.adminService.createUser(body);
+  }
+
   @Patch('users/:id/enable')
   @ApiOperation({ summary: 'Enable a user (admin only)' })
   @ApiResponse({
@@ -64,6 +95,54 @@ export class AdminController {
     return this.adminService.updateUserStatus(id, false);
   }
 
+  @Patch('users/:id/role')
+  @UsePipes(new ZodValidationPipe(UpdateUserRoleSchema))
+  @ApiOperation({ summary: 'Update a user role (admin only)' })
+  @ApiResponse({
+    status: 200,
+    description: 'User role updated successfully',
+  })
+  async updateUserRole(
+    @Param('id') id: string,
+    @Body() body: UpdateUserRoleDto,
+  ) {
+    this.logger.log(`Admin updating user role: ${id} -> ${body.role}`);
+    return this.adminService.updateUserRole(id, body.role);
+  }
+
+  @Patch('users/:id/department')
+  @UsePipes(new ZodValidationPipe(UpdateUserDepartmentSchema))
+  @ApiOperation({ summary: 'Update a user department (admin only)' })
+  @ApiResponse({
+    status: 200,
+    description: 'User department updated successfully',
+  })
+  async updateUserDepartment(
+    @Param('id') id: string,
+    @Body() body: UpdateUserDepartmentDto,
+  ) {
+    this.logger.log(
+      `Admin updating user department: ${id} -> ${body.department}`,
+    );
+    return this.adminService.updateUserDepartment(id, body);
+  }
+
+  @Patch('users/:id')
+  @ApiOperation({ summary: 'Update a user (admin only)' })
+  @ApiResponse({
+    status: 200,
+    description: 'User updated successfully',
+  })
+  async updateUser(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(UpdateUserSchema)) body: UpdateUserDto,
+  ) {
+    this.logger.log(`Admin updating user ${id}`);
+    this.logger.log(`Payload received:`, JSON.stringify(body, null, 2));
+    this.logger.log(`Payload type check - displayName: ${typeof body.displayName}, department: ${typeof body.department}, role: ${typeof body.role}, enabled: ${typeof body.enabled}`);
+    return this.adminService.updateUser(id, body);
+  }
+
   @Get('stats')
   @ApiOperation({ summary: 'Get system statistics (admin only)' })
   @ApiResponse({
@@ -75,4 +154,3 @@ export class AdminController {
     return this.adminService.getStats();
   }
 }
-

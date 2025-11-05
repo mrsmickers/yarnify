@@ -1,18 +1,25 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OpenAIService } from '../openai/openai.service';
 import { get_encoding } from 'tiktoken';
+import { LLMConfigService } from '../prompt-management/llm-config.service';
 
 @Injectable()
 export class EmbeddingService {
   private readonly logger = new Logger(EmbeddingService.name);
   private readonly encoding = get_encoding('cl100k_base'); // Used by text-embedding-3-small
 
-  constructor(private readonly openaiService: OpenAIService) {}
+  constructor(
+    private readonly openaiService: OpenAIService,
+    private readonly llmConfigService: LLMConfigService,
+  ) {}
 
   async generateEmbedding(
     textChunk: string,
-    model = 'text-embedding-3-small',
+    model?: string,
   ): Promise<number[]> {
+    // Fetch active LLM config for embeddings from database
+    const embeddingConfig = await this.llmConfigService.findActiveByUseCase('EMBEDDINGS');
+    const effectiveModel = embeddingConfig?.modelName || model || 'text-embedding-3-small';
     if (!textChunk || textChunk.trim() === '') {
       this.logger.warn('Attempted to generate embedding for empty text.');
       // Decide if to return empty array or throw error. For now, returning empty.
@@ -38,12 +45,12 @@ export class EmbeddingService {
         `Generating embedding for chunk starting with: "${textChunk.substring(
           0,
           50,
-        )}..." using model ${model} (${tokenCount} tokens)`,
+        )}..." using model ${effectiveModel} (${tokenCount} tokens)`,
       );
 
       const embeddings = await this.openaiService.createEmbeddings(
         textChunk.replace(/\n/g, ' '), // OpenAI recommends replacing newlines
-        model,
+        effectiveModel,
       );
 
       if (embeddings && embeddings.length > 0 && embeddings[0].embedding) {
