@@ -15,7 +15,7 @@ import { CompanyRepository } from './repositories/company.repository';
 import { CallAnalysisRepository } from './repositories/call-analysis.repository';
 import { ProcessingLogRepository } from './repositories/processing-log.repository';
 import { AgentRepository } from './repositories/agent.repository';
-import { Call, Company, Agent, Prisma } from '../../../generated/prisma'; // Added Prisma
+import { Call, Company, Agent, Prisma } from '@db'; // Added Prisma
 import { dayjs } from '../../lib/dayjs';
 import { EmbeddingService } from '../embedding/embedding.service';
 import { TextChunkingService } from '../text-chunking/text-chunking.service';

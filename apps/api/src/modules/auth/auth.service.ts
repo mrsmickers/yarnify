@@ -9,7 +9,7 @@ import {
 } from '@azure/msal-node';
 import * as jwt from 'jsonwebtoken';
 import { PrismaService } from '../prisma/prisma.service';
-import type { EntraUser } from '../../../generated/prisma';
+import type { EntraUser } from '@db';
 import { isPendingEntraOid } from '../../common/constants/entra.constants';
 
 // Extended type to include refreshToken which exists at runtime but isn't in newer MSAL types
