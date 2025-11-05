@@ -1,0 +1,41 @@
+**Cameron:** David, hello, it's Cameron from Eugenio.
+
+**David:** Hi Cameron, you alright?
+
+**Cameron:** Good, thanks. Yeah, how are you?
+
+**David:** Yeah, not bad, thank you. Not bad.
+
+**Cameron:** Good, good. I've just seen your email come through. You're having issues with Nextender?
+
+**David:** Yeah, I'm traveling away. I'm just at the airport now. I've just gone up to Scotland and tried to log in, obviously to use the remote network. I'm in a coffee shop here at the airport. Normally, when I'm at home or on my laptop in a known Wi-Fi location, it connects automatically without me having to put in any password details or anything. But now it's asking me for a username and password. I've put in what I thought was my Windows one and tried a couple of variations, but now it says I've got one attempt left. I'm just conscious that I need to be able to log on remotely over the next couple of days, and I don't want to lock myself out or anything.
+
+**Cameron:** The three-account lockout—I can unlock it if you get locked out. But the username, I don't know why SonicWall and Nextender have started to introduce this, is strangely case-sensitive. You have to put all lowercase "david" by the looks of it. I'm looking at where you set up your account and linked it to your phone.
+
+**David:** Yeah, yeah.
+
+**Cameron:** Your username is just "david," all lowercase.
+
+**David:** Okay, and I guess the password is my normal password, unless it needs to be...
+
+**Cameron:** It's your normal Windows password.
+
+**David:** Yeah, the same one I log into the...
+
+**Cameron:** Okay, that might be the way forward then, because I think I didn't do lowercase "david." So you reckon my username is just lowercase "david"?
+
+**Cameron:** Yeah, yeah.
+
+**David:** Okay, well, what I'll do, Cameron, because I'm literally going to go to the gate now, so I won't be needing the computer for a bit. I'll try that, and then, yeah, can I email you later to say that it's worked or if it's not, if that makes sense?
+
+**Cameron:** Sure, yeah, yeah. Obviously, I can update your password on the server if you want to make sure it matches if it doesn't work.
+
+**David:** Okay, yeah, so shall I give it a go as we've discussed, and then if not, we might need to update the password, yeah?
+
+**Cameron:** Yeah, all right, no worries.
+
+**David:** Perfect, thanks, Cameron.
+
+**Cameron:** Thanks, take care.
+
+**David:** Cheers, bye-bye.

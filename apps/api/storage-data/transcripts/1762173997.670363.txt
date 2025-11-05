@@ -1,0 +1,31 @@
+Speaker 1: Hiya.
+
+Speaker 2: Hi Rachel, it's George. How are you doing?
+
+Speaker 1: All right. We've got a few internet problems.
+
+Speaker 2: I was just thinking you might be having some internet problems, but I thought I'd give it five minutes to see. Is there any trouble on the Wi-Fi, I take it?
+
+Speaker 1: Yeah, it's happened a few times in the last couple of weeks.
+
+Speaker 2: Okay. But the 5G network from 3 seems all right because I can test it on a mobile. I don't know why that's happening. But Olga's back up. Are you able to get back in?
+
+Speaker 1: I'll just have to restart my laptop to sort myself out. Are you all right or not? Shall I restart this? I can't see any of the three that we were working on.
+
+Speaker 2: It might be if the internet is just coming back though, it can take five minutes for our software to catch up. I can see yours and Olga's laptops. So your laptop and Olga's laptop are checking in now as of our side. So I don't know if those other three just need to rejoin the Wi-Fi for a chance or...
+
+Speaker 1: Still not fine. Is it all right to restart them or does that bug you out?
+
+Speaker 2: Yeah, no, that's not a problem at all.
+
+Speaker 1: All right. I'll do a restart and try again in a minute. Is that all right?
+
+Speaker 2: Yeah, just to clarify, because I rebooted a few of the laptops a couple of times, just to check. I'm hoping they now, at least on two of them, not on Olga's. You should now not get the ESET login screen?
+
+Speaker 1: That's correct. I did not get the ESET login screen on mine and they didn't on here. So yeah, it's just Olga's laptop I think where it's left.
+
+Speaker 2: Yeah, which is still decrypting, but obviously we'll be able to get the software off that in the next hour or so.
+
+Speaker 1: Yeah, just give them a quick reboot for me. They should go back online and yeah, we'll keep chipping away.
+
+Speaker 2: All right. Okay. Thank you so much, Rachel. Bye.

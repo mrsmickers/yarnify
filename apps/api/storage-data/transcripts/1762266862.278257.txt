@@ -1,0 +1,27 @@
+Thank you for calling Ingenio Technologies. To help us direct your call, please select from one of the following options: one for support, two for sales, three for accounts, or four for reception. Did you know we sell managed printers? Never pay for toner...
+
+---
+
+Receptionist: Good afternoon, Ingenio. How can I help?
+
+Caller: Oh, hi there. Can I speak to Simon Smith, please?
+
+Receptionist: He's not in the office, I'm afraid. Is there anything I can help with?
+
+Caller: Could you just say that Eve called from M&A Digital, please?
+
+Receptionist: From where, sorry? NMA?
+
+Caller: M-M-N-A Digital. M-N-A Digital.
+
+Receptionist: And it was Eve?
+
+Caller: Yes.
+
+Receptionist: Perfect. I will let him know when he's back in.
+
+Caller: Thank you.
+
+Receptionist: All right, no worries. Thank you very much.
+
+Caller: Cheers, bye!

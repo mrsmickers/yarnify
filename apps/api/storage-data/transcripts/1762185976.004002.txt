@@ -1,0 +1,69 @@
+**Speaker 1:** Sorry, who's that?
+
+**Speaker 2:** Hi Gordon, Zane here. Just the very person.
+
+**Speaker 1:** Hello, how are you?
+
+**Speaker 2:** Oh, frustrated.
+
+**Speaker 1:** What's happened?
+
+**Speaker 2:** I spoke to someone this morning, I can't tell you who, because my laptop is obviously aware that there was talk of it not working or being exchanged. There's a ticket open. It went a bit haywire this morning, and there's a picture of it, all blue and white. Then I deleted something, and it just stayed on delete. It's done this a lot recently. You press delete, and then it deletes everything in the inbox. So you have to go and find them, because you can bet your life you haven't done your deleted items. Unfortunately, there's only about 30, unless you know how to restore them. Now, I've left it because with my mouse, if I click on the inbox, I can't see anything at the moment. When you come on your screen and click on it, it just goes "boing, boing," and something's wrong. But the real issue is the delete thing. When you turn it on, you go to put your password in, but before you can, it scrolls up on the screen, and you see it disappear. So you have to go Ctrl+Alt+Delete, and then you can put it in. Sometimes you come back to it, and it sort of shuts itself down. When you hit the space bar, it won't reopen, so you press the button because the light's gone out in the corner. Sometimes it will restart, and other times it won't, so you still have to Ctrl+Alt+Delete. It's not happy.
+
+**Speaker 1:** No, sounds like it's kind of one thing. Yeah, like you see, that's just pressed something that I haven't pressed. So just check your keyboard and mouse. Make sure the buttons haven't kind of pressed in and got stuck. That's what it does sound like as well. It sounds like it's pressing stuff, doesn't it?
+
+**Speaker 2:** Yeah, I know what you mean. There's nothing. I'm looking at the keyboard in my hand. There's no keys that aren't level, you know what I mean? They're all fine.
+
+**Speaker 1:** And is it like a wired keyboard and mouse or wireless?
+
+**Speaker 2:** Wireless.
+
+**Speaker 1:** Okay, turn it off, turn it on.
+
+**Speaker 2:** Yeah, that's it, turn it off, turn it on.
+
+**Speaker 1:** Yeah, you can get rid of all of that. I'm just trying to click on stuff to see what it does. It only seems to do it in Outlook.
+
+**Speaker 2:** Right, for sure. But I've never seen it do what it did this morning, which is sort of freeze up, lose bits of the picture, and some of it was in black and white, some in blue.
+
+**Speaker 1:** Right, but it did print the screen?
+
+**Speaker 2:** Yeah, it's in the notes. Try clicking around now, let me know how it is on your end.
+
+**Speaker 1:** Okay, yeah, as it should be. The problem sometimes is when it then goes to sleep, you know.
+
+**Speaker 2:** Right, let me have a look at that quickly.
+
+**Speaker 1:** And then it doesn't give you the password entrance, but if you turn it on and really quickly watch it, it's like it scrolls to the second page.
+
+**Speaker 2:** Right, a bit weird.
+
+**Speaker 1:** Yeah, like maybe something's being pressed, isn't it?
+
+**Speaker 2:** Yeah, and then literally when you open the screen, the power button to wake it up, like overnight, you just see it scroll, and it's gone. It's there, but it's gone, it goes up the screen.
+
+**Speaker 1:** Interesting, so it's like you're then on page two, but you can't see it.
+
+**Speaker 2:** Right, don't want it to sleep. No sleep. Keep an eye on the kind of weird clicking thing, because it sounds like when you're trying to delete one thing, it sounds like you click something, and it's highlighted them all. And then just when I opened something, it seemed to click something and asked me if I wanted to end a task. So just keep an eye on that. I'm going to update this ticket and give Joel some more information because it looks like it's with him. Your power bits should be a bit better now, but keep an eye on that as well, and I'll let Joel know what's going on, and he'll jump back on and do some more.
+
+**Speaker 2:** Can I retrieve the deleted items that we last went through, or do I have to go through them and find them? Is there a way?
+
+**Speaker 1:** I don't know, to do what?
+
+**Speaker 2:** Well, I was in the inbox, and those three have come in, so I couldn't even see the ticket that turned up, if you know what I mean. But they were ones from earlier, but it's deleted everything that was in there. I went to delete something, and it went, like you say, it's like I clicked something. Have I got to go back and find them in the deleted items, or is there a way?
+
+**Speaker 1:** Yeah, you will have to, I'm afraid. There's a little undo button at the top there, if you can see where my cursor is, but you see it's greyed out now. It's only because it crashed, and we had to close it down and open it back up, so that went away. But next time if that does happen, just check if the undo button is available.
+
+**Speaker 2:** Yeah, yeah, that should undo it with one click.
+
+**Speaker 1:** Yeah, exactly, it's crashed anyway. Okay, let me let Joel know what's going on, and he'll do some more tests on there, just in case. You know, it could turn out to be a hardware problem, and we might have to get Dell out to come and replace some bits.
+
+**Speaker 2:** Okay, all right, we'll keep an eye on it. Hopefully, it doesn't go again this afternoon.
+
+**Speaker 1:** All right, darling.
+
+**Speaker 2:** All right, thanks, Gordon.
+
+**Speaker 1:** Thank you, take care.
+
+**Speaker 2:** Bye-bye.

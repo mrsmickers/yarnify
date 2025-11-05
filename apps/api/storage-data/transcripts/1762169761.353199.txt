@@ -1,0 +1,13 @@
+Automated Message: Thank you for calling HPS Sevenoaks. Please press 1 for the trade counter or press 2 for the showroom, or continue...
+
+Speaker 1: Morning, HPS Sevenoaks. How are you speaking?
+
+Speaker 2: Hello, this is Louise calling from Ingenio Technologies. We look after your printer for you.
+
+Speaker 1: Yeah, good. You?
+
+Speaker 2: I am just ringing to let you know that an engineer will be with you shortly to come and repair the printer.
+
+Speaker 1: Okay.
+
+Speaker 2: Alright, thank you. Take care, bye.

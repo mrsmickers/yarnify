@@ -1,0 +1,251 @@
+**Automated Message:** Thank you for calling Ingenio Technologies. To help us direct your call, please select from one of the following options: one for support, two for sales, three for accounts, or four for reception.
+
+**Automated Message Repeated:** Thank you for calling Ingenio Technologies. To help us direct your call, please select from one of the following options: one for support, two for sales...
+
+**Speaker 1:** Good morning, Ingenio Technologies.
+
+**Speaker 2:** Hi, good morning, it's Emily from Phoenix Systems.
+
+**Speaker 1:** Hello.
+
+**Speaker 2:** Hiya, how are you doing?
+
+**Speaker 1:** I'm good, how are you doing?
+
+**Speaker 2:** Yeah, not bad. Having a little problem?
+
+**Speaker 1:** Yeah, the only thing is, I came in this morning and it wasn't connecting.
+
+**Speaker 2:** Yeah.
+
+**Speaker 1:** To Outlook, I had internet, but we restarted everything and now we don't even have internet.
+
+**Speaker 2:** Okay, yeah, we saw your UPS go offline, so we thought it was a power outage.
+
+**Speaker 1:** Yeah, when I came in this morning, the phones all said SIP failed, like as if it had had an outage.
+
+**Speaker 2:** Uh-huh.
+
+**Speaker 1:** So I tried the line, there was a line, but I just tried to do a call, obviously now there's no internet, it's not working. But, yeah, it was all sort of down.
+
+**Speaker 2:** Yeah, okay, and you've restarted everything and it's still not doing anything. Actually, hold on a second.
+
+**Speaker 1:** Okay.
+
+**Speaker 2:** Hello. I'm going to try and talk to my partner.
+
+**Speaker 1:** Okay.
+
+**Speaker 2:** Okay, for the next part, I'm going to use the phone.
+
+**Speaker 1:** Okay.
+
+**Speaker 2:** Oh, but it's not just because it's not half-time, it's like it was before half-time. I was like, it went past half-time, an hour, maybe.
+
+**Speaker 1:** Yeah.
+
+**Speaker 2:** Yeah, I'll try that. Okay, I'm going to try that. How long has it been? Half-time.
+
+**Speaker 1:** Half-time.
+
+**Speaker 2:** It's still going, yeah.
+
+**Speaker 1:** Yeah, okay, so I'll just take that and get over it. I need to finish. It's just a lot.
+
+**Speaker 3:** Hiya, Joel speaking.
+
+**Speaker 1:** Hi, Joel.
+
+**Speaker 3:** Hiya.
+
+**Speaker 1:** Yeah, I've just been taking a little look. It looks like your site's gone down.
+
+**Speaker 1:** Yeah.
+
+**Speaker 3:** Just taking a look at what we've got on hand. Was there a power outage or do you know what's happened at all?
+
+**Speaker 1:** I don't know whether something happened in the night. There wasn't like a storm or anything. I came in and the phone said SIP failure. Like when it uploads, doesn't it do that every so often? And it had failed. I had internet, but no Outlook. It wasn't loading. So, yeah, we restarted the modem.
+
+**Speaker 3:** Yeah.
+
+**Speaker 1:** Turned it off and on, you know, left it. And then, yeah, now it's got the little globe, no internet.
+
+**Speaker 3:** Okay, so is it a BT modem or is it, do you know who the IP is?
+
+**Speaker 1:** No, it's Bryant Broadband. We get the service through.
+
+**Speaker 3:** I see, okay. Right, let's try a couple quick bits. But this might be something you have to go to your internet service provider about if their line's dropped.
+
+**Speaker 1:** Okay.
+
+**Speaker 3:** So we can try restarting the SonicWall. Do you know where that is at all?
+
+**Speaker 1:** It might be looking at the site I've got here on top of the cabinet.
+
+**Speaker 3:** Yeah, it's downstairs. I'll go down.
+
+**Speaker 1:** No problem. Let's try rebooting that. One second.
+
+**Speaker 3:** That's all right.
+
+**Speaker 1:** All right, nearly there. Yeah, looks like we got an alert about 8:30 looking at this. So, yeah.
+
+**Speaker 1:** Right, yeah, that was just when I came in. I got in just after 8:30.
+
+**Speaker 3:** Okay, right, yeah, so it looks like it's not anything. Right, so I've got the SonicWall here. Is it something from behind or?
+
+**Speaker 1:** Yes. So there should be, it's a funny looking power cable, but it should be, there should be a power cable going into the back of it. If you could unplug that.
+
+**Speaker 3:** Yeah.
+
+**Speaker 1:** And then all the lights at the front should go out if you could plug that back in.
+
+**Speaker 3:** It's just a bit tight, I think.
+
+**Speaker 1:** Right, so I imagine, yeah.
+
+**Speaker 3:** Yeah, it's that one, it says 12 volts underneath.
+
+**Speaker 1:** That's the one, yeah.
+
+**Speaker 3:** Yeah, so unplug that and then leave it for a bit or just plug it back in?
+
+**Speaker 1:** You could leave it for about 5 to 10 seconds and then plug it back in for me.
+
+**Speaker 3:** Okay. And looking at the photos, is the modem just to the right of that?
+
+**Speaker 1:** Yes.
+
+**Speaker 3:** Yes. And have you tried rebooting that as well this morning?
+
+**Speaker 1:** Yeah, that's what we rebooted.
+
+**Speaker 3:** Okay. To be honest, it did have all the lights flashing green before I rebooted it, but I thought I'll just give it a go.
+
+**Speaker 1:** No, but that's what we're trying anyway, so.
+
+**Speaker 3:** Yeah, shall I do that again?
+
+**Speaker 1:** Why not?
+
+**Speaker 3:** Yeah, might as well.
+
+**Speaker 1:** Yeah.
+
+**Speaker 3:** Because does that, the cable, should it go into WAN or LAN?
+
+**Speaker 1:** It depends which cable you're talking about.
+
+**Speaker 3:** Right.
+
+**Speaker 1:** That would be the Ethernet cables. Have you swapped them around at all today or have you only touched the power link?
+
+**Speaker 3:** No, it's just Gordon came down and he restarted it again and he said he just pulled the cables out and then plugged them back in.
+
+**Speaker 1:** Oh, okay. So, he's put them in the right. Maybe I should send you a picture?
+
+**Speaker 3:** Yes, please, if I could have a picture. Let me just quickly, of how we've got it. I'm not, I just hit the button, I thought I'll turn it off.
+
+**Speaker 1:** Because there should be, the WAN connection side should be going into the wall and then there'd be another going out to the SonicWall.
+
+**Speaker 3:** Yeah, so there's a yellow one that goes into the wall. That one's going into WAN.
+
+**Speaker 1:** Okay.
+
+**Speaker 3:** That's right.
+
+**Speaker 1:** Yeah, that's correct.
+
+**Speaker 3:** Okay, that's fine. And then there's another one, there's a black one that goes into LAN. For LAN there's three, like, sockets and it's in the third one.
+
+**Speaker 1:** Okay.
+
+**Speaker 3:** LAN one, yeah.
+
+**Speaker 1:** Okay, yeah, I'm sure he just pulled them out and put them straight back in. I just wanted to check. But they're all on, they're all on green. So, let me, I'll restart that.
+
+**Speaker 3:** No problem.
+
+**Speaker 1:** Leave it for a bit.
+
+**Speaker 3:** Yeah, so if not, do you think it's the service provider, the service provider, broadband then?
+
+**Speaker 1:** Yes. Yeah, if this doesn't work, I'd recommend contacting your ISP and going from there. But we can continue to help, but of course, since we don't manage the actual, the line, we can't do that much more, I'm afraid.
+
+**Speaker 1:** Yeah, no, that's fine. We'll get in contact with them and see what's going on there. Has the SonicWall come back up? Is there light flashing on the front of it?
+
+**Speaker 3:** Yeah, so there's a blue one and then an orange flashing light and now it's starting to get yellow, two yellow lights.
+
+**Speaker 1:** Oh, it looks like I can see a PC that's just come online. That's good news.
+
+**Speaker 3:** Okay, the modem's just starting to get its flashing light. I think that's connected. That might be Jackie's one, that's probably her.
+
+**Speaker 1:** Oh, yeah, she's at home.
+
+**Speaker 3:** Yeah.
+
+**Speaker 1:** Oh, it could be, yeah, half nine.
+
+**Speaker 3:** Yeah, look, there's that. Oh, thought we were in luck for a second there.
+
+**Speaker 1:** Oh.
+
+**Speaker 3:** A bit of hope.
+
+**Speaker 1:** Yeah, so there are now three green lights on the wall.
+
+**Speaker 3:** Yeah, okay.
+
+**Speaker 1:** Or yellow, I don't know how you want to look at them.
+
+**Speaker 3:** Yeah, they normally go between orange and green, but if it's green, that's normally the same. And now the modem seems to have all the lights.
+
+**Speaker 1:** Okay, so the modem's back up as well.
+
+**Speaker 3:** Yeah.
+
+**Speaker 1:** Apparently no internet lights on there at all.
+
+**Speaker 3:** No, they're all green. It's just flashing on one that is one. I suppose that's that LAN one from behind, because it has one, two, three.
+
+**Speaker 1:** Yeah.
+
+**Speaker 3:** Which I assume it is, isn't it? Constantly flashing, so.
+
+**Speaker 1:** Yeah, that's quite normal.
+
+**Speaker 3:** Yeah.
+
+**Speaker 1:** Yeah, so you can't see any.
+
+**Speaker 3:** I can't see anything, I'm afraid. No, it looks like it's still down. What I can do, I can write some notes of what we have tried. In the meantime, I would advise you to contact your ISP.
+
+**Speaker 1:** Yeah.
+
+**Speaker 3:** Get them on the phone and see if they're aware of any outages or anything like that in the area.
+
+**Speaker 1:** Okay.
+
+**Speaker 3:** And then we can go from there, and I'll escalate this up as well, see if there's anything else we could possibly try on site.
+
+**Speaker 1:** Yeah, no, it's probably they've got a sound time or something, hopefully, from this one.
+
+**Speaker 3:** Fingers crossed. I mean, it's not going to be easy.
+
+**Speaker 1:** Yeah.
+
+**Speaker 3:** Okay.
+
+**Speaker 1:** Okay, thanks a lot.
+
+**Speaker 3:** No worries. I speak too little.
+
+**Speaker 1:** Okay. Well, we'll let you know.
+
+**Speaker 3:** No worries, yeah. Thank you very much.
+
+**Speaker 1:** That's great. Thank you.
+
+**Speaker 3:** All right, thanks. Speak to you later.
+
+**Speaker 1:** Speak to you later. Thanks. Bye.

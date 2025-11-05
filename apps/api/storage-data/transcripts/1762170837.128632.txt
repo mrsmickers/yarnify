@@ -1,0 +1,55 @@
+**Engineer Technologies, Joel speaking:** How may I help you?
+
+**Ramesh from Dell Technical Support:** Yes, hi, this is Ramesh from Dell Technical Support. Can I speak to Jane Hassan?
+
+**Joel:** You're calling from Dell Technical Support?
+
+**Ramesh:** Mm-hmm.
+
+**Joel:** Who would you like to speak to, sorry?
+
+**Ramesh:** Jane Hassan. Z-A-I-N.
+
+**Joel:** Mm-hmm. Okay. Let me see if they're available. Give me one moment.
+
+**Ramesh:** Okay, just check it. Thank you.
+
+**Joel:** Okay, I've just sent her a message. Give me one minute.
+
+**Ramesh:** Okay.
+
+**Joel:** Okay, I'm just going to transfer you through now.
+
+**Ramesh:** Thank you.
+
+**Joel:** Okay, thank you for this.
+
+---
+
+**Ramesh:** Hello? Hello? Sir, this is Ramesh from Dell Technical Support. Am I speaking to Jane Hassan?
+
+**Cameron:** No, it's Cameron.
+
+**Ramesh:** Sir, could you just connect me to Jane Hassan? Because he has reported an issue with the Latitude 3540 system. So I just need to check. There was a service that has been completed.
+
+**Cameron:** Okay, Cameron, I just see your email has been there. Cameron Esh, am I correct?
+
+**Ramesh:** Yes, yes, that's me.
+
+**Cameron:** Yes, that would be perfect. So I'll just give you the service tag number. The technician has been sent and has replaced a part for the audio issue. So could you please just confirm if the issue has been resolved? Can you go ahead and just close this ticket?
+
+**Ramesh:** I don't know. I'm not the on-site contact. What's the service tag?
+
+**Cameron:** The service tag number would be F for Foxtrot, number 5. Yep. C for Charlie, L for Lima, H for Hotel, X for X-ray, number 3. I just see your email today asking, would it be possible to get confirmation on this? Is the engineer supposed to be out today?
+
+**Ramesh:** Yeah, he called. The engineer called me probably like 20 minutes after I sent that, saying he's there. And I told him to call the on-site contact, who is Chris Leonard, who had built the ticket. So I haven't heard anything from him or Chris. I don't know, has he finished the on-site?
+
+**Cameron:** Yes, I just see it has been finished. So could you please just check on that? I can just see the service report has been also sent to Zane Hudson. Checking that?
+
+**Ramesh:** Sure, yeah. I don't know why, but Zane always gets put on the tickets. But I raised the tickets, so it's under me. But I'll have to phone Chris and give you a call back afterwards. Can I email you back once I've heard from him?
+
+**Cameron:** That would be perfect. Thank you for that.
+
+**Ramesh:** All right, give me a sec.
+
+**Cameron:** Thank you.

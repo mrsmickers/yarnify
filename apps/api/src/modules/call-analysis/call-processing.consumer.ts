@@ -473,7 +473,7 @@ export class CallProcessingConsumer extends WorkerHost {
       );
       return {
         jobId: job.id,
-        analysis: analysisResult,
+        analysis,
         blobPath,
         callId: callEntity.id,
       };

@@ -1,0 +1,125 @@
+**Speaker 1:** Hello, Ingenio, Cameron speaking.
+
+**Speaker 2:** Hello Cameron, it's Martin.
+
+**Speaker 1:** Ah, hello, how's it going?
+
+**Speaker 2:** Yeah, not bad. Sorry, I was on the phone with a customer then.
+
+**Speaker 1:** That's OK, no worries, no worries. Do you have some time now if you're around?
+
+**Speaker 2:** I'm all good, I'm all good. Everything else can wait, so that's fine. I'm here, sitting in front of the laptop, so let's do this.
+
+**Speaker 1:** Yeah, cool. Thank you, I appreciate you putting some time aside for this. Let me just make sure I can connect. Ah, I don't have your one. Are you able to go to a website for me if possible, and I'll set up a quick remote session?
+
+**Speaker 2:** What website do you want me to go to?
+
+**Speaker 1:** Just open up your web browser and type in ingenio.support. In the browser's top bar, all one word: ingenio.support.
+
+**Speaker 2:** Sorry, yeah, ingenio.support. Sorry, ingenio.
+
+**Speaker 1:** Yeah, and then .support, S-U-P-P-O-R-T, all one word. If it's the right page, it should ask you for a code.
+
+**Speaker 2:** Ah, let's find out if that's the right page. It's asking me to join with a code.
+
+**Speaker 1:** Cool, so the code to type out is 06229. You should be able to click on that arrow to the right once you type the code out, and that should download a bit of software, I think.
+
+**Speaker 2:** Yeah, it should start downloading our Screen Connect client file. Once that's downloaded, you just have to double-click it. It should ask you things like, do you want to allow it to make changes? So you just have to click on yes, and I'll be able to connect at that point.
+
+**Speaker 2:** Open file. Yep, double-click on the file. Does it ask you, do you get any prompts come up after you've clicked on it?
+
+**Speaker 1:** It says the file is an untrusted location in the United States. I'll remove protection and open.
+
+**Speaker 2:** Yeah, you should be able to run, allow it anyway, or remove protection and open. That should do it.
+
+**Speaker 1:** It's not doing anything. It's gone off, come back on. It's not doing anything yet. It just says it's joining session.
+
+**Speaker 2:** Okay, that's okay. We can potentially just go through the steps on the phone. Do you have the Authenticator app on your mobile phone that you used before? Do you remember linking it to Authenticator? Are we able to open that on the phone if possible?
+
+**Speaker 1:** Yep. We'll just remove the old account, so let me know once you've got it open.
+
+**Speaker 2:** I've got the Authenticator open. Do I want head control partnership, remote clean kill, or clean kill remote?
+
+**Speaker 1:** Remote clean kill, yeah. Does it end in 4433?
+
+**Speaker 2:** Yes.
+
+**Speaker 1:** Yeah, so if you tap onto that one, it should open up a new screen. Do you then see a cog icon in the top right corner?
+
+**Speaker 2:** Yep.
+
+**Speaker 1:** Yeah, if you tap on that, can you then remove the account?
+
+**Speaker 2:** It has just removed it.
+
+**Speaker 1:** Cool, okay. So on your laptop, if you've got the NetExtender app installed, is that on the taskbar or on your desktop? You've got an icon with a white end and a gold or orange cross going through it. There might be an icon on the desktop.
+
+**Speaker 2:** Yeah, if you open that up and then go to connect, it'll ask you to type in a password.
+
+**Speaker 1:** Yeah, put my password in.
+
+**Speaker 2:** Yep, type out the password and then press enter. The next screen should give you a QR code, like a small QR code in the corner.
+
+**Speaker 1:** It does, yeah.
+
+**Speaker 2:** Cool. So then on the Authenticator app on your mobile phone, if you now press on the blue icon in the bottom right corner of the app, you should be able to scan that QR code directly back into your app.
+
+**Speaker 1:** Got that.
+
+**Speaker 2:** Cool. And then, yeah, if you tap into the remote.cleanq, you'll get a six-digit code. Just type that out on the NetExtender screen on your laptop and then you should be done. It should connect you up.
+
+**Speaker 1:** Cool. There's no spaces in the six-digit code as well. You can just type out the six numbers and then press enter.
+
+**Speaker 2:** Yeah. For some reason, it's telling me it's wrong. Let me just put in my number.
+
+**Speaker 1:** Okay. What's it doing on the…?
+
+**Speaker 2:** It's letting me connect. What screen is it on, on the laptop, on NetExtender?
+
+**Speaker 1:** At the moment, it's putting me back at the beginning saying connect. So I'm going to connect again. Now it's asking me to put my password in.
+
+**Speaker 2:** Yeah. Now it's telling me incorrect username and password.
+
+**Speaker 1:** Oh. So you typed out the part… Did it get you to the screen with the QR code or did it say it's incorrect?
+
+**Speaker 2:** Yeah, no, I've got… At the minute, it's put me on the screen that's got connection where it says cleanq limited. Then it says disconnected. Then there's the connect button. I'll press connect. And then it takes me to the username, password, cleanq. I put my password in. It locks us again. It locks me out. Connect.
+
+**Speaker 1:** So you should get another QR code hopefully.
+
+**Speaker 2:** Do I have to do the QR code thing again?
+
+**Speaker 1:** Yeah, I think something went wrong with the previous one. So we might just have to start again and remove that one you've just added and then go to scan the QR code in again.
+
+**Speaker 2:** Okay.
+
+**Speaker 1:** So, yeah, back in the Authenticator app. Now it's telling me user different name.
+
+**Speaker 2:** Yeah, so we actually need to remove the one. Strangely, we need to remove the one that you've just added first because…
+
+**Speaker 1:** What should I just put as anything?
+
+**Speaker 2:** You can call it cleanq VPN if you want to make it easier.
+
+**Speaker 1:** Cleanq?
+
+**Speaker 2:** VPN or net extender, yeah. Or just cleanq. Cleanq remote or something. And does it give you six-digit codes?
+
+**Speaker 1:** Yes, seven, one, six, five, six, five.
+
+**Speaker 2:** Yep, connected.
+
+**Speaker 1:** Oh, cool. So that's all gone through?
+
+**Speaker 2:** Yep, all connected.
+
+**Speaker 1:** Nice. So you won't have to scan that in every time, but you will have to open up the app on your phone and just put in that clean, whatever you called that last one. That's the one that will work, yeah. You can probably remove the old ones that say like remote.cleanq.4433. Those ones will no longer work. But the latest one you just put in there will work, yeah, going forward.
+
+**Speaker 2:** So the remote.cleanq and the cleanq remote I can get rid of.
+
+**Speaker 1:** Yeah, they probably won't work. Yeah, so I would get rid of them. But yeah, thank you for that. It's all gone through on my side. So as long as you're connected, you're good to go.
+
+**Speaker 2:** Excellent. Thank you very much.
+
+**Speaker 1:** All right. Cheers. Take care.
+
+**Speaker 2:** Bye.

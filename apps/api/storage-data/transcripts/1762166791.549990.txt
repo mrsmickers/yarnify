@@ -1,0 +1,41 @@
+**Automated System:** Thank you for calling Ingenio Technologies. To help us direct your call, please select from one of the following options: one for support, two for sales, three for accounts.
+
+**Joel:** Ingenio Technologies, Joel speaking. How may I help?
+
+**Robert:** Oh, hello, Joel. It's Robert here from SD Console. How are you?
+
+**Joel:** Not bad, are you?
+
+**Robert:** Yep. My NetExtender is not working on my laptop. I'm working from home today. Is it you who worked on my laptop over the weekend? On Friday?
+
+**Joel:** No, that would have been George, I believe. Do you know what error it's giving you?
+
+**Robert:** Service not available or something.
+
+**Joel:** Yes, service not responding. Let's test it. What I'm going to do is close out of this for a minute, remove this version, and then get NetExtender reinstalled. It's just a little glitch, really, when it comes to updating. Sometimes it does this, sometimes it seems fine. Let's get that removed.
+
+**Robert:** There's nothing there.
+
+**Joel:** Oh, I've sent him out. Try to look for it.
+
+**Robert:** Yes, I was looking for NetExtender as well. Sometimes I forget it's under SonicWall. While it's doing that, I'll open up a Chrome tab to re-download it. I'm going to try to find it.
+
+**Joel:** That's just uninstalling now. Then I've got the newest version here ready to install. There we go.
+
+**Robert:** Oh, that's me getting it wrong. Oh, crikey. It's me typing in the password wrong. It takes a few goes.
+
+**Joel:** If I close out of that... We could try again for me.
+
+**Robert:** Okay. I'm going to try again. It might have been the incorrect username there. It might have been missing the 'J' on the end.
+
+**Joel:** There we go. That's looking better.
+
+**Robert:** There we go. That's looking better.
+
+**Joel:** Too many adverts.
+
+**Robert:** Too many adverts.
+
+**Joel:** Wonderful, that's all back in. Thank you very much.
+
+**Robert:** No worries, thanks very much for your time. Bye.

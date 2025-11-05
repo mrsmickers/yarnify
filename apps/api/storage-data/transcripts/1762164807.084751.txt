@@ -1,0 +1,23 @@
+**Automated System:** Thank you for calling Ingenio Technologies. To help us direct your call, please select from one of the following options: one for support, two for sales, three for accounts, or four for reception.
+
+**Cameron:** Hello, Ingenio. Cameron speaking.
+
+**Katrina:** Oh yes, hello Cameron. It's Katrina from Lewcraft in Russellton. I spoke to you earlier, hiya. Joel's just sorted my server out, so I'm back up and running. But apparently on Friday, my colleague Johnny keeps having the same issue. Guy did call, but he never heard back, he said. Now, somebody could have called back and Guy just wasn't at his desk, but do you know where the ticket is for that one? For Johnny?
+
+**Cameron:** Johnny Wood, yeah. I think I found the ticket, but I think it got put onto a higher-level engineer because apparently the issue happens weekly.
+
+**Katrina:** Yeah, that's it. We've fixed it multiple times, so it's an investigation around why it keeps happening.
+
+**Cameron:** Oh right, so it's ongoing. Yeah, I don't know how many people are affected or how frequently it happens, but I think it got put on a higher engineer to investigate why it keeps returning.
+
+**Katrina:** Okay, that's fine. I'll just let them know because mine just got solved. Johnny went, "Oh, how about mine?" I went, "I didn't realize it wasn't here Friday," so I was just following it up for him.
+
+**Cameron:** That's okay. But I'll let Guy know it's been raised higher. I'll add a note just saying, can we get it fixed as an immediate issue and then obviously we can continue investigating the wider issue.
+
+**Katrina:** That'd be great, thank you so much.
+
+**Cameron:** Cool, okay.
+
+**Katrina:** Lovely, thank you. Bye.
+
+**Cameron:** Bye.

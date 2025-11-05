@@ -1,0 +1,145 @@
+**Speaker 1:** Because I don't know when. Thank you for calling Ingenio Technologies. Hang on one second. Oh, speak up. Sorry, who's that?
+
+**Speaker 2:** Hi Gordon, Blaine here.
+
+**Speaker 1:** Just the very person. Hello, how are you?
+
+**Speaker 2:** Oh, frustrated.
+
+**Speaker 1:** What's happened?
+
+**Speaker 2:** I spoke to someone this morning. I can't tell you who, because my, I don't know, my laptop obviously knows that there was talk of it not working or being exchanged.
+
+**Speaker 1:** Right.
+
+**Speaker 2:** But there's a ticket open.
+
+**Speaker 1:** Okay, let me have a look.
+
+**Speaker 2:** Where it went a bit delayed this morning.
+
+**Speaker 1:** Sure.
+
+**Speaker 2:** And there's a picture of it, it's all blue and white, and then I've just deleted something. And it's deleted, it just stayed on delete. It's done this a lot recently.
+
+**Speaker 1:** Right.
+
+**Speaker 2:** You press delete and then it deletes everything in the inbox. And so then you have to go and find them, because you can bet your life that you haven't done any deleted items.
+
+**Speaker 1:** Yeah, oh god.
+
+**Speaker 2:** Fortunately, there's only about 30.
+
+**Speaker 1:** Right.
+
+**Speaker 2:** Unless you know how to restore them. And now with my, I've left it, because now with my mouse, if I click on the inbox, I can't see anything at the moment. When you come on, you'll see.
+
+**Speaker 1:** Yeah, I can see that.
+
+**Speaker 2:** And then if you click on it, it just goes, bling, bling.
+
+**Speaker 1:** I see, yeah. Okay, let me have a look.
+
+**Speaker 2:** And something's wrong. But the real thing, it was the delete thing, but the real thing that's been going wrong is when you turn it on, you go to put your password in, but before you can put your password in, it scrolls up on the screen. You see it disappear.
+
+**Speaker 1:** Right.
+
+**Speaker 2:** So then you have to go control or delete, and then you can put it in. And then sometimes you come back to it and it sort of shuts itself down. And when you hit the spacebar, it won't reopen.
+
+**Speaker 1:** Right.
+
+**Speaker 2:** So you then press the button because the light's gone out in the corner.
+
+**Speaker 1:** Okay.
+
+**Speaker 2:** Then sometimes it'll restart, and other times it won't. Then you have to still control or delete.
+
+**Speaker 1:** It's not happy, is it?
+
+**Speaker 2:** No.
+
+**Speaker 1:** Sounds like it's kind of one thing.
+
+**Speaker 2:** Yeah, like you see, that's just pressed something that I haven't pressed. So just check your keyboard and mouse. Just make sure there's nothing, like the buttons haven't kind of pressed in and kind of got stuck.
+
+**Speaker 1:** That's what it does sound like as well. It sounds like it's pressing stuff, doesn't it?
+
+**Speaker 2:** Yeah, I know what you mean. There's nothing. I'm looking at the keyboard in my hand that I left. There's no keys that aren't level.
+
+**Speaker 1:** Yeah.
+
+**Speaker 2:** Or do you know what I mean? They're all...
+
+**Speaker 1:** Yeah. Is it like a wired keyboard and mouse or wireless?
+
+**Speaker 2:** Wireless.
+
+**Speaker 1:** Wireless, okay. Turn it off, turn it on. See that?
+
+**Speaker 2:** That's it. Turn it off, yeah, exactly. Turn it off, turn it on.
+
+**Speaker 1:** Oh, yeah. You can get rid of all of that, Mum. I'm just trying to click on stuff to see what it does. It only seems to do it in Outlook.
+
+**Speaker 2:** Right.
+
+**Speaker 1:** For sure. I guess probably trying to get it to do it a little bit faster. But I've never seen it do what it did this morning, which it sort of frees up the last bits of the picture, and some of it was in black and white, some of it in blue.
+
+**Speaker 2:** Right.
+
+**Speaker 1:** But it did print the screen.
+
+**Speaker 2:** Yeah. It's in the notes. Try clicking around now. Let me know how it is on your end.
+
+**Speaker 1:** Yeah, as it should be. The problem sometimes is when it then goes to sleep now, you know what I mean?
+
+**Speaker 2:** Right. Let me have a look at that quickly.
+
+**Speaker 1:** And then it doesn't give you the password, actually. But when you turn it on, you really quickly watch it. It's like it scrolls to the second page.
+
+**Speaker 2:** Right.
+
+**Speaker 1:** Bit weird.
+
+**Speaker 2:** Yeah, like it maybe, yeah, it's like, Ken, maybe like something's being pressed, isn't it?
+
+**Speaker 1:** Yeah. I mean, literally, when you open the screen and use the power button to wake it up, like overnight, you just see it scroll, and it's gone. It's there, but it's gone. Goes up the screen.
+
+**Speaker 2:** Interesting.
+
+**Speaker 1:** So it's like you're then on page two, but you can't see it.
+
+**Speaker 2:** Right. Don't want it to sleep.
+
+**Speaker 1:** Heh. No sleep. No sleep, please. Keep an eye on the kind of weird clicking thing, because it sounds like, because, you know, like when you're trying to delete one thing, it sounds like, you know, it's like clicked something and it's highlighted them all. And then just then when I opened something, it seemed to click something and ask me if I wanted to end the task. So just keep an eye on that. I'm going to just update this ticket and give Joel some more information, because it looks like it's with him. Your power bits should be a bit better now, but keep an eye on that as well. I'll let Joel know what's going on, and he'll jump back on and do some more, um, some more tasks.
+
+**Speaker 2:** Can I retrieve the deleted items that we last went, or if I've got to go through them and find them? Is there a way?
+
+**Speaker 1:** I don't know.
+
+**Speaker 2:** To do what?
+
+**Speaker 1:** Well, I was in Inbox, and I was in that one, and those three have come in. So I couldn't even see the tickets that turned up, if you know what I mean. But there were ones from earlier. But it's deleted everything that was in there. I went to delete something, and it just, like you say, it's like it clicked something. Have I got to go back and find them in the deleted items, or is there a way?
+
+**Speaker 2:** Yeah, you will have to, I'm afraid. Yeah, there's a little undo button at the top there, if you can see where my... But you see it's greyed out now. But it's only because, you know, it crashed, and we had to close it down and open it back up, so that went away. But next time, if that does happen, just check if the undo button is available.
+
+**Speaker 1:** Yeah, yeah.
+
+**Speaker 2:** That should undo it with one click.
+
+**Speaker 1:** I can do anything.
+
+**Speaker 2:** Yeah, exactly, it crashed anyway. Okay, let me let Joel know what's going on, and he'll do some more tests on there, just in case, you know, it can turn out to be like a hardware problem, and we have to get like Dell out to come and replace some bits.
+
+**Speaker 1:** Okay.
+
+**Speaker 2:** All right, I'll keep an eye on it. Hopefully, it doesn't go again this afternoon.
+
+**Speaker 1:** All right, darling.
+
+**Speaker 2:** All right, thanks, Gordon.
+
+**Speaker 1:** Thank you. Take care, bye-bye.
+
+**Speaker 2:** Bye.
+
+**Speaker 1:** Bye.

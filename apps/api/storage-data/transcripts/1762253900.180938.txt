@@ -1,0 +1,45 @@
+**Automated Message:** Thank you for calling Ingenio Technologies. To help us direct your call, please select from one of the following options: one for support, two for sales, three for account.
+
+**Cameron:** Hello, Ingenio, Cameron speaking.
+
+**Nikki:** Hello, Cameron, it's Nikki from Colleges of Barnabas. I'm wondering if you can just give me a little bit of help, please. I've moved offices with my screen and my laptop all set up and running. I tried to do a Teams call with Monty this morning, but he couldn't see me. My camera wouldn't come up. So I've gone into the settings. I don't know, can you go live with me?
+
+**Cameron:** I can't at the moment, sorry. I'm sure someone else can. But what happened when you tried to use the camera?
+
+**Nikki:** Right, so it still didn't work. I've gone into the privacy settings, onto the camera. I've turned on "let apps access your camera." I've turned on the camera and desktop apps. Should I be turning on the Microsoft Teams one as well?
+
+**Cameron:** Is it a Teams meeting you're joining?
+
+**Nikki:** Sorry?
+
+**Cameron:** Is it a Teams meeting you're joining, or are you joining a Zoom meeting?
+
+**Nikki:** I was this morning, yeah, which I've got on. It's fine, but my face doesn't come up.
+
+**Cameron:** Yeah, so you probably want to allow Teams as well. One thing you can do is, when you're in Teams, go to the icon with the three dots next to your name, sorry, next to your icon in the top right corner, and go to settings. Then you can go to devices and do a test call. You can test both your camera and your mic, and it will play it back to you. You'll see yourself if your camera's working. So you can test it in devices within Teams. Is it a laptop camera or do you have an external camera?
+
+**Nikki:** I've just got a laptop camera. I've got Emma calling now, actually.
+
+**Cameron:** Okay, and on top of your laptop, just above the camera, do you have a slider at all?
+
+**Nikki:** Yeah, I've slid it to the left, so it looks like it's on.
+
+**Cameron:** Try sliding it back to the right as well when you're testing, just to make sure.
+
+**Nikki:** Yeah, for me, I find it really hard to tell which side's actually on and which side's off.
+
+**Cameron:** Yeah, I think it's the left because it's clear. I did all that earlier, but it wasn't set up. I don't see my camera at all.
+
+**Nikki:** Okay. So if I go to my Emma's call now again, should I just try that?
+
+**Cameron:** Are you on another call, Cameron?
+
+**Nikki:** No, I'm just on someone's machine clicking around. Hi, Emma. No, I'm just done with Ingenio having a look at this because I had to put the option of Teams on there as well, I think. I can't see you. I can't see you over there. Oh, I can see myself. I can't see you. So I think we'll sort it out, Cameron, and if I've got a problem later, I'll give you a call back.
+
+**Cameron:** Okay, yeah, just give us a call. No worries.
+
+**Nikki:** Okay, thank you very much.
+
+**Cameron:** Thanks. Bye.
+
+**Nikki:** Bye.

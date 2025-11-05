@@ -1,0 +1,173 @@
+**Speaker 1:** Good afternoon, it's WK.
+
+**Speaker 2:** Hi, it's Ricky from Ingenio. I was trying to get a hold of Lee.
+
+**Speaker 1:** Speaking.
+
+**Speaker 2:** Ah, hello. I'm just wondering about your ticket and the training PC.
+
+**Speaker 1:** Ah, yes. Is it OK to run through that and see what you're trying to achieve and then see if we can work out what's needed to get it working?
+
+**Speaker 2:** Well, I just wanted to try the password for the email, that was all to start with. I've got the email on my PC, but on the training one, I don't know whether that would then let me open up that email, if you get my meaning.
+
+**Speaker 1:** Yeah, I read the initial message, but I wasn't 100% clear on what wasn't working.
+
+**Speaker 2:** So I've got on OneDrive or One, what's it called?
+
+**Speaker 1:** Yeah, OneDrive.
+
+**Speaker 2:** Yeah, the OneDrive, yeah. So the OneDrive, I've got a video on there for training.
+
+**Speaker 1:** Yeah.
+
+**Speaker 2:** And obviously I created then the ten-question paper for that video.
+
+**Speaker 1:** Mm-hmm.
+
+**Speaker 2:** And obviously I can email that to people with emails on site and it works fine. But I'm trying to create one that doesn't require it, if you get my meaning.
+
+**Speaker 1:** Ah, OK.
+
+**Speaker 2:** So I'm going to use the training email to then forward the document back to myself, if you get my meaning.
+
+**Speaker 1:** Sure. How do people access the training PC at the moment?
+
+**Speaker 2:** Well, I just set it up ad hoc in the meeting room.
+
+**Speaker 1:** Is it just like a shared password kind of thing that they would just log in as training?
+
+**Speaker 2:** Yeah, just training, training, yeah. I mean, it's purely just for that.
+
+**Speaker 1:** Yeah. Tricky, isn't it?
+
+**Speaker 2:** Yeah. I'm sort of so close, I just think, why is it not working? Obviously, they can watch the video on it, that opens if I create a shortcut.
+
+**Speaker 1:** Yeah.
+
+**Speaker 2:** But then it doesn't go to the form. It's the form.
+
+**Speaker 1:** And the people accessing the training PC, have they got email login?
+
+**Speaker 2:** No.
+
+**Speaker 1:** Ah, OK. So what I thought, if I had the email open on the training, yeah?
+
+**Speaker 2:** Yeah.
+
+**Speaker 1:** The training email, whether that would then fix that issue.
+
+**Speaker 2:** I mean, in theory, it would. I don't know. I've copied all the code, copied all the code as it is on, say, the desktop of my PC. But you obviously transfer that same code to that. The video works, but the question paper doesn't.
+
+**Speaker 1:** Do you capture the person's name in your form?
+
+**Speaker 2:** If I sent it to you, as is, on your email address, it would be, like, your name would be on it.
+
+**Speaker 1:** Yeah.
+
+**Speaker 2:** And you can only do it once.
+
+**Speaker 1:** Yeah. I was assuming that would be the case, because if you did what you're suggesting, then it's probably not going to work, because they're going to be logged as being training app. So if you've limited it to once...
+
+**Speaker 2:** Then I just work once on that.
+
+**Speaker 1:** Yeah, exactly. Because I can set the form or set the video to be multiple without a title sort of thing, so they just fill their name in at the end.
+
+**Speaker 2:** Yeah, if you could do that, then in theory...
+
+**Speaker 1:** It does do that.
+
+**Speaker 2:** OK. I mean, yeah, if you can do that, then that should work fine. It's just this link where it can't ping it back to me, I suppose. That's probably where it's going wrong.
+
+**Speaker 1:** Yeah, but if you sign in...
+
+**Speaker 2:** Because there's no email attached to it.
+
+**Speaker 1:** Yeah, I do. Yeah, I suppose if you signed in... Has training got a mailbox of its own, has it?
+
+**Speaker 2:** Yeah.
+
+**Speaker 1:** Yeah, so yeah, if you signed in...
+
+**Speaker 2:** I don't have a password for it. I can sort of go to the login and it goes password, or I don't know what the password is. Even though I've got it on my own tablet, on my own PC.
+
+**Speaker 1:** So let me check. Because it depends if the training mailbox is a shared mailbox, then if it's not licensed, basically, then you can't log into it directly, only via your own stable account kind of thing.
+
+**Speaker 2:** Yeah, because I mean, I can see training on my PC.
+
+**Speaker 1:** Yeah.
+
+**Speaker 2:** Sent items, deleted items, inbox and all that, yeah.
+
+**Speaker 1:** Just going to see if that's a shared mailbox or if it's licensed, because that will be the deciding factor.
+
+**Speaker 2:** Yeah, you'll probably see the things I've sent, there's probably three emails from me with the information on it, if you can get into it.
+
+**Speaker 1:** Not easily.
+
+**Speaker 2:** No, they don't make it easy. But I can see what's on the mailbox. I was so close, I think if I can just get that, then I haven't got to keep dragging them over to the HR office to train them. I can just sit them down in there, one by one, and do it.
+
+**Speaker 1:** Sorry, just waiting for it to...
+
+**Speaker 2:** Yeah, go to that page.
+
+**Speaker 1:** Yeah, training is a shared mailbox, so you wouldn't be able to log in as training. It doesn't have a password, effectively. So it's reliant on a valid licensed account to get in.
+
+**Speaker 2:** It's a damn shame.
+
+**Speaker 1:** The only way I can see it, like you mentioned, is adding a field to the form to ask for their name and allowing it to be accessed, including their email address, so that they can log in as training. And allowing it to be accessed externally, effectively.
+
+**Speaker 2:** Yeah, that's tricky.
+
+**Speaker 1:** That's the only way I can see of doing it, short of giving everyone a login, obviously.
+
+**Speaker 2:** Well, that would be fine in a perfect world if everybody had a screen reader, that would be brilliant, wouldn't it?
+
+**Speaker 1:** Yeah, it's an expensive exercise with licensing and things.
+
+**Speaker 2:** Yeah, damn. OK, well, thanks for your help.
+
+**Speaker 1:** No worries. I'll see if I can think of some other way to do it.
+
+**Speaker 2:** Yeah, I mean, like I say...
+
+**Speaker 1:** I'll just give them the living questions, honestly.
+
+**Speaker 2:** Yeah, do it the old-fashioned way. Just fix the object, really.
+
+**Speaker 1:** Yeah. Well, like I say, if you set the privacy to be external access, limit it to just that video and form, then you can literally get that link, put it on, yeah, a shortcut on the desktop or whatever, and then they can just fill it out, put their name in, that should work.
+
+**Speaker 2:** But then how are they going to send it to me? Because there's no email, is there?
+
+**Speaker 1:** Oh, it's not like an online form that they fill out? It isn't on... Because you mentioned Microsoft Forms, so that should just be like a web form.
+
+**Speaker 2:** Yeah, so the form's attached to the video, yeah? So they run the video, and just before the video finishes, it literally goes straight into the form. That pops up.
+
+**Speaker 1:** Yeah.
+
+**Speaker 2:** Yeah? Then they do the questions, sign, date, and then they send. And then that then pings that document to me.
+
+**Speaker 1:** Yeah, that should be OK. As in... It's hard, because I can't see what you've done, but thinking what you've most likely created, I mean, that should just work.
+
+**Speaker 2:** Yeah, as I said, obviously I created the shortcut on my desktop, and obviously that works fine. So I thought I'd copy that, and then put it onto the training PC.
+
+**Speaker 1:** Yeah.
+
+**Speaker 2:** But then it just, as I say, it plays the video, but it doesn't do the form. The form's locked for some reason, it won't work.
+
+**Speaker 1:** I'm guessing that's because they're not logged in. So that comes back to, can you set that form to be accessible? Unlogged in.
+
+**Speaker 2:** Yeah, yeah, yeah, OK. That should get around it.
+
+**Speaker 1:** Yeah, I'll try. Kickbox, I think.
+
+**Speaker 2:** Yeah. All right, my mate, I'll have a look. See how I get on. Thanks for ringing.
+
+**Speaker 1:** Yeah, if you want us to log in and have a look at it, then we can do it now.
+
+**Speaker 2:** Yeah, OK. I'll have a muck of air again, see if I can fix it.
+
+**Speaker 1:** Cool, no worries. Thanks for the call.
+
+**Speaker 2:** No worries, take care.
+
+**Speaker 1:** Bye-bye.

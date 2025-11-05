@@ -1,0 +1,29 @@
+**Engineer Technologies, Joe:** Engineer Technologies, Joe speaking. How may I help?
+
+**Robert:** Oh, hello George, it's Robert here from XP Consoles.
+
+**Joe:** Not bad, how are you?
+
+**Robert:** Yep, my NetX Extender is not working on my laptop. I'm working from home today. Is it you who worked on my laptop over the weekend on Friday?
+
+**Joe:** No, that would have been George, I believe.
+
+**Robert:** Yep. Okay, do you know what the error it's giving me is? It says "Server is not available" or something.
+
+**Joe:** Okay. Yes, "Server is not responding." Interesting. Would I be able to jump on and take a quick look?
+
+**Robert:** Yep.
+
+**Joe:** Lovely, thank you. Sometimes it can error out after Windows 11 updates; it only seems to happen on occasion.
+
+**Robert:** Yeah, that's the same error.
+
+**Joe:** Okay. What I'm going to do is close out of this for a minute, remove this version, and then get NetX Extender reinstalled. It's just a little glitch really when it comes to updating. Sometimes it does this, sometimes it seems fine. Let's get that removed. There's nothing there—oh, I've seen it now. Try to look for it, there we are.
+
+**Robert:** Yeah, I was looking for NetX Extender as well. Sometimes I forget it's under SonicWall.
+
+**Joe:** Whilst it's doing that, I'll open up a Chrome tab to re-download it. That's just uninstalling now, and then I've got the newest version here ready to install. There we are. There we are. Oh, that's me getting it wrong. Oh, crikey. That's me typing in the password wrong. If it closes out of that, we could try again for me. Might be missing the "J" on the end. There we go, that's looking better. Too many adverts. Wonderful, that's all back in.
+
+**Robert:** Thank you very much.
+
+**Joe:** No worries, thanks very much for your time. Bye.

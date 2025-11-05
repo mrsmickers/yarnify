@@ -1,0 +1,41 @@
+**Automated System:** Thank you for calling Ingenio Technologies. To help us direct your call, please select from one of the following options: one for support, two for sales, three for accounts, or four for reception. Did you know we sell managed printers? Never pay for toner...
+
+**Receptionist:** Good morning, Ingenio. How can I help?
+
+**John Whitehead:** Hi, it's John Whitehead here again.
+
+**Receptionist:** Hello.
+
+**John Whitehead:** Hello. Right, I've sorted out the issue we had at home.
+
+**Receptionist:** Yeah.
+
+**John Whitehead:** And I could be with Cameron in about half an hour, 40 minutes. Would you be okay, or is that not going to help?
+
+**Receptionist:** Shall I put you through to him and then he can arrange with you?
+
+**John Whitehead:** Yeah, thanks.
+
+**Receptionist:** I'll try and get you now. Thank you, hold the line.
+
+**Automated System:** Did you know we sell managed printers? Never pay for toner, consumables, or repairs again with our fast and colorful printers. Simply pay for what you print. When you're running low on toner, you're sent more automatically. Enjoy full...
+
+**Cameron:** Hi, John, Cameron.
+
+**John Whitehead:** Yeah, Cameron, yeah, stop that. I did ring a little early. I thought I was going to be unable to get over to you this morning, but I can come over in about half an hour, 40 minutes if you could still fit me in.
+
+**Cameron:** If you... because I was supposed to be with you at nine.
+
+**John Whitehead:** Yeah, half nine works, looking at it, yeah.
+
+**Cameron:** You think so? We can move some stuff around. I've not really got anything booked in until...
+
+**John Whitehead:** Yeah, okay. Well, I'm having a look. Maybe 11, I think? I'll see you around, yeah, in about half an hour, 40 minutes.
+
+**Cameron:** Yeah, cool.
+
+**John Whitehead:** Okay. Thanks, Cameron.
+
+**Cameron:** Cheers. Thanks, take care.
+
+**John Whitehead:** Bye-bye.

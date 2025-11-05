@@ -1,0 +1,37 @@
+**Speaker 1:** I'm wondering if you can just give me a little bit of help, please. I've moved offices with my screen and my laptop all set up and running. I tried to do a Teams call with Monty this morning, but he couldn't see me. My camera wouldn't come up. So I've gone into the settings. I don't know. Can you go on live with me?
+
+**Speaker 2:** I can't at the moment. Sorry, I'm just looking for answers. But what happened when you tried to use the camera?
+
+**Speaker 1:** Right, so it still didn't work. I've gone into the privacy settings, onto the camera. I've turned on "let apps access your camera." I've turned on the camera, and I've turned on desktop apps. Should I be turning on the Microsoft Teams one as well?
+
+**Speaker 2:** Is it a Teams meeting you're joining?
+
+**Speaker 1:** Sorry?
+
+**Speaker 2:** Is it a Teams meeting you're joining, or are you joining a Zoom meeting?
+
+**Speaker 1:** I was this morning, yeah, which I've got on. It's fine, but my face doesn't come up.
+
+**Speaker 2:** Yeah, so you probably want to allow Teams as well. One thing you can do is, when you're in Teams, go to the icon with the three dots next to your name, sorry, next to your icon in the top right corner, and go to settings. Then you can go to devices and do a test call. You can test both your camera and your mic, and it'll play it back to you. You'll see yourself if your camera's working. So you can test it in devices within Teams. Is it a laptop camera or do you have an external camera?
+
+**Speaker 1:** I've just got a laptop camera. I've got Emma calling now actually.
+
+**Speaker 2:** Okay. And on top of your laptop, just above the camera, do you have a slider at all?
+
+**Speaker 1:** Yeah, I've slid it to the left so it looks like it's on.
+
+**Speaker 2:** Should we try sliding it back to the right as well when you're testing, just to make sure? For me, I find it really hard to tell which side's actually on and which side's off.
+
+**Speaker 1:** Yeah, I think it's the left because it's clear. I did all that earlier, but it wasn't set up. I don't think the camera was on at all.
+
+**Speaker 2:** Okay. So if I go, like Emma's calling again, should I just try that?
+
+**Speaker 1:** So are you on another call, Cameron?
+
+**Speaker 2:** No, I'm just on someone's machine clicking around. Hi Emma. No, I'm just done with Ingenio having a look at this because I had to put the option of Teams on there as well, I think. I can't see you. I can't see you over there. Hang on. Oh, I can see myself. I can't see you. So I think we'll sort it out, Cameron, and if I've got a problem later, I'll give you a call back.
+
+**Speaker 1:** Okay. Yeah, just give us a call. No worries.
+
+**Speaker 2:** Okay. Thank you very much.
+
+**Speaker 1:** Thanks. Take care. Bye.

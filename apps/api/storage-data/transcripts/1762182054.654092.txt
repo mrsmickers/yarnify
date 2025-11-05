@@ -1,0 +1,7 @@
+[Voicemail Greeting]
+
+You have reached the phone of Martin Newman. I'm afraid I am unable to answer your call at this moment. If you leave me your name and number, I will get back to you as soon as possible. Thank you. After you've finished your message, just hang up, or to hear more options, please press 1.
+
+[Voicemail Message]
+
+Cameron: Hi Martin, it's Cameron from Ingenio. I thought I'd call quickly to see if you had some time to go through this net extender changeover. You mentioned you're around at three o'clock, so I thought I'd check. I've got a couple of calls booked in after this, but let me know if you get some time later on today. I can send you an email, and obviously, I'll be able to call. It's just a quick five-minute change, so it shouldn't take too long. I'll probably be free from 4:30 to 5:00, or if not, I'm around for the rest of the week. So yeah, just let me know when you're free, and we'll go from there. Thanks.

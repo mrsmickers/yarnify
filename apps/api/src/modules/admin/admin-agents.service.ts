@@ -459,7 +459,7 @@ export class AdminAgentsService {
         startTime: true,
         endTime: true,
         callStatus: true,
-        recordingPath: true,
+        recordingUrl: true,
       },
       orderBy: {
         startTime: 'desc',
@@ -481,7 +481,7 @@ export class AdminAgentsService {
           ? Math.floor((call.endTime.getTime() - call.startTime.getTime()) / 1000)
           : 0,
         callStatus: call.callStatus,
-        hasRecording: !!call.recordingPath,
+        hasRecording: !!call.recordingUrl,
       })),
     };
   }

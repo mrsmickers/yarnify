@@ -1,0 +1,97 @@
+**Jeannie O'Cameron:** Hello, Jeannie O'Cameron speaking.
+
+**Katrina:** Hello, Cameron, it's Katrina from LooCrafts again.
+
+**Jeannie O'Cameron:** Hello, hi.
+
+**Katrina:** I'm so sorry. I've managed to get back on the server, and all my programs are working apart from one. It's still trying to take it from a different server.
+
+**Jeannie O'Cameron:** Which program is it?
+
+**Katrina:** This is a digital one, and it's Practice Advance.
+
+**Jeannie O'Cameron:** Okay.
+
+**Katrina:** And I don't know how to get it on, but the rest of them are working fine.
+
+**Jeannie O'Cameron:** Have you got the digital drive mapped? Is that one of the ones that's mapped?
+
+**Katrina:** I don't know. I'd be lying to you if I said yes.
+
+**Jeannie O'Cameron:** Okay. I don't know. You know when you've got the little icon for your file explorer that brings up your files, and you can look at your network drives? Do you see the bit where it says network drives and you've got your letters? So like, maybe like an S drive or?
+
+**Katrina:** Yeah, yeah. I've got the F drive for my server.
+
+**Jeannie O'Cameron:** Yeah.
+
+**Katrina:** And then I've got server 19, which I think that is where it's from. But I just can't access it.
+
+**Jeannie O'Cameron:** Is the drive name digital or server 19?
+
+**Katrina:** Server 19.
+
+**Jeannie O'Cameron:** Just check the spelling of the name; otherwise, there might be a problem with your network. Does it have like a file name or path in the error?
+
+**Katrina:** It has, I can't see details. Error, oh, I've got an error code and that's it.
+
+**Jeannie O'Cameron:** Okay. Let me just find the ticket and see if Joel's still got it. See if we can give you a call back. Oh, he's got it in schedules.
+
+**Katrina:** Is that for me though? I know I called earlier regarding a colleague of mine.
+
+**Jeannie O'Cameron:** That's for your one.
+
+**Katrina:** Okay. I see, he says he's got it working, but it's been escalated. See if we can stop it. I think we've now got two tickets with the same goal.
+
+**Jeannie O'Cameron:** Stop it coming back for all staff.
+
+**Katrina:** Yes, because I did call regarding a colleague of mine who has the same problem, keeps coming off the server.
+
+**Jeannie O'Cameron:** Yeah.
+
+**Katrina:** But his has been escalated.
+
+**Jeannie O'Cameron:** Okay, yeah. I can see if I can jump on quickly to figure out what's going on with this other digital one. What's your machine name?
+
+**Katrina:** It should just be CAP.
+
+**Jeannie O'Cameron:** Okay, I think I've got it. Is this the one?
+
+**Katrina:** Yeah, that's it. I think it's frozen. Is it this one?
+
+**Jeannie O'Cameron:** Yeah. Oh, it's because that's stopped. That's weird, it's just gone. Oh, there you go. I know it probably wasn't mapped before, but I'll just map it anyway.
+
+**Katrina:** This is all very new to me.
+
+**Jeannie O'Cameron:** Sorry, yeah. Some people have it mapped as a drive so that you can see it. When you see that, you see down here it's got server and digital.
+
+**Katrina:** Yeah.
+
+**Jeannie O'Cameron:** If they're green, it means they're connected. If you see like a red cross, it means they're not. Sometimes having it as a drive gives you a quick glance to see if one of them is broken or if they're working.
+
+**Katrina:** Okay.
+
+**Jeannie O'Cameron:** So by that being green, you can kind of see that you can get into the digital folder. So do you want to try that digital app again?
+
+**Katrina:** Sorry, I'm not sure which one it was.
+
+**Jeannie O'Cameron:** Yeah, I will probably just do it from...
+
+**Katrina:** Yeah, it might be a good idea to close and reopen it.
+
+**Jeannie O'Cameron:** Okay. Oh, okay. That's okay, I didn't know it was already closed. Oh, but it's worked.
+
+**Katrina:** Yeah.
+
+**Jeannie O'Cameron:** Fine.
+
+**Katrina:** Yeah, cool. I think that drive just needed mapping as well.
+
+**Jeannie O'Cameron:** Thank you so much, I'm sorry.
+
+**Katrina:** Hopefully that's the last for today.
+
+**Jeannie O'Cameron:** No, that's okay. What I'll probably do is close your ticket and just have Johnny's because now we've got two tickets, separate tickets to try and work on figuring out why the issue keeps coming back. So I'll probably end up closing yours and adding a note to Johnny's one just to say that this is still affecting multiple people.
+
+**Katrina:** Yeah, that sounds good. Thank you.
+
+**Jeannie O'Cameron:** Cool. Okay. Lovely. Thanks. Bye.

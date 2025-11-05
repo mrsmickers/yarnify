@@ -1,0 +1,235 @@
+**Emily:** Hi, good morning. It's Emily from Phoenix Systems.
+
+**Joel:** Hello. Hiya, how are you doing?
+
+**Emily:** I'm good. How are you doing?
+
+**Joel:** Yeah, not bad. Having a little problem?
+
+**Emily:** Yeah, the only thing is I came in this morning and it wasn't connecting.
+
+**Joel:** Yeah.
+
+**Emily:** Look, I had internet, but we restarted everything and now we don't even have internet.
+
+**Joel:** Okay, yeah, we saw your UPS go offline, so we thought it was a power outage.
+
+**Emily:** Yeah, when I came in this morning, the phones all said SIP failed, like as if it had had an outage.
+
+**Joel:** Uh-huh.
+
+**Emily:** So I tried the line that was lying, but I just tried to do a call. Obviously, now there's no internet, it's not working. But, yeah, it was all sort of down.
+
+**Joel:** Yeah, okay, and you've restarted everything and it's still not doing anything. Actually, hold on a second.
+
+**Emily:** Okay.
+
+**Joel:** Hello.
+
+**Emily:** I'm good, thanks. I'm good, thanks. I'm good, thanks. I'm good, thanks. Yeah, I'll just go there. I'll just go there. I'll just go there. I've got one.
+
+**Joel:** Okay, yeah.
+
+**Emily:** I've got one. Yeah, I've got it. Okay, sorry.
+
+**Joel:** Yeah, it's all right.
+
+**Emily:** Okay, yeah.
+
+**Joel:** Okay, yeah. It's all right. I need a minute. This is a lot. This is a lot. This is a lot.
+
+**Joel:** Hiya, Joel speaking.
+
+**Emily:** Hi, Joel.
+
+**Joel:** Hiya.
+
+**Emily:** Yeah, I've just been taking a little look. It looks like your site's gone down.
+
+**Joel:** Yeah.
+
+**Emily:** Just taking a look at what we've got on hand. Was there a power outage or do you know what's happened at all?
+
+**Joel:** I don't know whether something happened in the night. There wasn't like a storm or anything. I came in and the phone said, SIP failure. But when it uploads, doesn't it do that every so often? And it had failed. I had internet, but no Outlook. It wasn't loading. So, yeah, we restarted the modem.
+
+**Emily:** Yeah.
+
+**Joel:** So we turned it off and on, you know, left it. And then, yeah, now it's got the little globe, no internet.
+
+**Emily:** Okay, so is it a BT modem or is it, do you know what IP is?
+
+**Joel:** No, it's Bryant Broadband. We get the service through.
+
+**Emily:** I see, okay. Right, let's try a couple of quick bits. But this might be something you have to go to your internet service provider about because the line's dropped.
+
+**Joel:** Okay.
+
+**Emily:** So we can try restarting the SonicWall. Do you know where that is at all?
+
+**Joel:** It might be looking at the site notice I've got here on top of the cabinet. Yeah, it's downstairs. I'll go down.
+
+**Emily:** No problem. Let's try rebooting that. One second.
+
+**Joel:** All right. Nearly there. Yeah, it looks like we got an alert about 8:30 looking at this.
+
+**Emily:** So, yeah.
+
+**Joel:** Right, yeah, that was just when I came in. I got in just after 8:30.
+
+**Emily:** Okay, right, yeah, so it looks like it's quite an evening. Right, so I've got the SonicWall here. Is it something from behind or?
+
+**Joel:** Yes, so there should be a funny-looking power cable, but there should be a power cable going into the back of it if you could unplug that. And all the lights at the front should go out if you could plug that back in.
+
+**Emily:** It's just a bit tight, I think.
+
+**Joel:** Right, so I imagine, yeah.
+
+**Emily:** Yeah, it's that one. It says 12 volts underneath.
+
+**Joel:** That's the one, yeah.
+
+**Emily:** Yeah, so unplug that and then leave it for a bit or just plug it back in?
+
+**Joel:** You could leave it for about 5 to 10 seconds and then plug it back in for me.
+
+**Emily:** Okay.
+
+**Joel:** And looking at the photos, is the modem just to the right of that?
+
+**Emily:** Yes.
+
+**Joel:** Yes. And have you tried rebooting that as well this morning?
+
+**Emily:** Yeah, that's what we rebooted.
+
+**Joel:** Okay. And to be honest, it did have all the lights flashing green before I rebooted it, but I thought, oh, I'll just give it a go.
+
+**Emily:** No, but that's what we're trying anyway, so.
+
+**Joel:** Yeah, shall I do that again?
+
+**Emily:** Why not? Yeah, might as well.
+
+**Joel:** Yeah.
+
+**Emily:** Because does that, the cable, should it go into WAN or LAN?
+
+**Joel:** It depends which cable you're talking about.
+
+**Emily:** Right.
+
+**Joel:** So that would be the Ethernet cables. Have you swapped them around at all today or have you only touched the power link?
+
+**Emily:** No, it's just Gordon came down and he restarted it again and he said he just pulled the cables out and then plugged them back in.
+
+**Joel:** Oh, okay. So whether he's put them in the right.
+
+**Emily:** Right. Maybe I should send you a picture.
+
+**Joel:** Yes, please, if I could have a picture. Let me just quickly, of how we've got it. I'm not, I just hit the button. I thought I'll turn it off. Because there should be, the WAN connection side should be going into the wall and then there'd be another going out to the SonicWall.
+
+**Emily:** Yeah, so there's a yellow one that goes into the wall. That one's going into WAN.
+
+**Joel:** Okay. That's right.
+
+**Emily:** Yeah, that's correct.
+
+**Joel:** Okay, that's fine. And then there's another one, there's a black one that goes into LAN. For LAN there's three, like, sockets and it's in the third one.
+
+**Emily:** Okay. LAN one, yeah.
+
+**Joel:** Okay, yeah, I'm sure he just pulled them out and put them straight back in. I just wanted to check. But they're all on green. So let me, I'll restart that and then I'll leave it for a bit.
+
+**Emily:** Yeah, so if not, do you think it's the service provider, the service provider, broadband then?
+
+**Joel:** Yes. Yeah, if this doesn't work, I'd recommend contacting your ISP and going from there. But we can continue to help, of course, since we don't manage the actual, the line.
+
+**Emily:** Yeah.
+
+**Joel:** We can't do that much more, I'm afraid.
+
+**Emily:** Yeah, no, that's fine. We'll get in contact with them and see what's going on there. Has the SonicWall come back up? Is there light flashing on the front of it?
+
+**Joel:** Yeah, so there's a blue one and then an orange flashing light and now it's starting to get yellow, two yellow lights.
+
+**Emily:** Oh, it looks like I can see a PC that's just come online. That's good news.
+
+**Joel:** Okay, the modem's just starting to get its flashing light. I think that's connected. That might be Jackie's one. That's probably her.
+
+**Emily:** Oh, yeah, she's at home.
+
+**Joel:** Yeah.
+
+**Emily:** Oh, it could be. Yeah, half nine. Yeah, look.
+
+**Joel:** Oh, I thought we were in luck for a second there.
+
+**Emily:** Oh.
+
+**Joel:** A bit of hope.
+
+**Emily:** Yeah, so there are now three green lights on it.
+
+**Joel:** Yeah, okay.
+
+**Emily:** Or yellow, I don't know how you want to look at them.
+
+**Joel:** Yeah, they normally go between orange and green, but if it's green, that's normally the same.
+
+**Emily:** And now the modem seems to have all the lights.
+
+**Joel:** Okay, so the modem is back up as well.
+
+**Emily:** Yeah.
+
+**Joel:** Are there any no internet lights on there at all?
+
+**Emily:** No, they're all green. It's just flashing on one that is one. I suppose that's that LAN one from behind because it has one, two, three.
+
+**Joel:** Yeah.
+
+**Emily:** It is, isn't it? Constantly flashing.
+
+**Joel:** Yeah, that's quite normal.
+
+**Emily:** Yeah.
+
+**Joel:** Yeah, so you can't see any.
+
+**Emily:** I can't see anything, I'm afraid.
+
+**Joel:** No, it looks like it's still down. What I can do, I can write some notes of what we have tried. In the meantime, I would advise you to contact your ISP.
+
+**Emily:** Yeah.
+
+**Joel:** And see if they're aware of any outages or anything like that in the area.
+
+**Emily:** Okay.
+
+**Joel:** And then we can go from there and I'll escalate this up as well, see if there's anything else we could possibly try on site.
+
+**Emily:** Yeah, no, it's probably they've got a downtime or something, hopefully.
+
+**Joel:** Fingers crossed.
+
+**Emily:** Yeah.
+
+**Joel:** Okay.
+
+**Emily:** Okay, thanks a lot.
+
+**Joel:** No worries. I speak to you in a little bit.
+
+**Emily:** Okay. Well, we'll let you know.
+
+**Joel:** No worries.
+
+**Emily:** Yep. Thank you very much.
+
+**Joel:** That's great. Thank you.
+
+**Emily:** All right, thanks.
+
+**Joel:** Speak to you later.
+
+**Emily:** Speak to you later. Thanks. Bye.

@@ -1,0 +1,27 @@
+Speaker 1: Hi Joel, it's Chris from Southern Testing.
+
+Speaker 2: Oh hi, thanks for calling back.
+
+Speaker 1: That's okay, no problem, no problem. I've got James, new James logged on. I've reset his password on the server and what have you.
+
+Speaker 2: Okay.
+
+Speaker 1: So just getting him into Outlook and it's wanting, obviously, the two-factor authentication code. It's linked to a number that I don't know what that is.
+
+Speaker 2: Oh no worries, that might be me when I was setting it up. Hang on, give me a moment. Yeah, that's the one we use. Hang on, let me get that removed. Sorry about that. I didn't want to take that off. Use that to get him logged in for the time being because at the moment he doesn't have a mobile, which I've got to sort out this week for him—a company mobile. But it would be useful if we could have a code. Yeah, just use that to log him in.
+
+Speaker 1: I can't use that one, I'm afraid. The only options are using another mobile number, a landline number, or the Microsoft Authenticator app, but that's on a mobile phone as well.
+
+Speaker 2: Of course, let me do that now. Oh yes, that's my mistake, sorry. Let me get that removed. There we go, that's gone now. So if you could try that again for me, it should pop up for the setup for it.
+
+Speaker 1: Right, okay. So if I cancel that. It's come up with that update your browser thing. So I need to go into office.com on a web browser to get the Authenticator setup first now.
+
+Speaker 2: Yes, yeah, that's correct. Yeah, 2016 is a bit too old, I'm afraid, now. So yeah, if you could go to portal.office.com on a browser and sign in there and then do the Authenticator setup. Once you've done that, try signing back into Outlook and it should allow you through.
+
+Speaker 1: Yeah, okay, brilliant. Thanks, Joel. I will do that and I'll give you a call if there's any issues.
+
+Speaker 2: Lovely, okay, thanks very much for your time.
+
+Speaker 1: Okay, cheers, thanks.
+
+Speaker 2: Okay, cheers, thanks.

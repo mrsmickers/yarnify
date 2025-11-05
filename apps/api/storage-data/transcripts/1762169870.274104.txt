@@ -1,0 +1,53 @@
+**Speaker 1:** Hello?  
+**Speaker 2:** Oh Martin, hi, it's Cameron from Ingenio.  
+**Speaker 1:** Hello mate, you okay?  
+**Speaker 2:** Hello, I'm good, thanks. Yeah, how are you?  
+**Speaker 1:** Yeah, good, thank you.  
+**Speaker 2:** Good. I'll do this thing now. Yeah, I'm just calling to see if you've got some time to kind of go through the NetExtender stuff.  
+**Speaker 1:** Yeah, yeah, I'm literally on the computer now, so yeah.  
+**Speaker 2:** Oh cool.  
+**Speaker 1:** Yeah, yeah. Is it okay if I jump on the machine?  
+**Speaker 2:** Yeah, cool, yeah, yeah, give it up yourself, mate, yeah.  
+**Speaker 1:** Cool, let me just connect in. I've got it open at the minute in the NetExtender. Do you need it closed or...?  
+**Speaker 2:** No, no, it's good. Yeah, we'll do it through the app. It's a lot easier. I'll just sort of talk you through it. Do you remember, okay, yeah, is it okay if I disconnect it quick?  
+**Speaker 1:** Yeah, yeah, sure.  
+**Speaker 2:** Cool. Do you remember what app you linked it to on your phone? Did you link it to the Microsoft Authenticator app or do you have a different authenticator app on the phone?  
+**Speaker 1:** I've got the Authenticator app on my iPad. That's how I've connected it.  
+**Speaker 2:** Yeah, could we, have you got that to hand so we can go through? We just basically need to remove it from there and re-add it to there.  
+**Speaker 1:** Right, okay, I need to just go and get my phone, get my charger quickly.  
+**Speaker 2:** Yeah.  
+**Speaker 1:** I've got four percent this morning, so I just literally connected it and then shut it down. Give me two minutes.  
+**Speaker 2:** No, no worries. Right, so yeah, we just basically need to go into the app, and I could talk you through this, but it's just removing the old account and then we'll go through the process to add it again. Yeah, it's just basically the account needed to be reset for everyone.  
+**Speaker 1:** Would it be easier because my iPad's charging, but I'm not sure if I've got it on here. Would it be easier to just reset it up on my phone?  
+**Speaker 2:** Yeah, we could do the phone. The phone works, yeah, just have to make sure that when you log in going forward, you remember that it's the phone, not the iPad, because the iPad one will basically stop working and then the phone one will start working, if you know what I mean. So the one that is on the iPad won't work anymore, but yeah, we can do the phone if that's easier.  
+**Speaker 1:** Yeah, do the phone because that one's going to take a while to charge, I think. So yeah, I've got my phone open and you're on the speaker.  
+**Speaker 2:** Okay, cool. Have you got the authenticator app on your phone?  
+**Speaker 1:** Yeah, I have, yeah.  
+**Speaker 2:** Is it the one with like a blue shield and a blue person?  
+**Speaker 1:** That's it, yeah.  
+**Speaker 2:** Okay, and when you open it, what accounts have you got listed at the moment?  
+**Speaker 1:** I'm not sure, to be honest.  
+**Speaker 2:** If it hasn't got any, we can just add a new one, that's cool.  
+**Speaker 1:** It just says pest control partnership marketing at cleankill.co.uk.  
+**Speaker 2:** Yeah, is it just the one listed?  
+**Speaker 1:** Yeah, that's it, yeah.  
+**Speaker 2:** Okay, cool. Well, do you have the blue icon in the bottom right corner of the app?  
+**Speaker 1:** Yeah, with the three squares in there, sort of like.  
+**Speaker 2:** Yeah, if you tap that icon, it should ask you to use your camera so you can scan the QR codes.  
+**Speaker 1:** Or I'll put I'm not using this app yet.  
+**Speaker 2:** Cool, on your laptop screen, I think we just need to type out your password into the NetExtender window, and then this basically generates a QR code from this window.  
+**Speaker 1:** Yeah, that's the one, yeah, so you scan that. Yeah, remote.cleankill.co.uk, that's what I'm on.  
+**Speaker 2:** Cool, yeah, so if you tap into that, does it give you a six-digit code? We just have to type it out on the screen.  
+**Speaker 1:** Cool, and that is all done.  
+**Speaker 2:** Yeah, so you won't have to do the scanning every time. You just have to remember to type the code out every time you need it, but your iPad one will no longer work. So what you want to do when your iPad's charged is load into the app, load into the remote.cleankill account, and then remove it. There's a little cog icon in the top right corner you use to remove it.  
+**Speaker 1:** What, the actual authenticator to delete that, yeah?  
+**Speaker 2:** Not the app, sorry, the account on your iPad that you used to use for NetExtender. That'll no longer work.  
+**Speaker 1:** Oh, I never use NetExtender on my iPad. I only literally just use it for the authenticator app to get on my laptop, so I never, it's not all loaded on that.  
+**Speaker 2:** Okay, yeah, it's just so going forward when you use NetExtender on the laptop, you just have to make sure to load the app up on your phone, on your mobile phone, so that will be the one that you now use to log in, if that makes sense.  
+**Speaker 1:** And what, so what have I got to load onto my phone?  
+**Speaker 2:** You know, if we disconnect, I'll show you. So the process going forward when you log in, you open up NetExtender and you hit the connect button. So when you hit connect, obviously it asks you for your password, yeah, so if you want to type that out and then hit the connect button, and then once you've done that, this window comes up here, and you have to now open up the app on your mobile phone instead of your iPad. So if you open up the authenticator app on your mobile phone, yeah, tap into the remote.cleankill, and then you type out the six-digit code on screen, yeah, that should get you back into NetExtender.  
+**Speaker 1:** Cool, yeah, so that's the process going forward.  
+**Speaker 2:** Yeah, sorry, that's all I meant, but any issues, just give me a call.  
+**Speaker 1:** Yeah, yeah, okay, mate, brilliant, thank you.  
+**Speaker 2:** Thanks.  
+**Speaker 1:** All right.

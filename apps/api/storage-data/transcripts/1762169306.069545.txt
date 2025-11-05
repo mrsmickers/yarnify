@@ -1,0 +1,85 @@
+Speaker 1: Hello, it's Cameron from Eugenio.
+
+Speaker 2: Hi Cameron, how are you doing?
+
+Speaker 1: Good, thank you. Yeah, how are you?
+
+Speaker 2: Yeah, I've been better, but don't worry about that. Just the colds and stuff like that, usual.
+
+Speaker 1: Yeah, it's that time of year.
+
+Speaker 2: Yeah, I picked it up at this... I don't know if you remember, I talked to you before I went away for a week. It was a wedding, so I think we all basically spread it around.
+
+Speaker 1: That happens.
+
+Speaker 2: Yeah, I know. As long as that's all we spread around, but there you go. Sorry I missed the call as well. Are you free at all today to go over this?
+
+Speaker 1: Yeah, when do you want to do it? I have some time now, or I can call you back later if you want me to.
+
+Speaker 2: No, I can do it now. I'll just stop what I'm doing for a while. What do you want me to do on this end?
+
+Speaker 1: Let me just see if I can connect to your machine. Ah, I can. Is it okay if I jump on? I'm just going to dial in. I think this is the one, Mike. Yeah, 45, that's it, you're on.
+
+Speaker 2: Okay, so for the next end of stuff, we're going to do it through the app, but on your phone. Do you remember what app you linked it to? Basically, all we need to do is remove it and relink it to the app, so it's kind of like resetting that link. Was it Microsoft Authenticator you used?
+
+Speaker 1: Yes, it was, yeah.
+
+Speaker 2: Okay, cool. So on your phone, I can talk you through this. We basically just need to remove it from the Microsoft Authenticator app.
+
+Speaker 1: Alright, hang on, let me put you on loudspeaker.
+
+Speaker 2: Yeah, no worries.
+
+Speaker 1: Right, okay, so loudspeaker, and you want me to get onto the Authenticator app, yeah?
+
+Speaker 2: Yeah, if you load into it first.
+
+Speaker 1: Okay, so I'm pressing Authenticator now. I'm in, and it gives me three options, which are PCP, Clean Kill, and Remote Clean Kill.
+
+Speaker 2: So tap into the Remote Clean Kill one, and it loads the new screen. In the top right corner, do you now have a cog icon?
+
+Speaker 1: Yeah.
+
+Speaker 2: Yeah, click on the cog icon, and then remove account.
+
+Speaker 1: Okay, done.
+
+Speaker 2: Cool, and now if you're back on the main Authenticator screen, have you got a blue icon in the bottom right corner?
+
+Speaker 1: Yeah.
+
+Speaker 2: Yeah, tap on that, and that should ask you to access your camera so you can scan a QR code.
+
+Speaker 1: Yeah.
+
+Speaker 2: Cool, so if we look back at the laptop, on the right screen, are you able to type out your password for me just quickly? Just a Clean Kill password.
+
+Speaker 1: So good, this will... And then enter?
+
+Speaker 2: Yes, yeah, press enter. And then for that QR code, you need to scan that with a camera from your phone.
+
+Speaker 1: Done it. Account added.
+
+Speaker 2: Cool, so you tap into the account. Do you want to type out the six-digit code on the screen?
+
+Speaker 1: Yeah, I'll do. Am I on it? Am I on it? Yeah, I'm on it.
+
+Speaker 2: Cool. And then... Cool, that is all done.
+
+Speaker 1: Is that it?
+
+Speaker 2: You are all done. Yeah, it's just basically resetting it really quickly. Obviously, going forward, you don't have to do the scanning and everything, but you have to type that code out every time.
+
+Speaker 1: Yeah, that's fine.
+
+Speaker 2: Cool.
+
+Speaker 1: Yeah, that's normal. Nothing really changed then.
+
+Speaker 2: Yeah, yeah, that's it. Thank you for that. Appreciate your time.
+
+Speaker 1: No worries. Thanks, take care. Have a good one.
+
+Speaker 2: Bye.
+
+Speaker 1: You too, bye.

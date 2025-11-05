@@ -1,0 +1,87 @@
+**Automated System:** Thank you for calling Ingenio Technologies. To help us direct your call, please select from one of the following options: one for support, two for sales, three for account.
+
+**Cameron:** Hello, Ingenio, Cameron speaking.
+
+**Katrina:** Hello Cameron, it's Katrina from LooCrafts again.
+
+**Cameron:** Hello, hi.
+
+**Katrina:** I'm so sorry. I've managed to get back on the server, and all my programs are working apart from one. It's still trying to take it from a different server.
+
+**Cameron:** Which program is this?
+
+**Katrina:** This is a digital one, and it's Practice Advance.
+
+**Cameron:** Okay.
+
+**Katrina:** I don't know how to get it on, but the rest of them are working fine.
+
+**Cameron:** Have you got the digital drive mapped? Is that one of the ones that's mapped?
+
+**Katrina:** I don't know. I'd be lying to you if I said yes.
+
+**Cameron:** Okay. You know when you've got the little icon for your file explorer that brings up your files, and you can look at your network drives? Do you see the bit where it says network drives, and you've got your letters for like an S drive or an...?
+
+**Katrina:** Yeah, yeah, I've got the F drive for my server.
+
+**Cameron:** Yeah.
+
+**Katrina:** And then I've got server 19, which I think is where it's from.
+
+**Cameron:** Yeah, so that's where digital is. But you just can't access it?
+
+**Katrina:** Is the drive name digital or server 19?
+
+**Cameron:** Server 19. Check the spelling of the name; otherwise, there might be a problem with your network. Does it have like a file name or path in the error?
+
+**Katrina:** It has... I can't see details. Oh, I've got an error code, and that's it.
+
+**Cameron:** Okay. Let me just find the ticket and see if those two have got it. See if we can give you a call back. Oh, he's got it in schedules. Is that for me though?
+
+**Katrina:** I know I called earlier regarding a colleague of mine.
+
+**Cameron:** That's for your one. Okay. Oh, I see. He says he's got it working, but it's been escalated. See if we can stop it. I think we now have two tickets with the same goal: stop it coming back for all staff.
+
+**Katrina:** Yes, because I did call regarding a colleague of mine who has the same problem. It keeps coming off the server.
+
+**Cameron:** Yeah. But his has been escalated. Okay. I can see if I can jump on quickly to figure out what's going on with this other digital one. What's your machine name?
+
+**Katrina:** Kat. It should just be Kat.
+
+**Cameron:** Let's see if I can find it. Okay, I think I've got it here. Is this the one?
+
+**Katrina:** Yeah, that's it.
+
+**Cameron:** Let's see. I think it's frozen. Is it this one? Let's see what that's got. I'm guessing that the... Oh, there you go. I know this probably wasn't mapped before, but I'll just map it anyway.
+
+**Katrina:** This is all very new to me.
+
+**Cameron:** Sorry, yeah. Some people have it mapped as a drive so that you can see it. When you see that, you see down here where it's got server and digital?
+
+**Katrina:** Yeah.
+
+**Cameron:** If they're green, it means they're connected. If you see a red cross, it means they're not. Sometimes having it as a drive gives you a quick glance to see if one of them is broken or if they're working.
+
+**Katrina:** Oh, right. Okay.
+
+**Cameron:** By that being green, you can see that you can get into the digital folder. Do you want to try that digital app again?
+
+**Katrina:** Sorry, I'm not sure which one it was.
+
+**Cameron:** Yeah, I will probably just do it from...
+
+**Katrina:** Yeah, it might be a good idea to close and reopen it.
+
+**Cameron:** Okay.
+
+**Katrina:** Oh, okay. That's okay. It was already closed. It's fine.
+
+**Cameron:** Yeah, cool. I think that drive just needed mapping as well.
+
+**Katrina:** Thank you so much. I'm sorry. Hopefully, that's the last for today.
+
+**Cameron:** No, that's okay. What I'll probably do is close your ticket and just have Johnny's because now we've got two separate tickets to try and work on figuring out why the issue keeps coming back. I'll probably end up closing yours and adding a note to Johnny's one just to say this is still affecting multiple people.
+
+**Katrina:** Yeah, that sounds good. Thank you.
+
+**Cameron:** Cool. Okay. Lovely. Thanks. Bye-bye.

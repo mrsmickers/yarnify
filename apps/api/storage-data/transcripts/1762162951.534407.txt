@@ -1,0 +1,35 @@
+**Automated Message:** Thank you for calling Ingenio Technologies. To help us direct your call, please select from one of the following options. Did you know we sell managed printers? Never pay for toner, consumables, or repairs again with our fast and colorful printers. Simply pay for what you print. When you're running low on toner, you're sent more automatically. Enjoy full support, repairs, and parts for as little as £20 per month. Talk to a member of staff today to find out more information.
+
+**George:** Hi, through to George.
+
+**Caller:** Hi, I missed your call.
+
+**George:** Oh yes, I'm just going to transfer you to my colleague. Bear with me. Thank you.
+
+**Automated Message:** Did you know we sell...
+
+**Cameron:** Hi, it's Cameron.
+
+**Caller:** Yes, it's the Dell technician.
+
+**Cameron:** Hi, how are you? You okay?
+
+**Caller:** Yeah, I'm good, how are you?
+
+**Cameron:** Yeah, good, thank you. Sorry, I just had a meeting, so I've just come back out of it. I heard you... Are you heading to the site?
+
+**Caller:** Yeah, I'll be there at 9:50, so probably 10 minutes.
+
+**Cameron:** Okay, and that's Keeble House? Just let me confirm.
+
+**Caller:** Keeble House, yeah.
+
+**Cameron:** Cool. Yeah, you need to phone the primary contact on the ticket. I think we're the secondary. I'm not on site. Chris Leonard's on site. He's the primary contact.
+
+**Caller:** Chris, okay. I'm going to go and ask them for Chris.
+
+**Cameron:** No problem. Yeah, you can call back and speak to me if you can't get hold of Chris. I'm going to call him directly now, but he's the one who's on site, so he's your primary contact.
+
+**Caller:** No problem, no problem. Thank you.
+
+**Cameron:** Okay, thanks. Take care. Bye.

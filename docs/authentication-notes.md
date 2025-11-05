@@ -11,6 +11,27 @@
 - `JwtStrategy` now validates only the API-issued tokens which keeps the runtime
   independent from external JWKS fetches and simplifies local development.
 
+## Token Refresh
+
+### Backend (`/api/v1/auth/refresh`)
+- Endpoint accepts Entra refresh token from HTTP-only cookie
+- Exchanges refresh token with Microsoft Entra for new tokens
+- Issues new API JWT session token
+- Updates both `access_token` and `refresh_token` cookies
+- Returns success response with new access token
+
+### Frontend (Automatic)
+- **Proactive Refresh**: Token is automatically refreshed every 55 minutes
+  (JWT expires after 60 minutes, giving a 5-minute buffer)
+- **Reactive Refresh**: If a 401 error occurs, interceptor attempts token refresh
+  before retrying the failed request
+- **Visibility Refresh**: When user returns to the tab after being away, token
+  is refreshed immediately to prevent expiration issues
+- Users stay logged in indefinitely as long as:
+  1. The tab remains open (proactive refresh keeps token alive)
+  2. The Entra refresh token hasn't expired (typically 90 days)
+  3. User returns to the tab before token expires (visibility handler)
+
 ## Gaps / Follow-up Work
 
 1. **Administrator area:**

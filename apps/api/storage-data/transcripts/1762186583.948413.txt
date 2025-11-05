@@ -1,0 +1,29 @@
+Speaker 1: Hi, I've got a couple of issues regarding my PC and stuff.
+
+Speaker 2: OK, what are your problems? May I have your name, please?
+
+Speaker 1: Jonathan Wood.
+
+Speaker 2: No problem. OK, let me make a ticket for you. May I know what the issues are regarding?
+
+Speaker 1: The first one is I can't get onto Digital Practice Advanced. And then the other one is my template is not showing up on Practice Management.
+
+Speaker 2: OK, do you know what the error message is when you try to get onto Practice Advanced?
+
+Speaker 1: Yeah, I think it's because they just called earlier and obviously the server was remapped.
+
+Speaker 2: Yeah, the issue is related to that. OK, apologies for that.
+
+Speaker 1: That's alright.
+
+Speaker 2: OK, what I'm going to do is make a new ticket for you, and then I can get an engineer to call you back.
+
+Speaker 1: Yeah, that'll be fine.
+
+Speaker 2: OK, lovely. Let me get that open for you, and we'll call you back as soon as we can.
+
+Speaker 1: Cool. Cheers. Thank you.
+
+Speaker 2: All right. Thanks. Bye.
+
+Speaker 1: Bye.

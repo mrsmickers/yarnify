@@ -1,0 +1,27 @@
+Speaker 1: Hello, Engineer Cameron speaking.
+
+Speaker 2: Hi, do you do call outs in HODE to help me with something?
+
+Speaker 1: Sorry, the line's gone a bit there. Can you repeat that?
+
+Speaker 2: Do you do call outs in HODE?
+
+Speaker 1: What's the company?
+
+Speaker 2: It's not a company, it's just an individual.
+
+Speaker 1: I'm not sure. You've come through to the help desk. I can put you through to the account management team.
+
+Speaker 2: Yes, please. Thank you.
+
+Speaker 1: Thanks very much.
+
+Speaker 2: Thanks.
+
+Speaker 1: Hi, I can't get through. I think they're in a morning meeting actually. I can't get through to them. I'll call later.
+
+Speaker 2: It's all right. I'll call back later. I'll call back in an hour.
+
+Speaker 1: Thanks a lot.
+
+Speaker 2: Thanks. Take care. Bye.

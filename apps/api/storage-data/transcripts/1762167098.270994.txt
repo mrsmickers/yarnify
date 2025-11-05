@@ -1,0 +1,57 @@
+**Cameron:** Hello, Ingenio, Cameron speaking.
+
+**Andre:** This is Andre from London, guys.
+
+**Cameron:** Oh, hi. How are you doing?
+
+**Andre:** Good. I'm expecting a call in regards to setting up a new user.
+
+**Cameron:** Yeah, I tried calling this morning. So I've got the new user set up. The account's all there, the license is all there. I just kind of wondered if you needed a hand logging into a machine or anything? Like, have you got a laptop assigned to them? Is it still the same laptop?
+
+**Andre:** Yes, I do have, as a matter of fact, my own laptop for him to use. So yeah, I think it's already been, everything's been deleted out of it. And he's just setting up his new... Is it LTO4? Is that what you've listed on this?
+
+**Cameron:** Yeah, just turned it on now. I don't know if you need to have a look at it or not.
+
+**Andre:** Yeah, I can see LTO4 on my side. Is it the Dell XPS? Is it like a thin Dell laptop?
+
+**Cameron:** It is, yes. Yes, it is. XPS, yeah.
+
+**Andre:** Okay, I can see that. Yeah, I mean, if you want, I can jump on, log in, just set things up like Outlook. With the pick and pack group that I gave access to, does that also mean that this person needs access to certain files? Is that like a SharePoint?
+
+**Cameron:** It is a SharePoint, yes. It is certain files and the calendar do it.
+
+**Andre:** Okay, cool. Which I'm happy for him to do.
+
+**Cameron:** Yeah, so I can map that as well and everything, so that when they log in, they've got emails, they've got the pick and pack files, they can do stuff through there. One thing just to note is because of the type of license that the account has, it says obviously Mirror Jake Beaumont's permissions and the licensing. It's just a basic license, so you don't get Microsoft Office. It won't be able to activate Microsoft Office.
+
+**Andre:** I believe that's fine for the time being. I suppose it can always be changed, can't it?
+
+**Cameron:** Yeah, you get the applications on the web, so what I can do is I can log into Microsoft Edge and I can bookmark Outlook Online and I can bookmark SharePoint Online and Word Online, stuff like that, so they can access it on the web browser. But yeah, if you wanted it to be accessible on a desktop app, you would need a different license.
+
+**Andre:** Yeah. That's okay, I can log in and do that. That number on the form, I'm guessing that's Anthony's number, the one that ends in 023?
+
+**Cameron:** I believe so, yes.
+
+**Andre:** Okay.
+
+**Cameron:** Yes. If you want, we're probably going to need to set up multi-factor authentication for Anthony. Is Anthony around?
+
+**Andre:** No, he's not here yet. He'll be here soon.
+
+**Cameron:** Okay. Yeah, today is his first day, so.
+
+**Andre:** Okay. Yeah, we may not even get as far as the laptop stuff because we're warehouse-based. It's going to be a lot of introductions to show him the warehouse and that sort of stuff before we get to the laptop side of things.
+
+**Cameron:** That's okay, yeah. Okay, leave it with me for a bit and I'll give you a call back. Is it easier calling you on this number directly when I've done it?
+
+**Andre:** Yes, please. Yes, please, if that's okay.
+
+**Cameron:** Cool. All right, no worries. I'll call you back.
+
+**Andre:** Thank you. Thank you so much. And thank you. I really appreciate the short notice. Sorry, I know that I left you a bit too late. Thank you for that.
+
+**Cameron:** That's all right. No worries. Take care.
+
+**Andre:** Thank you. Bye.
+
+**Cameron:** Cheers.

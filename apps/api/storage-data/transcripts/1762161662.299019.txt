@@ -1,0 +1,49 @@
+**Automated System:** Thank you for calling Ingenio Technologies. To help us direct your call, please select from one of the following options: one for support, two for sales, three for accounts, or four for...
+
+**Cameron:** Hello, Ingenio. Cameron speaking.
+
+**Katrina:** Oh yes, hello Cameron. It's Katrina calling from Lewcraft Hodgson and Dawson in Rustington.
+
+**Cameron:** Hello, hi, how are you?
+
+**Katrina:** I'm good, how are you?
+
+**Cameron:** Good, yeah, not bad, thank you. I've got a problem. I can't get onto the server this morning.
+
+**Katrina:** Okay.
+
+**Cameron:** Everyone else seems okay, it's just me that's being kicked off and I can't get back on.
+
+**Katrina:** What does it say when you try... I mean, the drive there, like the...
+
+**Cameron:** It says, so if I try and access it, the location is not available. It says it's unavailable for locations on the PC, make sure the device or drive is connected or the disk is inserted, and then try again.
+
+**Katrina:** Okay.
+
+**Cameron:** There is more, but I don't feel like reading it.
+
+**Katrina:** No, no, that's okay, I kind of know roughly what it's doing. Yeah, I'll have to make a ticket so we can call you back.
+
+**Cameron:** Yeah. I think, yeah, we had the issue before. It's a very random one because it pops up on different machines from time to time and...
+
+**Katrina:** I've heard, yeah, Johnny, I think, has had the same problem, Guy's just told me.
+
+**Cameron:** Yeah, we had it as well from some other machines and I basically just sort of changed the way it was mapped to make sure that it always kind of showed up and usually didn't come back, but I think we just need to go around, yeah, maybe have a look at the machines that are having the issue still, but...
+
+**Katrina:** It's been random though, it's been fine since we've been back and now it's just started doing this.
+
+**Cameron:** Yeah.
+
+**Katrina:** I'm like, oh God.
+
+**Cameron:** Okay, that's fine. Would it be today, do you know?
+
+**Katrina:** Yeah, yeah, it should be today, yeah.
+
+**Cameron:** Okay, okay, that's great. Thank you so much.
+
+**Katrina:** Oh, okay, no worries. Cheers, bye.
+
+**Cameron:** Okay, bye.
+
+**Katrina:** Bye-bye.

@@ -1,0 +1,27 @@
+**Automated System:** Thank you for calling Ingenio Technologies. To help us direct your call, please select from one of the following options: one for support, two for sales, three for accounts, or four for reception. Did you know we sell managed printers? Never pay for toner, consumables, or repairs again.
+
+**Receptionist:** Good afternoon, Ingenio. How can I help?
+
+**Caller:** Hi, good afternoon. May I please speak to Helen?
+
+**Receptionist:** Let me just see if I can get through to her. May I ask who's calling, please?
+
+**Caller:** This is Cindy Ward.
+
+**Receptionist:** Cindy Ward?
+
+**Caller:** Mm-hmm.
+
+**Receptionist:** Okay, hold the line, please.
+
+**Caller:** Thank you.
+
+**Automated System:** Did you know we sell managed printers? Never pay for toner, consumables, or repairs again with our fast and colorful printers. Simply pay for what you print. When you're running low on toner, you're sent more automatically. Enjoy full support, repairs, and parts for as little as £20 per month. Talk to a member of staff today to find out more information.
+
+**Receptionist:** Hello, I can't get through on her line at the moment. Can I take a message and get her to call you back?
+
+**Caller:** Alright, no worries. I think I should call back later.
+
+**Receptionist:** Okay, thank you. Bye.
+
+**Caller:** Have a good one.

@@ -1,0 +1,97 @@
+**Automated Message:** Thank you for calling Ingenio Technologies. To help us direct your call, please call 1-866-833-8338.
+
+**Charles:** Ingenio Technologies, Charles speaking. May I help?
+
+**Gordon:** Hello, mate. It's Gordon from Phoenix.
+
+**Charles:** Oh, hi. How are you?
+
+**Gordon:** I don't know. I think there's something slightly going weird on my little Dell laptop thingy.
+
+**Charles:** OK. I just thought it might be worth someone jumping on just to see. What keeps happening?
+
+**Gordon:** When you're using it or when you turn it on, the screen where you put your password in, it scrolls up a page, literally. So you can't see it. The only way to get it so that you can put the password in is to go Control-Alt-Delete, and then it appears that you've put this thing in. And then it's OK. But then it just shuts itself down quite often. This time, it just sort of shut itself off while I've gone off. But it won't even touch the spacebar. Nothing happens. So I then went Control-Alt-Delete. I tried Control-Alt-Delete. Nothing happened. So I then pressed the power button very gently. That rejuvenated it. And then I still had to Control-Alt-Delete. Now, when I've come up, if you look at the screen that I'm looking at, on Outlook, it's sort of got itself half reversed in white and blue and black and missing bits of it. I don't know. Something's not quite right with it.
+
+**Charles:** No, it definitely doesn't look it. But it's something to do with how you sign in, but I don't know why. Do you know what I mean?
+
+**Gordon:** My first thought...
+
+**Charles:** Sorry?
+
+**Gordon:** My first thought was something to do with the trackpad or the mouse, and it's like trying to scroll up.
+
+**Charles:** Yeah, it scrolls up. The minute you turn it on, it scrolls up and you lose the place that you do it. You see it disappear sometimes if you're quick enough.
+
+**Gordon:** Hmm. Okay. But then it obviously... What I was also doing is then when you've got it on, when I was using it, I went off to talk to Emily, it came back and it had obviously gone to sleep. Instead of going to sleep where you then touch the spacebar and it reappears, it doesn't reappear.
+
+**Charles:** Yeah.
+
+**Gordon:** So you have to Control-Alt-Delete to get it to put the number back in again, as it were. But this is the second time I've gone through that and it's actually like almost half powered itself off. So the light isn't on on the right one.
+
+**Charles:** Right. Sounds like...
+
+**Gordon:** In the corner. So I touch that and then I had to do Control-Alt-Delete to get it so I could put the number back in. And then this is what it's displayed the minute it's come through and I thought, nah, I need to ask someone. I need an expert.
+
+**Charles:** That's all right. It's because we keep threatening that it might need to go. That's all right. I just log in each separate little bit there.
+
+**Gordon:** No, that's all right. I just thought it would be easier to see it and make it easier to deal with it. Because when you come to do it, it won't be doing it.
+
+**Charles:** Yeah. Let me just double check if a Dell command update has run. I've never seen... Has it been happening today?
+
+**Gordon:** It's been going on for a couple of weeks probably. But never done it like it is now.
+
+**Charles:** Hmm.
+
+**Gordon:** Because we were thinking... Yeah, it's five years old and all that. And then we realized that actually it's been updated to Windows 11.
+
+**Charles:** Yeah.
+
+**Gordon:** Or 2020, whatever it is.
+
+**Charles:** Yeah.
+
+**Gordon:** So, actually, it's possibly worth running. And then Simon sent an email about it and I've really gone back and worked out what everybody was saying.
+
+**Charles:** Of course. Of course. It always happens, doesn't it? It's difficult.
+
+**Gordon:** Yeah.
+
+**Charles:** Yeah. Okay. What I'm going to do, I'm going to make a new ticket for you, which I'll get dispatched out now. And then an engineer can call you back if that's okay.
+
+**Gordon:** Yeah, I'm just going to pop up the road. I won't touch it. I'll leave it to Cameron or George or McCain or someone who wants to jump on. They can at least see it in the state it's in. Because also...
+
+**Charles:** Have you got the blue and white on your screen?
+
+**Gordon:** Um... What do you mean, sorry?
+
+**Charles:** Well, Outlook is on my screen.
+
+**Gordon:** Yeah. Oh, yes. Yeah, yeah, yeah. I've got a picture of that.
+
+**Charles:** Yeah. So, you've got it with blue and white. And then obviously it's missing all the things in the box next to it at the top, if you know what I mean. So, you can't... If I move the mouse...
+
+**Gordon:** Yeah, definitely. Some graphical...
+
+**Charles:** They're not showing unless you highlight them and they're showing in blue. And Emily's is probably better, but it's showing in blue when you hover over it. It's not happy. But I thought I'd leave it like that for one of them to see it.
+
+**Gordon:** Yeah. I can't do it. I could probably turn it off and turn it on, if you know what I mean. Close it and open it. But it's probably better that they see it in a map, if you know what I mean.
+
+**Charles:** Yeah, that's fine. I'll just leave it, because I'm going to go out and make a sandwich. But I can ring them on the mobile. I'll leave it like that, so they can jump on it and see.
+
+**Gordon:** Not a problem.
+
+**Charles:** What I'm going to do, I'm going to get that ticket open for you. I've attached the screenshot of it, just in case they can't jump on in time.
+
+**Gordon:** Yeah.
+
+**Charles:** I'll pop that in the ticket.
+
+**Gordon:** Lovely.
+
+**Charles:** Not a problem. Okay. We'll call you back and see what we can do. In the meantime...
+
+**Gordon:** Oh, I don't like doing normal ones. I like to be different.
+
+**Charles:** All right, mate. Thanks, man. Speak to you later.
+
+**Gordon:** All right. Thanks very much. Bye.

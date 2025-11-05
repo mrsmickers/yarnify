@@ -1,0 +1,29 @@
+**Speaker 1:** Good morning from testing.
+
+**Speaker 2:** Hi Amy, it's Zane here.
+
+**Speaker 1:** Hello Zane, there you are. I'm sorry, my phone was playing up there, wasn't it?
+
+**Speaker 2:** Yeah, yeah, I don't know what happened there. It's just me. How are you?
+
+**Speaker 1:** Yeah, I'm alright, thanks. How are you?
+
+**Speaker 2:** Good, I'm good, thank you. I was hoping to just jump on quickly and have a look at what's happening. Is it just happening for you?
+
+**Speaker 1:** Well, this is the thing. This happened before with the Dirkens laser printer, and everybody was having problems with it. None of the techs have said anything to me, but I know Bob was having real issues with it the last time. It was only because when it started happening to me the other day—well, when it started happening again to me last week—I thought, "Oh no." I know the techs were annoyed about it. We had a training day on Friday, and Neil and a couple of other people, I think because the printer was going—I don't know, they didn't say—but my assumption was because they kept going to the Dirkens laser printer. I think they went to, on their timesheet, there's like a print button, and because it was automatically going to the Dirkens laser printer, some of the boys, including Neil, went to the file print button to change the printer. But by printing it that way, it prints out 41 pages because you're printing the entire Excel sheet rather than just the page. So I said to Neil, "No, no, no, you need to go change it to the printer and file print, then come out of it and then go into the print button." I had to stop the printer a couple of times, but no one said anything. Then this morning, I tried to print something, and it went straight to the Dirkens laser printer as well. It's just like, I don't know why this randomly came up, but it was fixed last time, and then all of a sudden now it's come up again.
+
+**Speaker 2:** All right, let's have a look. Like, yeah, I don't know why we keep getting it pop up here. Yeah, look, see it says default, doesn't it?
+
+**Speaker 1:** No, okay, um, the real one is that Ricoh, isn't it?
+
+**Speaker 2:** Yeah.
+
+**Speaker 1:** Okay. All right, do you want to leave it with me for a second?
+
+**Speaker 2:** Yeah, okay.
+
+**Speaker 1:** And I'll give you a call straight back.
+
+**Speaker 2:** Okay, all right then. Thank you.
+
+**Speaker 1:** Thanks. Bye.

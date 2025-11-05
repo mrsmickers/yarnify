@@ -1,0 +1,115 @@
+**Speaker 1:** Good afternoon, Lucroff.
+
+**Speaker 2:** Hello, hi, it's Cameron from Ingenio. Is Johnny around?
+
+**Speaker 1:** Thank you, go with me. Thanks.
+
+**Speaker 3:** Oh, hello.
+
+**Speaker 2:** Hello. Hi, how's it going?
+
+**Speaker 3:** Not too bad, you alright?
+
+**Speaker 2:** I'm good, yeah, good thank you.
+
+**Speaker 3:** Good, good.
+
+**Speaker 2:** I've just picked up this ticket to help you get your, I think it's your server drive connected again. I wondered if you had a few minutes to look at it?
+
+**Speaker 3:** Yeah, yeah, of course.
+
+**Speaker 2:** Are you free now? Is it okay if I connect up to your machine?
+
+**Speaker 3:** Yeah, yeah, of course.
+
+**Speaker 2:** Cool, it should only really take like a minute if the issue is what I think it was.
+
+**Speaker 3:** Okay, cool, I can see your machine, let me just jump on it quick.
+
+**Speaker 2:** Okay. Is this the right one?
+
+**Speaker 3:** Yep.
+
+**Speaker 2:** Okay, I'm guessing when you go here... Okay, yeah, they've both got red crosses.
+
+**Speaker 3:** Yeah.
+
+**Speaker 2:** Yeah, weirdly it's just not set to remember the password. Oh, and that one doesn't work at all. I'm guessing the password's not set up on that one.
+
+**Speaker 3:** No.
+
+**Speaker 2:** Would it be possible to just, do you ever get prompted to change a password?
+
+**Speaker 3:** No, no, I think the last time it happened, I think it got changed. But, yeah, I tried that and obviously it didn't work, so, yeah.
+
+**Speaker 2:** That's okay, but to log in to your computer you've always had the same password?
+
+**Speaker 3:** Yeah, yeah, yeah, that hasn't changed, no.
+
+**Speaker 2:** Okay, what I'll do then, just really quickly, I'll jump on the server and, it's probably weirdly been prompted to reset itself on the server, which I can change. Let me just try this quick. Okay, yeah, so, it's strange you've got like two users on there. I'm not sure why, but, okay, password never expires. Do you want to try just typing out your normal login password then?
+
+**Speaker 3:** Normal one, yeah.
+
+**Speaker 2:** Okay, yeah, we'll just see if that helps. I've got an idea, let me try something else quick. Okay, I'm just going to try restarting this. Yeah, I'm just kind of looking at it. That's strange. Okay, I'm going to try again quick. Oh, I see, it's because someone's, okay, yeah, this machine's been set up a bit differently. Yeah, I can kind of see why. We might just have to use the spare account that's on the server.
+
+**Speaker 3:** Oh, it's just never, yeah, it's so much more difficult to do that.
+
+**Speaker 2:** I'll use that to sort it out. Okay, hopefully, let's just set it, oh no, wrong one. Let's just set it again from scratch.
+
+**Speaker 3:** Yeah, yeah, yeah, I was pretty sure that was the wrong set.
+
+**Speaker 2:** I think that's fine. Oh, I'm sorry, I'm a bit of a reason why this is so difficult. Because I realized that this was meant to be an appraisal, or pre-pandemonium. So that's why, you know, there's everything I've looked at. It's more about the role itself. Because what I did, is I checked which ones work, and the ones that don't do it. It really doesn't like this at all.
+
+**Speaker 3:** No, it doesn't.
+
+**Speaker 2:** Oh, it's set, that's fine. Okay, let me try this now that I've done that. I think this might, we might just have to use the, because the servers have a name, like server 2019, but they also relate to a number.
+
+**Speaker 3:** Oh, okay, I see.
+
+**Speaker 2:** So that's like the actual number of the server, but we'll try and do, we'll just map it using that instead. Because it doesn't seem like the name, but it seems to map with the number, which is a bit strange.
+
+**Speaker 3:** Yeah, I've mentioned to Guy a few times how it's, in the server's setup, it's always going to be kind of a strange issue between different machines. There's no uniform way on the server, so I think we need to speak to Guy about adjusting this, but that should, yeah.
+
+**Speaker 2:** Yeah, what I'll do as well to make it easier is when you open up your file explorer, it will load up on this screen. So when you click on this icon here, it will load up on this screen. So then you can see if they've got like green bars next to them, they're connected. But if they've got red crosses, they're not. So you can immediately see that you've got connection to both. Now that that's talking to the actual, although it says like the number, the name of it is still the digital share.
+
+**Speaker 3:** Yeah.
+
+**Speaker 2:** So yeah, they're connected. Obviously, if you get any strange issues again, let me know.
+
+**Speaker 3:** Yeah, I think Guy is already aware. Is there any other way to get around it? Obviously, apart from I have to call you guys every time, or is it just going to have to be like that for now?
+
+**Speaker 2:** It should, well, yeah, the way that I've mapped it, it shouldn't really make it an issue again unless Windows is asking. Do you know how frequently it's happening?
+
+**Speaker 3:** Every couple of weeks. Obviously, there's been a couple more because it disconnected from the server and stuff, but yeah, I know. For some reason recently it has seemed like every couple of weeks it seems to just disconnect randomly. Obviously, I don't know why.
+
+**Speaker 2:** Yeah. On your ticket, the ticket that I've got here with you, it's kind of been escalated to figure out a long-term fix so we can kind of stop it coming back. I have also mentioned to Guy that it's just the nature of how the server is set up. I think the server was bought and set up a while ago, so we've kind of mentioned that the server is set up to, it's not kind of set up the traditional way that you kind of would to have everything managed in one place.
+
+**Speaker 3:** Oh, okay.
+
+**Speaker 2:** Everything is kind of managed on the computers as opposed to managed on the server, which is a bit strange.
+
+**Speaker 3:** Okay.
+
+**Speaker 2:** Yeah, so we did mention it to Guy that that probably needs to be reviewed, but, yeah, the ticket is with someone to look at a longer-term fix anyway.
+
+**Speaker 3:** Yeah, yeah, yeah.
+
+**Speaker 2:** So, yeah, fingers crossed. By the time the issue is supposed to happen in a couple of weeks' time, by that time the fix is in place, so hopefully it will come back.
+
+**Speaker 3:** Yeah, hopefully not. That's the idea anyway.
+
+**Speaker 2:** So, yeah, I mean, we'll give you an update on the ticket, but, yeah, just let us know if you notice it beforehand.
+
+**Speaker 3:** Yeah, of course.
+
+**Speaker 2:** Okay. Cool, thank you for that. You should be good to go from there. Just give me a shout if you need anything else.
+
+**Speaker 3:** Yeah, I will do, I will do.
+
+**Speaker 2:** Okay. Cool, cheers.
+
+**Speaker 3:** Thank you. Take care.
+
+**Speaker 2:** Bye.
+
+**Speaker 3:** Bye.

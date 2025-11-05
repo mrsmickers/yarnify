@@ -1,0 +1,31 @@
+Speaker 1: Thank you for calling Ingenio Technologies. Gerald speaking. How may I help you?
+
+Speaker 2: Hi, I've got a couple of issues regarding my camera, PC, and stuff.
+
+Speaker 1: Oh, no problem. May I have your name, please?
+
+Speaker 2: Jonathan Wood.
+
+Speaker 1: No problem. OK, let me make a ticket for you. May I know what the issues are regarding?
+
+Speaker 2: The first one is I can't get onto Digital Practice Advanced. And then the other one is my template is not showing up on Practice Management.
+
+Speaker 1: OK. Do you know what the error message is when you try to get onto Practice Advanced?
+
+Speaker 2: Yeah, I think it's because they just called earlier and obviously the server was remapped.
+
+Speaker 1: Yeah, yeah. It's likely related to that. OK, apologies for that.
+
+Speaker 2: That's all right.
+
+Speaker 1: OK, what I'm going to do is make a new ticket for you, and then I can get an engineer to call you back.
+
+Speaker 2: Yeah, that'll be fine.
+
+Speaker 1: OK, lovely. Let me get that open for you, and we'll call you back as soon as we can.
+
+Speaker 2: Cool. Thank you.
+
+Speaker 1: All right. Thanks. Bye.
+
+Speaker 2: Bye.

@@ -1,0 +1,50 @@
+**Automated System:**  
+Thank you for calling Ingenio Technologies. To help us direct your call, please select from one of the following options: one for support, two for sales, three for accounts, or four for reception.
+
+**George:**  
+Good afternoon, Ingenio Technologies. George speaking. How can we help?
+
+**Rachel:**  
+Hi George, it's Rachel at GreenMob.
+
+**George:**  
+Hey Rachel, how are you doing? Sorry, I thought I'd do the spiel just in case.
+
+**Rachel:**  
+That's okay. So yeah, you just sent me a message and I couldn't really hear most of it.
+
+**George:**  
+Yep, I've got a reminder to... Just as a quick reminder, is today still okay to go ahead with all the bits and pieces?
+
+**Rachel:**  
+Yep, that's fine. No worries. And essentially, is there any device in the office that's not being used today that I could kind of just use for some testing, just to make sure that...
+
+**George:**  
+Yep, there are two laptops.
+
+**Rachel:**  
+No worries.
+
+**George:**  
+Actually, three laptops that will be used. I mean, if they're not being used, I don't suppose we could get them turned on now, could we? If that's okay, I might as well just see if we can do some bits now.
+
+**Rachel:**  
+Sure, yep. If that works.
+
+**George:**  
+No problem. We've got desk two; there's nobody there at the moment.
+
+**Rachel:**  
+No trouble.
+
+**George:**  
+Desk three laptop is available, and Olga's laptop.
+
+**Rachel:**  
+Perfect. If I could get you just to get those switched on and signed in for me, if that's okay.
+
+**George:**  
+Yep. And I should then just see them come online, and yeah, I'll connect up, just see the mouse whizzing around, and we'll go from there, if that works for you.
+
+**Rachel:**  
+Okay. All right, I'll do that now. Thank you so much for your help. Really appreciate it. Bye.

@@ -1,0 +1,35 @@
+Speaker 1: Hello? David, hello, it's Cameron from Eugenio.
+
+Speaker 2: Hi Cameron, you alright?
+
+Speaker 1: Good, thanks. Yeah, how are you?
+
+Speaker 2: Yeah, not bad, thank you. Not bad.
+
+Speaker 1: Good, good. I've just seen your email come through. You're having issues with an extender?
+
+Speaker 2: Yeah, I'm traveling away. I'm just at the airport now, going up to Scotland. I've tried to log in to use the remote network, like in a coffee shop here at the airport. Normally, when I'm at home or on my laptop in a known WiFi location, it connects automatically without me having to put in any password details. But now it's asking me for a username and password. I've put in what I thought was my Windows one and tried a couple of variations, but now it says I've got one attempt left. I'm just conscious that I need to be able to log on remotely over the next couple of days, and I don't want to lock myself out.
+
+Speaker 1: The three-account lockout—I can unlock it if you get locked out. But the username, I don't know why SonicWall and NetExtender have started to introduce this, is strangely case-sensitive. You have to put all lowercase "david" by the looks of it. I'm looking at where you set up your account, and your username is just "david" in lowercase.
+
+Speaker 2: Okay. And I guess the password is my normal password, right?
+
+Speaker 1: Yeah, the same one you log into Windows with.
+
+Speaker 2: Okay, that might be the way forward then, because I think I didn't use lowercase "david." So you reckon my username is just lowercase "david"?
+
+Speaker 1: Yeah, yeah.
+
+Speaker 2: Okay, well, what I'll do, Cameron, is try that. I'm just about to go to the gate now, so I won't need the computer for a bit. Can I email you later to say whether it's worked or not?
+
+Speaker 1: Sure, yeah. I can update your password on the server if you want to make sure it matches, if it doesn't work.
+
+Speaker 2: Okay, yeah. I'll give it a go as we've discussed, and if not, we might need to update the password, yeah?
+
+Speaker 1: Yeah, all right, no worries.
+
+Speaker 2: Perfect, thanks, Cameron.
+
+Speaker 1: Thanks, take care.
+
+Speaker 2: Cheers, bye-bye.

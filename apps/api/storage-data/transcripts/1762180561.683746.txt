@@ -1,0 +1,65 @@
+**Speaker 1:** Oh, hi Bernadette, it's Cameron from Eugenia.
+
+**Speaker 2:** Hi Cameron, how are you doing?
+
+**Speaker 1:** I'm good, thank you. Yeah, how are you?
+
+**Speaker 2:** Yeah, good. Not too bad. What can I do for you?
+
+**Speaker 1:** I'm just calling because basically I'm setting you up with the SOC, you know, the software that comes with the security team. It's an entirely different agent to be installed on the computers. Once it's installed, we remove Sentinel-1 because the product with the SOC is a substitute for Sentinel-1, if you know what I mean. I've currently got it on 16 of your machines, but there are 10 that haven't checked in for quite a while.
+
+**Speaker 2:** Right.
+
+**Speaker 1:** I wonder what the best way forward is to get it deployed on the other 10. Do we need to get someone on site to switch them on?
+
+**Speaker 2:** Yeah, Zane's up this week with, I can't remember his name, the new guy that replaced the guy who replaced Ed.
+
+**Speaker 1:** Aaron, yeah.
+
+**Speaker 2:** I think if you go in with Aaron, then both of them heading up.
+
+**Speaker 1:** Yeah, and I think Simon as well.
+
+**Speaker 2:** Okay, that makes it a little bit easier then because I can see if Zane can go around and switch on some of the machines that haven't checked in.
+
+**Speaker 1:** Cool. The idea is that we switch on the machines and the application gets deployed. It's another version of Sentinel-1, an endpoint protection product, so that will get rolled out to all your devices, and then Sentinel-1 will be removed.
+
+**Speaker 2:** Okay.
+
+**Speaker 1:** So it's like a replacement, and that comes with the 24/7 security team, the SOC behind it.
+
+**Speaker 2:** Yeah, woot woot. Sorry, go on.
+
+**Speaker 1:** Oh yeah, the phone line cut off a bit there. The other thing I wanted to speak to you about is you get a monthly report with it. It tells you how many incidents were raised and how many signals they have.
+
+**Speaker 2:** How many things have stopped.
+
+**Speaker 1:** Yeah, so if any incidents have flagged, you can see what way it got to. It's a brief overview of the entire dashboard that tells you how many things they've looked at for your company. I just wondered who would be the best person to send them to monthly?
+
+**Speaker 2:** Me, yeah. Send it to the accounts admin email address.
+
+**Speaker 1:** Okay, so it's accountsadmin at?
+
+**Speaker 2:** Yeah.
+
+**Speaker 1:** Okay, cool. I'm looking at an example now, and it just has a load of information about what's been looked at. If anything flags that you want to address, you can speak to us about it, and we can clarify.
+
+**Speaker 2:** Yeah. Do you get to see it as well?
+
+**Speaker 1:** No, I can look at an example, but they're mainly per company. On the first of each month, you'd get a report for the previous month. It tells you if anything's flagged during those dates. I'll send it to the email. If you want to go through it at any point, just give us a call, and we can look at it together. It's a perk of the SOC; they tell you what they've done if anything's flagged.
+
+**Speaker 2:** Yeah, that's good to know.
+
+**Speaker 1:** Cool. The other thing is whenever they look at incidents and anything is flagged, they make tickets on our side. We do actually, whenever anything happens, they can do stuff for us. Like if something happens at the weekend, they have the ability to take machines offline and call one of us. We have out-of-hours emergency contact numbers with them, so they'll call one of us and say what they're doing. They make tickets on our ticketing system, so we can email you when they get flagged. You get a detailed report on what they did. If they can't do anything because they don't have access, that's when we get involved. But 90% of the time, they have the ability to do it all.
+
+**Speaker 2:** Yeah, good. It's good that you know if they're doing anything or if they needed to do anything. That's why I was thinking about whether you get to see the report because it would be good if you know. It shows if there's any weaknesses, doesn't it? If things keep coming up.
+
+**Speaker 1:** Yeah, they're very good at that. If there are trends, they'll pick it up and put recommendations on things we could look at. Nothing like that's flagged yet, but they're good in that sense.
+
+**Speaker 2:** Great. I'll speak to Zane because it's probably easier if Zane just goes around and turns things on. We can make sure by Thursday that everything's pushed out. I've got it down as 26 machines in total.
+
+**Speaker 1:** Yeah, I don't know off the top of my head. It sounds about right because we had 20 new ones. We've still got a couple of desktops. That was a year ago, but we've still got a couple of desktops, so that'll be 22. There could be a couple of other things, like one that's just used for the TV. So yeah, that sounds about right. I tried to do a tally with what I had versus what Lightbulb said. There were a few bits that didn't quite match up. You had things missing in Lightbulb, and I had things missing on my side. Leanna had a good look at it for me, and I know she sent a detailed email back. I was off last week, so I've not had a chance to get to it yet, but I've seen it's quite a lengthy email she sent back. Hopefully, we can align the two sets of assets and make sure we have everything you think we've got.
+
+**Speaker 2:** Yeah.
+
+**Speaker 1:** All right then. Thanks a lot, Simon. Bye.

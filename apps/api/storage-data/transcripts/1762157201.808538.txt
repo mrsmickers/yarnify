@@ -1,0 +1,35 @@
+**Automated System:** Thank you for calling Ingenio Technologies. To help us direct your call, please select from one of the following options.
+
+**Cameron:** Hello, Ingenio, Cameron speaking.
+
+**Kelly:** Cameron, how are you? It's Kelly.
+
+**Cameron:** Oh, hi. Yeah, good, thanks. How are you?
+
+**Kelly:** Good. It's a bit early for me to ring in. There's obviously a problem, isn't there? Lovely Joel gave me our new man's password on Thursday, and I didn't check it on Friday. I really should have because I need to set up all his email and stuff over the weekend. I've tried to log in, and, well, it's not right. Can you send me his password somewhere, or just tell it to me, or set up a new one?
+
+**Cameron:** Yeah, I'll set up a new one. We don't save it anywhere. So, what's the one he gave you?
+
+**Kelly:** Oh, well, it was QORANGE52! And I've tried all different variations of that. Capital Q. I'm guessing the word "Q." Maybe it's lowercase. I should have taken more notice. I wonder if it was actually the word.
+
+**Cameron:** Yeah, I wonder if it was lowercase Q. Do you think it was... I thought you said capital Q, though. Are you trying the word "Q" or the letter Q?
+
+**Kelly:** Well, I was trying the letter Q. I think he normally... Well, normally you'd put two words together. You've got, like, a password randomizer, so I'm guessing it's the word "Q."
+
+**Cameron:** So, what, Q-U-E?
+
+**Kelly:** U-E, yeah. No. Doesn't like that. Q-U-E. Capital O. He definitely said capital O. ORANGE52!
+
+**Cameron:** No. Can we just reset it? Have you tried U-E-U-E? Q. Q-U-E-U-E. Q.
+
+**Kelly:** I mean, that would be very complex. He would have spelled that out for me, wouldn't he? Oh, you're so annoying, Cameron. I actually hate you. I just did it, the randomizer just puts two words together. Q-U-E-U. Is that what I just put in, then? Q-U-E-U-E. Oh, that's not complex, is it? That's going to be really fun, that one. Thanks.
+
+**Cameron:** When you're in, I'm guessing you're on a machine in the wording branch.
+
+**Kelly:** Yeah.
+
+**Cameron:** When you're in, if you press CTRL + ALT + DELETE, you can do a change password and set your own one up. You've got direct communication to the server from wording. So, yeah, you can just do a CTRL + ALT + DELETE and change the password once you've logged in.
+
+**Kelly:** OK. All right. Thank you very much. Have a wondrous day. See you later. Bye.
+
+**Cameron:** You too. Take care. Bye.

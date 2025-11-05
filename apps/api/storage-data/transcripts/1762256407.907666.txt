@@ -1,0 +1,89 @@
+**Speaker 1:** Good morning, John Gosnell.
+
+**Speaker 2:** Good morning, is Chris available?
+
+**Speaker 1:** Who's calling?
+
+**Speaker 2:** It's Zane here from Ingenio.
+
+**Speaker 1:** Okay, bear with me a second. Did you say Amy?
+
+**Speaker 2:** It's Zane.
+
+**Speaker 1:** Okay, bear with me a moment, I'll save you three.
+
+**Speaker 2:** Okay.
+
+**Speaker 3:** Hi Zane.
+
+**Speaker 2:** Hi Chris, how are you?
+
+**Speaker 3:** I'm good, and you?
+
+**Speaker 2:** Yeah, good, thank you. Chris, I got your email just about your VPN access.
+
+**Speaker 3:** Oh yeah.
+
+**Speaker 2:** Yeah, that would be on the back end of, you know, the new kind of, that had to be taken because of another issue.
+
+**Speaker 3:** Okay.
+
+**Speaker 2:** What's probably best, if possible, will you be working from home any time this week, often? Or is it usually just the evenings and weekends?
+
+**Speaker 3:** I just do Sundays really, but what I can do is, I can bring the laptop in and then connect from my phone, so then I'm sort of remote, but not remote.
+
+**Speaker 2:** Yeah, that would be great if you could. And what does Finn use?
+
+**Speaker 3:** He's at university, so his timings are all over the place.
+
+**Speaker 2:** Okay. If we do me first.
+
+**Speaker 3:** Sure.
+
+**Speaker 2:** And then...
+
+**Speaker 3:** Yeah, we can do Finn. And then make sure my, make sure what, I'm sure it will work, but let's make sure it works with me and then we'll, then we'll pop in.
+
+**Speaker 2:** Yeah, absolutely.
+
+**Speaker 3:** Okay, we could do that. If I bring it in on Thursday.
+
+**Speaker 2:** Yeah, Thursday is, actually I'm out on Thursday, out on site. Is Friday any good?
+
+**Speaker 3:** Yeah, Friday's cool.
+
+**Speaker 2:** Yeah, let's do Friday. On a separate note, I have another issue I wanted to talk to you about.
+
+**Speaker 3:** Okay.
+
+**Speaker 2:** So you know you've got two broadband lines there.
+
+**Speaker 3:** Yeah.
+
+**Speaker 2:** So the second one is, it looks like it's kind of offline. It looks like it may be something internal. So I was wondering if you could possibly reboot the equipment when you've got a second.
+
+**Speaker 3:** Yeah, sure. Essentially turn it on and off.
+
+**Speaker 2:** Essentially turn it on and off. I believe it's in the X2 port on the SonicWall. So if you follow that, it should go to like possibly a DrayTek or a Cisco.
+
+**Speaker 3:** Okay.
+
+**Speaker 2:** But it's the X2 one. If you follow what's attached to the X2 cable and just reboot that. So I think it's just a Cisco router to be honest.
+
+**Speaker 3:** Okay. Let me know how you get on and I'll check it again. Oh, and so on Friday...
+
+**Speaker 2:** Yeah.
+
+**Speaker 3:** How do you want to do it? Just give me a shout when it's good for you, I suppose.
+
+**Speaker 2:** Yeah. Okay. I'm in all day. Well, eight to five.
+
+**Speaker 3:** Cool.
+
+**Speaker 2:** Okay. Perfect.
+
+**Speaker 3:** All right. Cheers.
+
+**Speaker 2:** Thank you, Chris. Bye.
+
+**Speaker 3:** Bye.

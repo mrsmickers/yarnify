@@ -1,0 +1,11 @@
+Speaker 1: Good morning, this is Leanna from Ingenio. Can I speak to Stuart Pratt, please?
+
+Speaker 2: Yeah, let me see if I can put you through to him.
+
+Speaker 1: Okay, thank you.
+
+Speaker 2: Hi there, apologies, I can't seem to get through to him at the moment. He should be around. Would you like me to have him give you a call back?
+
+Speaker 1: No, it's okay, I'll send him an email instead. Thank you very much.
+
+Speaker 2: Okay, thanks, bye-bye.

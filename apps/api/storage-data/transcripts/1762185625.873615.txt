@@ -1,0 +1,51 @@
+**Automated System:** Thank you for calling Ingenio Technologies. To help us direct your call, please select from one of the following options: one for support, two for sales, three for account.
+
+**Joel:** Ingenio Technologies, Joel speaking. How may I help?
+
+**Jeremy:** Hello Joel, you just called me a few minutes ago and I wasn't here. I had a password, I believe it was.
+
+**Joel:** Oh hi, is that Jeremy?
+
+**Jeremy:** Speaking, yes.
+
+**Joel:** Yes, lovely. I've just got a password for you. Let me just grab that now.
+
+**Jeremy:** Is it all connected with... I get so confused by these things. Is it all connected with Microsoft Office 365? Because my password, for example, is to get me in there, which gets me into the emails, or is this another password for another system?
+
+**Joel:** So this will be Sherry's own password to get her into her own separate email account.
+
+**Jeremy:** Is it Microsoft Office?
+
+**Joel:** Yes.
+
+**Jeremy:** Is it the 365 thingy?
+
+**Joel:** Yes, that's correct.
+
+**Jeremy:** Okay, brilliant, that's good. Thank you.
+
+**Joel:** So yeah, this will get into her emails and it will also have the Office apps on the web, if that makes sense. I'll send you through some instructions on how to sign in in just a moment.
+
+**Jeremy:** Thank you. Have you got a pen and paper handy? I'm old-fashioned and I've got my laptop open.
+
+**Joel:** No worries. So Sherry's email address is sherry@justforchildren.org.
+
+**Jeremy:** Yep.
+
+**Joel:** And the temporary password is PinkYellow60 and then an exclamation mark. There's a capital 'P' in Pink and a capital 'Y' in Yellow. So that's PinkYellow60 and an exclamation mark.
+
+**Jeremy:** And is 60 the number 60?
+
+**Joel:** Yeah, the number 60, yeah. PinkYellow60 and then an exclamation mark after that.
+
+**Jeremy:** And an exclamation mark. Got it, thank you, and I'll wait for you to send instructions.
+
+**Joel:** No worries.
+
+**Jeremy:** Okay, thanks very much.
+
+**Joel:** Cheers.
+
+**Jeremy:** Bye-bye.
+
+**Joel:** Alright, cheers. Bye.

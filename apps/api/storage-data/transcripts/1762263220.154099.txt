@@ -1,0 +1,23 @@
+Thank you for calling Ingenio Technologies. To help us direct your call, please select from one of the following options: one for support, two for sales, three for accounts, or four for reception. Did you know we sell managed printers? Never pay for toner, concealer...
+
+**Receptionist:** Good afternoon, Ingenio. How can I help?
+
+**Caller:** Good afternoon. Is George available, please?
+
+**Receptionist:** He's not in the office, I'm afraid. He's on-site.
+
+**Caller:** OK. What is it regarding?
+
+**Receptionist:** Luke from Go Plastic Pallets. I sent him an email last night. Is he on-site for the rest of the week?
+
+**Receptionist:** Let me just double-check his calendar. He's got placeholders. Let me just check our team's calendar and see, because that should have a little bit more detail. He should be in the office tomorrow, I believe.
+
+**Caller:** OK, I'll send him another email in that case.
+
+**Receptionist:** OK. It's at the top of his list.
+
+**Caller:** All right, perfect. Thank you.
+
+**Receptionist:** Thanks so much. Cheers, bye.
+
+**Caller:** Cheers, bye.

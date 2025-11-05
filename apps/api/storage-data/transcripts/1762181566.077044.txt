@@ -1,0 +1,81 @@
+**Speaker 1:** Thank you for calling Lenagard. We're just going to put you through to one of the teams.
+
+**Speaker 2:** Good afternoon, Lenagard. Andrew speaking. How can I help?
+
+**Speaker 3:** Hi, it's Joel calling from Ingenio.
+
+**Speaker 2:** Oh, hello there.
+
+**Speaker 3:** Hi, I'm just calling about the ticket you raised.
+
+**Speaker 2:** Yeah.
+
+**Speaker 3:** It's a family matter. Would I be able to take a look with you, if that's okay?
+
+**Speaker 2:** Of course you can, yeah. Just hop on.
+
+**Speaker 3:** Lovely, thank you. Have you still got the email up, or has it been deleted?
+
+**Speaker 2:** It's been deleted.
+
+**Speaker 3:** Okay. Do you know which type of file it was? Was it like a Word document, or like a PDF?
+
+**Speaker 2:** There's a PDF within it. It came through on our Zendesk, via our email system, and there was just an attachment there. There's a link, and then there was a PDF.
+
+**Speaker 3:** Okay. Did you open that PDF at all?
+
+**Speaker 2:** It was opened, yeah.
+
+**Speaker 3:** Okay. And that was opened on this laptop, is that correct?
+
+**Speaker 2:** Yes.
+
+**Speaker 3:** Okay. Right, so I've just been taking a look. I've kicked off a full disk scan of Sentinel-1. It does work in real time, so if it found something, it should have picked it up then.
+
+**Speaker 2:** Okay.
+
+**Speaker 3:** But I am running that now in the background. Would it be possible to go ahead and change your Microsoft passwords, if that's okay? Just as kind of like a, just in case, basically.
+
+**Speaker 2:** Yeah, yeah, definitely.
+
+**Speaker 3:** Wonderful, okay. Is that something you're going to do automatically?
+
+**Speaker 2:** Yes, please. Yeah, I'm just going to do that now.
+
+**Speaker 3:** Okay. And then we can go through some steps of getting you signed back into things. Yeah, taking a look at the logs, it doesn't look like anything has happened, but yeah, it's better to be on the safe side.
+
+**Speaker 2:** Yeah, exactly.
+
+**Speaker 3:** Okay, so I've just kicked out all those sessions, so that may sign you out of your Office apps. I'm just going to open up a new tab where we can go and sign you back in with your new password.
+
+**Speaker 2:** Okay.
+
+**Speaker 3:** And you can set your own in here. And this would be, not that one there, but it's the temporary one I've just set, and it should ask you in a moment to change that to your own. Here we are. So if you could pop in your new password in these two boxes for me.
+
+**Speaker 2:** Okay.
+
+**Speaker 3:** Lovely, so that's been updated, and now we've done that, we may just need to sign back in to Teams and bits like that. So I'm just going to open up Teams down here.
+
+**Speaker 2:** Do I press update password to save it?
+
+**Speaker 3:** You can do that. That's just for Google Chrome's password manager.
+
+**Speaker 2:** Oh, okay.
+
+**Speaker 3:** So yeah, if you want to save it in there, you can.
+
+**Speaker 2:** Okay, I'm just going to hit sign in. And if you could pop in your new one.
+
+**Speaker 3:** Okay, so that's Teams signed back in. It looks like Outlook's doing the same thing in the background, it's kind of caught on. So if we could sign into there as well. And then OneDrive might complain as well. It looks like that's signed back in. I'm just going to check OneDrive is syncing. Yeah, that's all up and running. I'm just going to check Outlook as well. Yes, it looks like that's connected. That's good.
+
+**Speaker 2:** Okay, yeah. So we've updated the password. I've kicked off all the previous sessions. And I've also kicked off a full disk on this machine. From what I found, we all look good. But just keep an eye on it. And if anything weird or anything like that, please just let me know.
+
+**Speaker 3:** Yeah, yeah, will do.
+
+**Speaker 2:** All right. Thank you for that.
+
+**Speaker 3:** Thanks so much for your time.
+
+**Speaker 2:** Thank you. Cheers. Bye.
+
+**Speaker 3:** Bye.

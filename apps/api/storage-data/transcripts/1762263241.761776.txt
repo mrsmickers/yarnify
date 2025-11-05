@@ -1,0 +1,17 @@
+Speaker 1: Good afternoon, Ingenio. How can I help?
+
+Speaker 2: Good afternoon, is George available, please?
+
+Speaker 1: He's not in the office, I'm afraid. He's on-site.
+
+Speaker 2: OK, um... What is it regarding?
+
+Speaker 1: It's Luke from Go Plastic Pallets. I sent him an email last night. Is he on-site for the rest of the week, do you know?
+
+Speaker 2: Let me just double-check his calendar. Um... He's got placeholders. Let me just check our team's calendar and see, because that should have a little bit more detail. He should be in the office tomorrow, I believe.
+
+Speaker 1: OK, I'll send him another email in that case. It's at the top of his list.
+
+Speaker 2: Perfect, thank you.
+
+Speaker 1: Cheers, bye.

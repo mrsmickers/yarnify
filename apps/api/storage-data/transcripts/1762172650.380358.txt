@@ -1,0 +1,29 @@
+**Speaker 1:** I don't know, I think there's something slightly weird going on with my Dell laptop. I just thought it might be worth someone checking it out. What keeps happening is when you turn it on, the screen where you enter your password scrolls up, so you can't see it. The only way to fix it is to press Control-Alt-Delete, and then it appears so you can enter your password. But then, I think it just shuts itself down quite often. This time, it shut itself off while I was away, and now it won't respond when I touch the spacebar. I tried Control-Alt-Delete, but nothing happened, so I pressed the power button gently. That rejuvenates it, but I still have to use Control-Alt-Delete. Now, when I look at the screen, Outlook is half reversed in white, blue, and black, and I'm missing bits of it. Something's not quite right with it.
+
+**Speaker 2:** My first thought was something to do with the trackpad or the mouse, like it's trying to scroll up.
+
+**Speaker 1:** Yeah, it scrolls up, and you lose the place where you enter the password. Sometimes you see it disappear if you're quick enough. But then, when I was using it, I went to talk to Emily, came back, and it had gone to sleep. Instead of waking up when you touch the spacebar, it doesn't respond. So, I have to use Control-Alt-Delete to enter my password again. This is the second time it's almost powered itself off. The light isn't on in the corner. I touched that, then had to use Control-Alt-Delete to enter the password again. This is what it's displaying now, and I thought I need to ask someone. I need an expert.
+
+**Speaker 2:** Let me just double-check if a Dell command update has run. Has it only been happening today?
+
+**Speaker 1:** It's been going on for a couple of weeks, but it's never been this bad. We were thinking it's five years old and realized it's been updated to Windows 11. Simon sent an email about it, and I've looked at what everyone was saying. It's been a long time.
+
+**Speaker 2:** Okay, what I'm going to do is make a new ticket for you. I'll get it dispatched now, and an engineer can call you back if that's okay.
+
+**Speaker 1:** Yeah, I'm just going to pop off the road. I'll leave it with Cameron or George. If someone wants to check it, they can at least see it in its current state. Have you got the blue and white on your screen?
+
+**Speaker 2:** What do you mean, sorry?
+
+**Speaker 1:** Outlook is on my screen. I've got a picture of that. It's blue and white, and it's missing things in the box next to it at the top. If I move the mouse, they're not showing unless you highlight them, and then they show in blue. Emily's is not there, but it shows in blue when you hover over it. It's not happy. I thought I'd leave it like that for someone to see.
+
+**Speaker 2:** Yeah, that's fine. I'll just leave it because I'm going to go out and vote. I can ring them on my mobile. I'll leave it like that so they can check it.
+
+**Speaker 1:** Not a problem. I'll get that ticket open for you. I've attached a screenshot in case they can't check it in time.
+
+**Speaker 2:** Lovely, not a problem. We'll call you back and see what we can do. In the meantime...
+
+**Speaker 1:** I don't like doing normal ones. I like to be different.
+
+**Speaker 2:** Alright mate, thanks. Speak to you later.
+
+**Speaker 1:** Alright, thanks very much.

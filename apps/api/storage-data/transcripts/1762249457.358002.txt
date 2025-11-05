@@ -1,0 +1,89 @@
+**Speaker 1:** Hi Joe.  
+  
+**Speaker 2:** Hiya.  
+  
+**Speaker 1:** That's much better by the sounds of it.  
+  
+**Speaker 2:** Yeah. I don't know what's going on there. I'll have a look at that next.  
+  
+**Speaker 1:** Yeah, I'm just calling about your laptop and some of the issues you were having with it.  
+  
+**Speaker 2:** Yes. It's a really weird one. So I've got a docking station, and if I take it off the docking station to go into the meeting room, the whole laptop sort of closes down. The only way to fire it up again is to press the power button, which it then kind of slowly thinks about and then goes into it. It's not a big thing, but it takes like three or four minutes each time. So if I'm going backwards and forwards, it's just like, oh, now I'm just trying to wake the computer up. Yeah, it's just not quite working right.  
+  
+**Speaker 1:** Okay. Would I be able to jump on and take a look?  
+  
+**Speaker 2:** Yes, you can do. Thank you.  
+  
+**Speaker 1:** It sounds like it might be going into a kind of hibernate mode when you close the lid. Let's see if that's set.  
+  
+**Speaker 2:** Can I just save this post?  
+  
+**Speaker 1:** Yeah, of course.  
+  
+**Speaker 2:** Okay, cool. Oh, lovely. Right.  
+  
+**Speaker 1:** I'm just going to open up the control panel. We can take a look in there.  
+  
+**Speaker 2:** Just while you're doing that, I'm going to switch onto my headset.  
+  
+**Speaker 1:** Yeah, no problem.  
+  
+**Speaker 2:** Oh, hello.  
+  
+**Speaker 1:** Oh, that's all right.  
+  
+**Speaker 2:** I was just checking. My headphones were connected to the PC and then you reconnected to my phone, and you were very quiet.  
+  
+**Speaker 1:** Yeah.  
+  
+**Speaker 2:** So I was just waiting for it to kind of load up. It's taking a minute. I think it's doing bits in the background too.  
+  
+**Speaker 1:** Right. So I'm just going to go to "Choose what closing the lid does" here.  
+  
+**Speaker 2:** Okay.  
+  
+**Speaker 1:** Right. I see. It looks like it is set to hibernate. I'm going to change this. Let me just double-check what it is on my PC because I've got a dock as well. I believe it should be sleep, but it might be "do nothing" when it's a dim. Let me just double-check that.  
+  
+**Speaker 2:** Right.  
+  
+**Speaker 1:** Yes. So if I try turning this to sleep and this one here to do nothing. Yeah, I'm just going to hit save. Would you be able to try unplugging it from the dock?  
+  
+**Speaker 2:** Yeah.  
+  
+**Speaker 1:** And then see if it goes into hibernate or if that's now just going to work.  
+  
+**Speaker 2:** No. It's staying up now.  
+  
+**Speaker 1:** Right. Let me just shut the lid because that seems to be the thing that—  
+  
+**Speaker 2:** Yeah. No, that's perfect. Thank you.  
+  
+**Speaker 1:** Fantastic. Okay. Yeah, that should be it. Hopefully, it should just work a bit smoother now.  
+  
+**Speaker 2:** I knew it was an easy one, but I was just like, I have no idea where to even start with this.  
+  
+**Speaker 1:** Yeah, I mean, it's something that's just the usual settings are not exactly that well suited for using a laptop with a dock all the time. But yeah, it's a simple setting change, but it makes a whole lot of difference.  
+  
+**Speaker 2:** Yeah. Bizarre question, only because I was chatting about Ingenio the other day. You guys aren't looking for an apprentice at all at the moment, are you?  
+  
+**Speaker 1:** Oh, I don't believe so, but that might be more of a Simon question. I'll drop him an email.  
+  
+**Speaker 2:** Yeah.  
+  
+**Speaker 1:** He's not in the office today at the moment, so I can't ask him, I'm afraid. But yeah, drop him an email and he'll get back to you about that.  
+  
+**Speaker 2:** Yeah, I'm not sure at the minute.  
+  
+**Speaker 1:** That's all right.  
+  
+**Speaker 2:** No, don't panic. I'll just kind of go, oh, I'll look on the website as well. It was only literally somebody's son was looking for something, and they were looking for something IT-based, and I went, oh, actually, they're a good company to work for.  
+  
+**Speaker 1:** Yeah. Oh, thank you.  
+  
+**Speaker 2:** Thanks.  
+  
+**Speaker 1:** All right. Thanks very much for your time.  
+  
+**Speaker 2:** All right then. Cheers.  
+  
+**Speaker 1:** All right. Cheers. Bye.
