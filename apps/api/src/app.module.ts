@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { SpaFallbackController } from './spa-fallback.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { StorageModule } from './modules/storage/storage.module';
@@ -52,14 +53,18 @@ import { join } from 'path';
     EmbeddingModule,
     TextChunkingModule,
     PromptManagementModule,
-    // Serve frontend static files in production
+    // Serve frontend static files in production (SPA with client-side routing)
     // __dirname in dist is /app/apps/api/dist/src, client is at /app/apps/api/client
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', 'client'),
-      exclude: ['/api*', '/auth*'],
+      exclude: ['/api/*', '/api/v1/*'],
+      serveStaticOptions: {
+        index: false, // Don't serve index.html for directories
+        fallthrough: true, // Allow NestJS to handle 404s
+      },
     }),
   ],
-  controllers: [AppController],
+  controllers: [AppController, SpaFallbackController],
   providers: [AppService],
 })
 export class AppModule {}
