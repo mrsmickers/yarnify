@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { FormData, File } from 'undici';
+import { FormData } from 'undici';
+import { File } from 'node:buffer';
 
 export interface WhisperTranscription {
   text: string;
