@@ -76,9 +76,11 @@ export class WhisperService {
 
       const url = `${this.whisperUrl}/asr?${queryParams.toString()}`;
       
+      // 5 minute timeout for CPU-based transcription (can be slow for long audio)
       const response = await fetch(url, {
         method: 'POST',
         body: formData,
+        signal: AbortSignal.timeout(300000),
       });
 
       if (!response.ok) {
@@ -125,6 +127,7 @@ export class WhisperService {
       const response = await fetch(`${this.whisperUrl}/detect-language`, {
         method: 'POST',
         body: formData,
+        signal: AbortSignal.timeout(60000),
       });
 
       if (!response.ok) {
