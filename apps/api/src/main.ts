@@ -59,10 +59,10 @@ async function bootstrap() {
   const httpAdapter = app.getHttpAdapter();
   const expressApp = httpAdapter.getInstance() as express.Application;
   
-  // Fallback for SPA routes (anything not starting with /api)
+  // Fallback for SPA routes (anything not starting with /api or /assets)
   expressApp.get('*', (req, res, next) => {
-    // Skip API routes
-    if (req.path.startsWith('/api')) {
+    // Skip API routes and static assets (let ServeStaticModule handle them)
+    if (req.path.startsWith('/api') || req.path.startsWith('/assets') || req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
       return next();
     }
     // Serve index.html for client-side routing
