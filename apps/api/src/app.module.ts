@@ -53,8 +53,9 @@ import { join } from 'path';
     TextChunkingModule,
     PromptManagementModule,
     // Serve frontend static files in production
+    // __dirname in dist is /app/apps/api/dist/src, client is at /app/apps/api/client
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'client'),
+      rootPath: join(__dirname, '..', '..', 'client'),
       exclude: ['/api*', '/auth*'],
     }),
   ],
