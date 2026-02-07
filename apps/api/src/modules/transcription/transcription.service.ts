@@ -120,10 +120,12 @@ export class TranscriptionService {
           type: mimeType || 'audio/wav',
         });
         const result = await this.openaiService.transcribeAudio(audioFile);
+        // Cast to any to access verbose_json properties (segments, language)
+        const verboseResult = result as any;
         return {
           text: result.text,
-          segments: result.segments,
-          language: result.language,
+          segments: verboseResult.segments,
+          language: verboseResult.language,
         };
       }
     } catch (error) {
