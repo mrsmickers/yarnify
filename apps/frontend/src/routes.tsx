@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 export const HomePage = () => (
   <div className="space-y-10">
     <PageHeader
-      title="Welcome to Yarnify"
+      title="Welcome to The Oracle"
       description="Monitor and analyse Ingenio call experiences with AI-powered insights and beautifully structured dashboards."
       actions={
         <Button asChild>
@@ -43,7 +43,7 @@ export const HomePage = () => (
             Ingenio design system
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
-            Yarnify now matches Ingenio’s navigation rail, spacing, and colour tokens.
+            The Oracle now matches Ingenio's navigation rail, spacing, and colour tokens.
           </p>
         </div>
       </CardContent>
@@ -58,7 +58,7 @@ export const NotFoundPage = () => (
       <CardHeader className="space-y-3 text-center">
         <CardTitle className="text-2xl font-semibold">Page not found</CardTitle>
         <CardDescription>
-          The page you’re after has moved or no longer exists. Let’s get you back on
+          The page you're after has moved or no longer exists. Let's get you back on
           track.
         </CardDescription>
       </CardHeader>

@@ -8,7 +8,7 @@ const AdminConsolePage = () => {
     <div className="space-y-10">
       <PageHeader
         title="Admin Console"
-        description="Manage workspace access, integrations, and audit activity to keep Yarnify secure for every Ingenio team."
+        description="Manage workspace access, integrations, and audit activity to keep The Oracle secure for every Ingenio team."
         actions={
           <Button type="button" className="bg-[#DEDC00] text-[#1C2533] hover:bg-[#F8AB08]">
             Create automation
@@ -35,7 +35,7 @@ const AdminConsolePage = () => {
           {
             title: 'API credentials',
             description:
-              'Rotate API keys, monitor usage, and integrate Ingenio services with Yarnify.',
+              'Rotate API keys, monitor usage, and integrate Ingenio services with The Oracle.',
             icon: KeyRound,
             action: 'Manage tokens',
           },

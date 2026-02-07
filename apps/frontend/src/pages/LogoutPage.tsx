@@ -29,7 +29,7 @@ const LogoutPage = () => {
             Signing you out…
           </CardTitle>
           <CardDescription>
-            Thank you for using Yarnify. We&apos;ll redirect you in a moment.
+            Thank you for using The Oracle. We&apos;ll redirect you in a moment.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-3 text-sm text-muted-foreground">

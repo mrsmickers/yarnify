@@ -602,7 +602,7 @@ const statsCards = [
       <div className="space-y-10">
         <PageHeader
           title="User Management"
-          description="Invite, promote, or suspend users to keep Yarnify secure."
+          description="Invite, promote, or suspend users to keep The Oracle secure."
           actions={
             <Button
               type="button"
@@ -651,7 +651,7 @@ const statsCards = [
           <CardHeader className="space-y-2">
             <CardTitle>User directory</CardTitle>
             <CardDescription>
-              Assign roles and control access for Yarnify administrators and
+              Assign roles and control access for The Oracle administrators and
               operators.
             </CardDescription>
           </CardHeader>

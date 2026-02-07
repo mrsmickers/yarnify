@@ -10,7 +10,7 @@ import {
 
 export type Theme = 'light' | 'dark'
 
-const STORAGE_KEY = 'yarnify-theme'
+const STORAGE_KEY = 'oracle-theme'
 
 type ThemeContextValue = {
   theme: Theme

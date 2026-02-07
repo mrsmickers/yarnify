@@ -286,7 +286,7 @@ export function AppShell({ children }: AppShellProps) {
               className="flex items-center gap-3 font-semibold tracking-tight text-white dark:text-white"
               onClick={closeMobileSidebar}
             >
-              <span className="text-lg font-semibold">Yarnify</span>
+              <span className="text-lg font-semibold">The Oracle</span>
             </NavLink>
             <Button
               variant="ghost"

@@ -380,7 +380,7 @@ export class AuthService {
     this.logger.warn(
       `Unprovisioned user attempting login (oid=${session.oid || 'n/a'}, email=${normalizedEmail || 'n/a'})`,
     );
-    throw new UnauthorizedException('User not provisioned for Yarnify');
+    throw new UnauthorizedException('User not provisioned for The Oracle');
   }
 
   private async applyLocalRole(session: SessionTokenPayload): Promise<void> {

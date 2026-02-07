@@ -76,7 +76,7 @@ export default function PersonalSettingsPage() {
     <div className="space-y-10">
       <PageHeader
         title="Personal settings"
-        description="Update the details that personalise your Yarnify workspace and control how the interface looks while you work."
+        description="Update the details that personalise your Oracle workspace and control how the interface looks while you work."
       />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
@@ -85,7 +85,7 @@ export default function PersonalSettingsPage() {
             <CardHeader>
               <CardTitle>Profile</CardTitle>
               <CardDescription>
-                These details help your teammates recognise you across Yarnify.
+                These details help your teammates recognise you across The Oracle.
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4">

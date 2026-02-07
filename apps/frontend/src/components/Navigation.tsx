@@ -14,7 +14,7 @@ export function Navigation() {
   const { theme } = useTheme()
 
   const logoSrc = useMemo(
-    () => (theme === 'dark' ? '/yarnify-logo-dark.png' : '/yarnify-logo-light.png'),
+    () => (theme === 'dark' ? '/oracle-logo-dark.png' : '/oracle-logo-light.png'),
     [theme]
   )
 
@@ -37,12 +37,12 @@ export function Navigation() {
             <NavLink to="/" className="flex-shrink-0 -ml-4 sm:-ml-6 lg:-ml-8">
               <img
                 src={logoSrc}
-                alt="Yarnify Logo"
+                alt="The Oracle Logo"
                 className="hidden sm:block h-12 w-auto"
               />
               <img
                 src={logoSrc}
-                alt="Yarnify Logo"
+                alt="The Oracle Logo"
                 className="h-10 w-auto sm:hidden"
               />
             </NavLink>
