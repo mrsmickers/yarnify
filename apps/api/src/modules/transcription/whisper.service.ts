@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-
-// Node.js 22+ has global Blob and FormData (Web APIs)
+import { FormData, File } from 'undici';
 
 export interface WhisperTranscription {
   text: string;
@@ -60,11 +59,11 @@ export class WhisperService {
     );
 
     try {
-      // Create a Blob from the buffer with proper MIME type
-      const audioBlob = new Blob([audioBuffer], { type: 'audio/mpeg' });
+      // Use undici's File class for proper multipart form handling
+      const audioFile = new File([audioBuffer], 'audio.mp3', { type: 'audio/mpeg' });
       
       const formData = new FormData();
-      formData.append('audio_file', audioBlob, 'audio.mp3');
+      formData.append('audio_file', audioFile);
 
       const queryParams = new URLSearchParams({
         output,
@@ -118,10 +117,10 @@ export class WhisperService {
     this.logger.log('Detecting language...');
 
     try {
-      const audioBlob = new Blob([audioBuffer], { type: 'audio/mpeg' });
+      const audioFile = new File([audioBuffer], 'audio.mp3', { type: 'audio/mpeg' });
       
       const formData = new FormData();
-      formData.append('audio_file', audioBlob, 'audio.mp3');
+      formData.append('audio_file', audioFile);
 
       const response = await fetch(`${this.whisperUrl}/detect-language`, {
         method: 'POST',
