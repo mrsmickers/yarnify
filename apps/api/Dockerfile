@@ -29,6 +29,7 @@ RUN pnpm --filter api exec prisma generate
 RUN pnpm --filter api build
 
 # Remove the development dependencies
+ENV CI=true
 RUN pnpm prune --prod
 
 
