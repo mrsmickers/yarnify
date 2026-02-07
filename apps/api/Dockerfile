@@ -1,4 +1,8 @@
 FROM node:22-alpine AS builder
+
+# Force development mode during build to ensure devDependencies are installed
+ENV NODE_ENV=development
+
 RUN corepack enable && corepack prepare pnpm@10 --activate
 
 # ENV here makes the sha available via os.Getenv
