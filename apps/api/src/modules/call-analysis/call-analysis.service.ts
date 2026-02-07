@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
-import { openai } from '@ai-sdk/openai';
+import { openai, createOpenAI } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { instructions, callAnalysisSchema, CallAnalysisOutput } from './prompt';
 import { CallRecordResponse } from '../voip/dto/call-recording.dto';
@@ -33,6 +33,35 @@ export class CallAnalysisService {
     private readonly llmConfigService: LLMConfigService,
   ) {}
   
+  /**
+   * Get the appropriate LLM provider based on configuration
+   * Supports OpenAI and NVIDIA (Kimi-k2.5 via NVIDIA NIM)
+   */
+  private getLLMProvider(modelName: string) {
+    const llmProvider = this.config.get<string>('LLM_PROVIDER', 'openai');
+    
+    if (llmProvider === 'nvidia') {
+      const nvidiaApiKey = this.config.get<string>('NVIDIA_API_KEY');
+      const nvidiaApiUrl = this.config.get<string>('NVIDIA_API_URL', 'https://integrate.api.nvidia.com/v1');
+      const nvidiaModel = this.config.get<string>('NVIDIA_MODEL', 'moonshotai/kimi-k2.5');
+      
+      if (!nvidiaApiKey) {
+        this.logger.warn('NVIDIA_API_KEY not set, falling back to OpenAI');
+        return openai(modelName);
+      }
+      
+      const nvidia = createOpenAI({
+        apiKey: nvidiaApiKey,
+        baseURL: nvidiaApiUrl,
+      });
+      
+      this.logger.log(`Using NVIDIA provider with model: ${nvidiaModel}`);
+      return nvidia(nvidiaModel);
+    }
+    
+    return openai(modelName);
+  }
+
   // Renamed from NewCallAnalysisService
   async analyzeTranscript(transcript: string): Promise<{
     analysis: CallAnalysisOutput;
@@ -47,13 +76,12 @@ export class CallAnalysisService {
     const systemPrompt = activePrompt?.content || instructions;
     const modelName = activeLLMConfig?.modelName || 'gpt-4o';
     const settings = (activeLLMConfig?.settings as any) || {};
-
-    this.logger.log(`Analyzing transcript with model: ${modelName}, prompt: ${activePrompt?.name || 'default'}`);
+    
+    const llmProvider = this.config.get<string>('LLM_PROVIDER', 'openai');
+    this.logger.log(`Analyzing transcript with provider: ${llmProvider}, model: ${modelName}, prompt: ${activePrompt?.name || 'default'}`);
 
     const { object } = await generateObject({
-      model: openai(modelName, {
-        structuredOutputs: settings.response_format === 'json_object',
-      }),
+      model: this.getLLMProvider(modelName),
       schema: callAnalysisSchema,
       prompt: transcript,
       system: systemPrompt,
