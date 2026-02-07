@@ -28,9 +28,8 @@ RUN pnpm --filter api exec prisma generate
 # Build the application
 RUN pnpm --filter api build
 
-# Remove the development dependencies
-ENV CI=true
-RUN pnpm prune --prod
+# NOTE: Skipping pnpm prune --prod because prisma is needed for migrations
+# Consider moving prisma to dependencies if image size is a concern
 
 
 # Create a new stage for the production image
