@@ -73,5 +73,7 @@ EXPOSE 3000
 # Set the NODE_ENV environment variable to production
 ENV NODE_ENV=production
 
-# Start the application server (skip prisma migrate - run separately or via pre-deploy command)
-CMD ["node", "apps/api/dist/main"]
+# Start the application server
+# Note: prisma migrate deploy should be run separately (via pre-deploy command in Coolify)
+WORKDIR /app/apps/api
+CMD ["sh", "-c", "pnpm exec prisma migrate deploy && node dist/src/main.js"]
