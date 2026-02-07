@@ -3,23 +3,32 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { OpenAIService } from '../openai/openai.service';
+import { WhisperService } from './whisper.service';
 import { LLMConfigService } from '../prompt-management/llm-config.service';
 import { PromptManagementService } from '../prompt-management/prompt-management.service';
 
 @Injectable()
 export class TranscriptionService {
   private readonly logger = new Logger(TranscriptionService.name);
+  private readonly useLocalWhisper: boolean;
 
   constructor(
+    private readonly configService: ConfigService,
     private readonly openaiService: OpenAIService,
+    private readonly whisperService: WhisperService,
     private readonly llmConfigService: LLMConfigService,
     private readonly promptService: PromptManagementService,
-  ) {}
+  ) {
+    // Use self-hosted Whisper by default, fallback to OpenAI if WHISPER_API_URL is not set
+    this.useLocalWhisper = this.configService.get<string>('TRANSCRIPTION_PROVIDER', 'whisper') === 'whisper';
+    this.logger.log(`Transcription provider: ${this.useLocalWhisper ? 'Self-hosted Whisper' : 'OpenAI'}`);
+  }
 
   async transcribeAudio(
     base64: string,
-    mimeType?: string, // MimeType might be useful for some transcription models/APIs
+    mimeType?: string,
     modelName?: string,
   ): Promise<string> {
     try {
@@ -28,26 +37,38 @@ export class TranscriptionService {
       const effectiveModelName = transcriptionConfig?.modelName || modelName || 'whisper-1';
       
       this.logger.log(
-        `Starting transcription with model: ${effectiveModelName}. MimeType: ${
-          mimeType || 'not provided'
-        }`,
+        `Starting transcription with provider: ${this.useLocalWhisper ? 'Whisper' : 'OpenAI'}. ` +
+        `Model: ${effectiveModelName}. MimeType: ${mimeType || 'not provided'}`,
       );
 
-      // Convert base64 to buffer for OpenAI API
+      // Convert base64 to buffer
       const audioBuffer = Buffer.from(base64, 'base64');
 
-      // Create a File-like object from the buffer
-      const audioFile = new File([audioBuffer], 'audio.wav', {
-        type: mimeType || 'audio/wav',
-      });
+      let rawTranscript: string;
 
-      const transcription = await this.openaiService.transcribeAudio(
-        audioFile,
-        effectiveModelName,
-      );
+      if (this.useLocalWhisper) {
+        // Use self-hosted Whisper
+        const result = await this.whisperService.transcribeAudio(audioBuffer, {
+          language: 'en',
+          task: 'transcribe',
+          output: 'json',
+          vadFilter: true,
+        });
+        rawTranscript = result.text;
+      } else {
+        // Use OpenAI Whisper
+        const audioFile = new File([audioBuffer], 'audio.wav', {
+          type: mimeType || 'audio/wav',
+        });
+
+        const transcription = await this.openaiService.transcribeAudio(
+          audioFile,
+          effectiveModelName,
+        );
+        rawTranscript = transcription.text;
+      }
 
       this.logger.log('Raw transcription successful. Refining transcript...');
-      const rawTranscript = transcription.text;
 
       // Fetch active prompt and LLM config for transcript refinement
       const refinementPrompt = await this.promptService.findActiveByUseCase('TRANSCRIPTION_REFINEMENT');
@@ -73,6 +94,40 @@ export class TranscriptionService {
         `Error during transcription: ${error.message}`,
         error.stack,
       );
+      throw new InternalServerErrorException('Failed to transcribe audio');
+    }
+  }
+
+  /**
+   * Transcribe audio without refinement (raw output)
+   */
+  async transcribeAudioRaw(
+    base64: string,
+    mimeType?: string,
+  ): Promise<{ text: string; segments?: any[]; language?: string }> {
+    try {
+      const audioBuffer = Buffer.from(base64, 'base64');
+
+      if (this.useLocalWhisper) {
+        return await this.whisperService.transcribeAudio(audioBuffer, {
+          language: 'en',
+          task: 'transcribe',
+          output: 'json',
+          vadFilter: true,
+        });
+      } else {
+        const audioFile = new File([audioBuffer], 'audio.wav', {
+          type: mimeType || 'audio/wav',
+        });
+        const result = await this.openaiService.transcribeAudio(audioFile);
+        return {
+          text: result.text,
+          segments: result.segments,
+          language: result.language,
+        };
+      }
+    } catch (error) {
+      this.logger.error(`Error during raw transcription: ${error.message}`, error.stack);
       throw new InternalServerErrorException('Failed to transcribe audio');
     }
   }

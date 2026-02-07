@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TranscriptionService } from './transcription.service';
+import { WhisperService } from './whisper.service';
 import { ConfigModule } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
 import { TRANSCRIPTION_QUEUE } from './constants';
@@ -19,9 +20,10 @@ import { PromptManagementModule } from '../prompt-management/prompt-management.m
   ],
   providers: [
     TranscriptionService,
+    WhisperService,
     TranscriptionProducerService,
     TranscriptionConsumer,
   ],
-  exports: [TranscriptionService, TranscriptionProducerService],
+  exports: [TranscriptionService, WhisperService, TranscriptionProducerService],
 })
 export class TranscriptionModule {}
