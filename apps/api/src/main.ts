@@ -6,6 +6,8 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'; // Added Swagg
 import * as cookieParser from 'cookie-parser'; // Added cookieParser
 import { ZodValidationPipe } from 'nestjs-zod'; // Added ZodValidationPipe
 import { ZodValidationExceptionFilter } from './common/filters/zod-validation-exception.filter';
+import { join } from 'path';
+import * as express from 'express';
 // import { VoltAgent } from '@voltagent/core';
 // import { SupervisorAgentService } from './modules/agents/agents/supervisor/supervisor.service';
 
@@ -51,6 +53,22 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app as any, config);
   SwaggerModule.setup('api/docs', app as any, document); // Swagger UI available at /api/docs
+
+  // SPA Fallback: Serve index.html for routes not handled by API
+  // Must be registered AFTER NestJS routes
+  const httpAdapter = app.getHttpAdapter();
+  const expressApp = httpAdapter.getInstance() as express.Application;
+  
+  // Fallback for SPA routes (anything not starting with /api)
+  expressApp.get('*', (req, res, next) => {
+    // Skip API routes
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    // Serve index.html for client-side routing
+    const indexPath = join(__dirname, '..', '..', 'client', 'index.html');
+    res.sendFile(indexPath);
+  });
 
   const port = process.env.PORT || 3000;
   await app.listen(port);

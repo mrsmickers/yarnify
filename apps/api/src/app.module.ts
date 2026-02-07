@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { SpaFallbackController } from './spa-fallback.controller';
+// SPA fallback is now handled in main.ts
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { StorageModule } from './modules/storage/storage.module';
@@ -64,7 +64,7 @@ import { join } from 'path';
       },
     }),
   ],
-  controllers: [AppController, SpaFallbackController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
