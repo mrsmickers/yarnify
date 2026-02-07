@@ -74,5 +74,5 @@ EXPOSE 3000
 # Set the NODE_ENV environment variable to production
 ENV NODE_ENV=production
 
-# Start the application server
-CMD ["pnpm", "--filter", "api", "run", "start:prod"]
+# Start the application server (skip prisma migrate - run separately or via pre-deploy command)
+CMD ["node", "apps/api/dist/main"]
