@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FormData } from 'undici';
-import { File } from 'node:buffer';
+import { Blob } from 'node:buffer';
 
 export interface WhisperTranscription {
   text: string;
@@ -60,11 +60,11 @@ export class WhisperService {
     );
 
     try {
-      // Use undici's File class for proper multipart form handling
-      const audioFile = new File([audioBuffer], 'audio.mp3', { type: 'audio/mpeg' });
+      // Use Blob for multipart form handling (File extends Blob with name)
+      const audioBlob = new Blob([audioBuffer], { type: 'audio/mpeg' });
       
       const formData = new FormData();
-      formData.append('audio_file', audioFile);
+      formData.append('audio_file', audioBlob, 'audio.mp3');
 
       const queryParams = new URLSearchParams({
         output,
@@ -120,10 +120,10 @@ export class WhisperService {
     this.logger.log('Detecting language...');
 
     try {
-      const audioFile = new File([audioBuffer], 'audio.mp3', { type: 'audio/mpeg' });
+      const audioBlob = new Blob([audioBuffer], { type: 'audio/mpeg' });
       
       const formData = new FormData();
-      formData.append('audio_file', audioFile);
+      formData.append('audio_file', audioBlob, 'audio.mp3');
 
       const response = await fetch(`${this.whisperUrl}/detect-language`, {
         method: 'POST',
