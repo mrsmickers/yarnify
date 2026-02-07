@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as FormData from 'form-data';
+
+// Node.js 22+ has global Blob and FormData (Web APIs)
 
 export interface WhisperTranscription {
   text: string;
@@ -59,11 +60,11 @@ export class WhisperService {
     );
 
     try {
+      // Create a Blob from the buffer with proper MIME type
+      const audioBlob = new Blob([audioBuffer], { type: 'audio/mpeg' });
+      
       const formData = new FormData();
-      formData.append('audio_file', audioBuffer, {
-        filename: 'audio.wav',
-        contentType: 'audio/wav',
-      });
+      formData.append('audio_file', audioBlob, 'audio.mp3');
 
       const queryParams = new URLSearchParams({
         output,
@@ -78,8 +79,7 @@ export class WhisperService {
       
       const response = await fetch(url, {
         method: 'POST',
-        body: formData as any,
-        headers: formData.getHeaders(),
+        body: formData,
       });
 
       if (!response.ok) {
@@ -118,16 +118,14 @@ export class WhisperService {
     this.logger.log('Detecting language...');
 
     try {
+      const audioBlob = new Blob([audioBuffer], { type: 'audio/mpeg' });
+      
       const formData = new FormData();
-      formData.append('audio_file', audioBuffer, {
-        filename: 'audio.wav',
-        contentType: 'audio/wav',
-      });
+      formData.append('audio_file', audioBlob, 'audio.mp3');
 
       const response = await fetch(`${this.whisperUrl}/detect-language`, {
         method: 'POST',
-        body: formData as any,
-        headers: formData.getHeaders(),
+        body: formData,
       });
 
       if (!response.ok) {
