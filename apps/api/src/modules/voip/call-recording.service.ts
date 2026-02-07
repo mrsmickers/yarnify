@@ -136,10 +136,18 @@ export class CallRecordingService {
         );
 
         if (existingCall) {
+          // Re-queue FAILED or QUEUED calls, skip COMPLETED ones
+          if (existingCall.callStatus === 'COMPLETED' || existingCall.callStatus === 'INTERNAL_CALL_SKIPPED') {
+            this.logger.log(
+              `Call ${listedRec.uniqueid} already completed with status ${existingCall.callStatus}. Skipping.`,
+            );
+            continue;
+          }
+          // Reset status to PROCESSING for retry
+          await this.callRepository.update(existingCall.id, { callStatus: 'PROCESSING' });
           this.logger.log(
-            `Call ${listedRec.uniqueid} has already been processed with status ${existingCall.callStatus}. Skipping.`,
+            `Call ${listedRec.uniqueid} was ${existingCall.callStatus}, re-queuing for processing.`,
           );
-          continue;
         }
 
         const jobData: CallProcessingJobData = {
