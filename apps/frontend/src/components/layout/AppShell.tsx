@@ -47,6 +47,11 @@ const workspaceNav: NavSection = {
       icon: PhoneCall,
       end: true,
     },
+    {
+      label: 'My Calls',
+      path: '/calls/mine',
+      icon: UserCircle2,
+    },
   ],
 }
 

@@ -5,6 +5,7 @@ import { SystemController } from './system.controller';
 import { AdminAgentsController } from './admin-agents.controller';
 import { AdminService } from './admin.service';
 import { AdminAgentsService } from './admin-agents.service';
+import { AgentAutoMatchService } from './agent-auto-match.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AuthModule } from '../auth/auth.module';
 import { ConnectwiseManageModule } from '../connectwise-manage/connectwise-manage.module';
@@ -23,8 +24,8 @@ import { CallAnalysisModule } from '../call-analysis/call-analysis.module';
     HttpModule,
   ],
   controllers: [AdminController, SystemController, AdminAgentsController],
-  providers: [AdminService, AdminAgentsService],
-  exports: [AdminService, AdminAgentsService],
+  providers: [AdminService, AdminAgentsService, AgentAutoMatchService],
+  exports: [AdminService, AdminAgentsService, AgentAutoMatchService],
 })
 export class AdminModule {}
 

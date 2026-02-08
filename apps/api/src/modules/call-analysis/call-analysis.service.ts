@@ -607,6 +607,74 @@ Rules:
     return { message: `Call with ID ${id} has been queued for reprocessing.` };
   }
 
+  /**
+   * Get calls for the currently logged-in user by finding their linked agent.
+   * Returns paginated calls filtered to the user's agent, or an empty result
+   * with a message if no agent is linked.
+   */
+  async getMyCalls(
+    userOid: string,
+    query: GetCallsQueryDto,
+  ): Promise<PaginatedCallsResponseDto & { agentLinked: boolean; agentName?: string }> {
+    // Find the EntraUser by oid
+    const entraUser = await this.db.entraUser.findUnique({
+      where: { oid: userOid },
+    });
+
+    if (!entraUser) {
+      return {
+        data: [],
+        total: 0,
+        page: query.page || 1,
+        limit: query.limit || 10,
+        totalPages: 0,
+        metrics: {
+          totalPositiveSentiment: 0,
+          totalNegativeSentiment: 0,
+          totalNeutralSentiment: 0,
+          averageConfidence: 0,
+        },
+        agentLinked: false,
+      };
+    }
+
+    // Find the linked agent
+    const agent = await this.db.agent.findFirst({
+      where: { entraUserId: entraUser.id },
+    });
+
+    if (!agent) {
+      return {
+        data: [],
+        total: 0,
+        page: query.page || 1,
+        limit: query.limit || 10,
+        totalPages: 0,
+        metrics: {
+          totalPositiveSentiment: 0,
+          totalNegativeSentiment: 0,
+          totalNeutralSentiment: 0,
+          averageConfidence: 0,
+        },
+        agentLinked: false,
+      };
+    }
+
+    // Override the agentId filter to the user's own agent
+    const myQuery: GetCallsQueryDto = {
+      ...query,
+      agentId: agent.id,
+    };
+
+    const result = await this.getCalls(myQuery);
+
+    return {
+      ...result,
+      agentLinked: true,
+      agentName: agent.name,
+    };
+  }
+
   async getCompanyList(): Promise<CompanyListItemDto[]> {
     const companies = await this.db.company.findMany({
       select: {

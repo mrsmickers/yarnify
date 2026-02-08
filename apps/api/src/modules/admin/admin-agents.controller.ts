@@ -13,6 +13,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AdminAgentsService } from './admin-agents.service';
+import { AgentAutoMatchService } from './agent-auto-match.service';
 import { UpdateAgentDto, CreateAgentDto } from './dto/agent.dto';
 import { ZodValidationPipe } from 'nestjs-zod';
 
@@ -23,7 +24,10 @@ import { ZodValidationPipe } from 'nestjs-zod';
 export class AdminAgentsController {
   private readonly logger = new Logger(AdminAgentsController.name);
 
-  constructor(private readonly adminAgentsService: AdminAgentsService) {}
+  constructor(
+    private readonly adminAgentsService: AdminAgentsService,
+    private readonly agentAutoMatchService: AgentAutoMatchService,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Get all agents (admin only)' })
@@ -44,6 +48,17 @@ export class AdminAgentsController {
   async syncAgents() {
     this.logger.log('Triggering agent sync from VoIP system');
     return this.adminAgentsService.syncAgentsFromVoIP();
+  }
+
+  @Post('auto-match')
+  @ApiOperation({ summary: 'Bulk auto-match unlinked agents to users by email/name (admin only)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the number of agents matched and list of unmatched agent names',
+  })
+  async bulkAutoMatch() {
+    this.logger.log('Triggering bulk agent-user auto-match');
+    return this.agentAutoMatchService.bulkAutoMatch();
   }
 
   @Get('link-calls')

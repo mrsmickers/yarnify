@@ -1,6 +1,7 @@
 import { NotFoundPage } from '../routes'
 import VoipDashboardPage from '../pages/VoipDashboardPage'
 import CallDetailPage from '../pages/CallDetailPage'
+import MyCallsPage from '../pages/MyCallsPage'
 import LogoutPage from '../pages/LogoutPage'
 import PersonalSettingsPage from '../pages/PersonalSettingsPage'
 import AdminConsolePage from '../pages/AdminConsolePage'
@@ -20,6 +21,10 @@ export const routes = [
   {
     path: '/dashboard',
     element: <VoipDashboardPage />,
+  },
+  {
+    path: '/calls/mine',
+    element: <MyCallsPage />,
   },
   {
     path: '/calls/:callId',

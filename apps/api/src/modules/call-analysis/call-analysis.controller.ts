@@ -5,6 +5,7 @@ import {
   UsePipes,
   ValidationPipe,
   Param,
+  Req,
   NotFoundException,
   UseGuards,
   Post, // Added Post
@@ -20,6 +21,8 @@ import {
   AgentListItemDto, // Added
 } from './dto/get-calls.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
+import { JwtPayload } from '../../common/interfaces/cls-store.interface';
 
 @UseGuards(AuthGuard('jwt'))
 @ApiTags('Call Analysis')
@@ -41,6 +44,40 @@ export class CallAnalysisController {
     @Query() query: GetCallsQueryDto,
   ): Promise<PaginatedCallsResponseDto> {
     return this.callAnalysisService.getCalls(query);
+  }
+
+  @Get('calls/mine')
+  @ApiOperation({
+    summary: 'Get calls for the currently logged-in user (via linked agent)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns paginated calls for the logged-in user\'s linked agent.',
+  })
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  async getMyCalls(
+    @Req() req: Request,
+    @Query() query: GetCallsQueryDto,
+  ) {
+    const payload = req.user as JwtPayload;
+    if (!payload?.oid) {
+      return {
+        data: [],
+        total: 0,
+        page: query.page || 1,
+        limit: query.limit || 10,
+        totalPages: 0,
+        metrics: {
+          totalPositiveSentiment: 0,
+          totalNegativeSentiment: 0,
+          totalNeutralSentiment: 0,
+          averageConfidence: 0,
+        },
+        agentLinked: false,
+      };
+    }
+
+    return this.callAnalysisService.getMyCalls(payload.oid, query);
   }
 
   @Get('calls/:id')

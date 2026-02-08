@@ -189,6 +189,11 @@ export class AuthService {
       session.roles = this.mapRoleToClaims(syncedUser.role);
       session.email = syncedUser.email || session.email;
       session.name = syncedUser.displayName || session.name;
+
+      // Auto-match agent on login (fire-and-forget, don't block login)
+      this.tryAutoMatchAgent(syncedUser.id, syncedUser.email, syncedUser.displayName).catch(
+        (err) => this.logger.error('Agent auto-match failed', err),
+      );
       
       const accessToken = this.signSession(session);
 
@@ -396,6 +401,78 @@ export class AuthService {
         lastSyncedAt: new Date(),
       },
     });
+  }
+
+  /**
+   * Try to auto-link an EntraUser to an unlinked Agent on login.
+   * Matching strategy (in order):
+   * 1. Exact email match: Agent.email === user.email (case-insensitive)
+   * 2. Display name match: Agent.name === user.displayName (case-insensitive, trimmed)
+   * Only matches if Agent.entraUserId is null (not already linked).
+   */
+  private async tryAutoMatchAgent(
+    userId: string,
+    email: string,
+    displayName?: string | null,
+  ): Promise<void> {
+    // Check if user already has a linked agent
+    const existingLink = await this.prisma.agent.findFirst({
+      where: { entraUserId: userId },
+    });
+
+    if (existingLink) {
+      this.logger.debug(
+        `User ${email} already linked to agent "${existingLink.name}" — skipping auto-match`,
+      );
+      return;
+    }
+
+    // Strategy 1: Email match (case-insensitive)
+    if (email) {
+      const agentByEmail = await this.prisma.agent.findFirst({
+        where: {
+          email: { equals: email, mode: 'insensitive' },
+          entraUserId: null,
+        },
+      });
+
+      if (agentByEmail) {
+        await this.prisma.agent.update({
+          where: { id: agentByEmail.id },
+          data: { entraUserId: userId },
+        });
+        this.logger.log(
+          `Auto-matched agent "${agentByEmail.name}" to user ${email} via email match`,
+        );
+        return;
+      }
+    }
+
+    // Strategy 2: Display name match (case-insensitive, trimmed)
+    if (displayName && displayName.trim().length > 0) {
+      const trimmedName = displayName.trim();
+      const agentByName = await this.prisma.agent.findFirst({
+        where: {
+          name: { equals: trimmedName, mode: 'insensitive' },
+          entraUserId: null,
+        },
+      });
+
+      if (agentByName) {
+        await this.prisma.agent.update({
+          where: { id: agentByName.id },
+          data: { entraUserId: userId },
+        });
+        this.logger.log(
+          `Auto-matched agent "${agentByName.name}" to user ${email} via display name match`,
+        );
+        return;
+      }
+    }
+
+    this.logger.debug(
+      `No auto-match found for user ${email} (displayName: ${displayName || 'n/a'})`,
+    );
   }
 
   private async syncExistingUser(

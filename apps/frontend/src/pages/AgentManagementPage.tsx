@@ -36,7 +36,7 @@ import {
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import { RefreshCw, Users, Phone } from 'lucide-react'
+import { RefreshCw, Users, Phone, Wand2 } from 'lucide-react'
 
 type Agent = {
   id: string
@@ -165,6 +165,33 @@ export default function AgentManagementPage() {
     },
   })
 
+  // Bulk auto-match agents to users mutation
+  const autoMatchMutation = useMutation({
+    mutationFn: async () => {
+      return await axiosInstance<{
+        matched: number
+        unmatched: string[]
+        details: Array<{ agentName: string; userEmail: string; matchedBy: string }>
+      }>({
+        url: '/api/v1/admin/agents/auto-match',
+        method: 'POST',
+      })
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'agents'] })
+      if (data.matched > 0) {
+        toast.success(
+          `Auto-matched ${data.matched} agent${data.matched !== 1 ? 's' : ''} to users`
+        )
+      } else {
+        toast.info('No new matches found')
+      }
+    },
+    onError: (error) => {
+      toast.error(handleApiError(error))
+    },
+  })
+
   const handleSync = () => {
     setIsSyncing(true)
     syncAgentsMutation.mutate()
@@ -283,6 +310,17 @@ export default function AgentManagementPage() {
                   className={`mr-2 h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`}
                 />
                 Sync from VoIP
+              </Button>
+              <Button
+                onClick={() => autoMatchMutation.mutate()}
+                disabled={autoMatchMutation.isPending}
+                size="sm"
+                variant="default"
+              >
+                <Wand2
+                  className={`mr-2 h-4 w-4 ${autoMatchMutation.isPending ? 'animate-spin' : ''}`}
+                />
+                Auto-Match
               </Button>
               <Button
                 onClick={handleLinkCalls}
