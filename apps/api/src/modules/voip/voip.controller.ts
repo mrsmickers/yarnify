@@ -20,7 +20,7 @@ export class VoipController {
   @Get('recordings/process')
   @UsePipes(new ZodValidationPipe(GetCallRecordingsQuerySchema))
   async processRecordingsByDate(@Query() query: GetCallRecordingsQueryDto) {
-    let { startDate, endDate } = query;
+    let { startDate, endDate, limit } = query;
 
     if (!startDate || !endDate) {
       const now = new Date();
@@ -30,6 +30,10 @@ export class VoipController {
       this.logger.log(`Defaulting date range: ${startDate} to ${endDate}`);
     }
 
+    if (limit) {
+      this.logger.log(`Limiting processing to last ${limit} recordings`);
+    }
+
     // CallRecordingService.getRecordingsByDateRange now handles fetching,
     // uploading to blob, and queuing for processing.
     // It returns the original list of recordings it found.
@@ -37,6 +41,7 @@ export class VoipController {
       await this.callRecordingService.getRecordingsByDateRangeAndQueue(
         startDate,
         endDate,
+        limit,
       );
 
     if (!foundRecordings || foundRecordings.length === 0) {

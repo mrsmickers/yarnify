@@ -62,6 +62,7 @@ export const GetCallRecordingsQuerySchema = z.object({
       message: 'Invalid date string format. Expected ISO 8601 format.',
     })
     .optional(),
+  limit: z.coerce.number().int().positive().optional(),
 });
 
 export type GetCallRecordingsQueryDto = z.infer<

@@ -92,20 +92,22 @@ export class CallRecordingService {
   async getRecordingsByDateRangeAndQueue(
     startDateIso: string,
     endDateIso: string,
+    limit?: number,
   ): Promise<CallRecord[]> {
     this.logger.log(
-      `getRecordingsByDateRangeAndQueue called with startDate: ${startDateIso}, endDate: ${endDateIso}`,
+      `getRecordingsByDateRangeAndQueue called with startDate: ${startDateIso}, endDate: ${endDateIso}${limit ? `, limit: ${limit}` : ''}`,
     );
-    return this.processRecordingsByDateRangeInternal(startDateIso, endDateIso);
+    return this.processRecordingsByDateRangeInternal(startDateIso, endDateIso, limit);
   }
 
   // Core logic for fetching and queuing recordings, callable internally or by specific consumers.
   async processRecordingsByDateRangeInternal(
     startDateIso: string,
     endDateIso: string,
+    limit?: number,
   ): Promise<CallRecord[]> {
     this.logger.log(
-      `processRecordingsByDateRangeInternal called with startDate: ${startDateIso}, endDate: ${endDateIso}`,
+      `processRecordingsByDateRangeInternal called with startDate: ${startDateIso}, endDate: ${endDateIso}${limit ? `, limit: ${limit}` : ''}`,
     );
     const startDateUnix = dayjs(startDateIso).unix().toString();
     const endDateUnix = dayjs(endDateIso).unix().toString();
@@ -124,7 +126,15 @@ export class CallRecordingService {
       return [];
     }
 
-    const listedRecordings = listedRecordingsResponse.data;
+    // Sort by start time descending (newest first) and apply limit
+    let listedRecordings = listedRecordingsResponse.data.sort(
+      (a, b) => parseInt(b.start) - parseInt(a.start)
+    );
+    
+    if (limit && limit > 0) {
+      listedRecordings = listedRecordings.slice(0, limit);
+      this.logger.log(`Applied limit: processing ${listedRecordings.length} most recent recordings`);
+    }
     this.logger.log(
       `Found ${listedRecordings.length} recordings in range. Queuing for processing...`,
     );
