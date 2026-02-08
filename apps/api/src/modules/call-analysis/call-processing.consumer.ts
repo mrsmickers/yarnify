@@ -113,6 +113,10 @@ export class CallProcessingConsumer extends WorkerHost {
         }
       }
 
+      // Determine call direction
+      const callDirection = this.callAnalysisService.determineCallDirection(recordingData);
+      this.logger.log(`[CallDirection] ${callRecordingId}: ${callDirection}`);
+
       // Handle Agent - check if agent exists, if not create it
       let agentEntity: Agent | null = null;
       if (internalExtensionNumber && internalExtensionName) {
@@ -164,6 +168,8 @@ export class CallProcessingConsumer extends WorkerHost {
           callStatus: 'PROCESSING',
           ...(agentEntity &&
             !callEntity.agentsId && { agentsId: agentEntity.id }),
+          ...(!callEntity.callDirection && { callDirection }),
+          ...(!callEntity.externalPhoneNumber && externalPhoneNumber && { externalPhoneNumber }),
         });
       } else {
         // Create a new Call record if it doesn't exist
@@ -174,9 +180,9 @@ export class CallProcessingConsumer extends WorkerHost {
           endTime,
           duration,
           callStatus: 'PROCESSING',
+          callDirection,
+          externalPhoneNumber: externalPhoneNumber || null,
           agentsId: agentEntity?.id,
-
-          // endTime and duration will be set upon completion
         });
         this.logger.log(
           `Created new Call record with ID: ${callEntity.id} for SID: ${callRecordingId}`,
@@ -470,6 +476,9 @@ export class CallProcessingConsumer extends WorkerHost {
             status: 'LOG_INFO',
             message: `No ConnectWise company found for phone ${externalPhoneNumber}`,
           });
+          this.logger.log(
+            `[CompanyLookup] No CW match for ${externalPhoneNumber} (callSid=${callRecordingId}). Likely personal mobile or unregistered number.`,
+          );
         }
       } catch (cwError) {
         if (cwError.message?.includes('Phone Number is required')) {
@@ -551,6 +560,15 @@ export class CallProcessingConsumer extends WorkerHost {
         embeddings: {
           provider: skipEmbeddings ? 'skipped' : 'openai',
           model: skipEmbeddings ? null : 'text-embedding-3-small',
+        },
+        companyLookup: {
+          phoneSearched: externalPhoneNumber || null,
+          matched: !!companyEntity,
+          reason: companyEntity
+            ? `Matched: ${companyEntity.name}`
+            : externalPhoneNumber
+              ? 'No ConnectWise company found for this number (personal mobile or unregistered)'
+              : 'No external phone number extracted',
         },
         processedAt: new Date().toISOString(),
       };

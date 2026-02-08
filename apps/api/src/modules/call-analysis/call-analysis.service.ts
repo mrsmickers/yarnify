@@ -180,6 +180,57 @@ export class CallAnalysisService {
   }
 
   /**
+   * Determine call direction from CDR fields.
+   * - INBOUND: snumber is external (UK phone number), cnumber/dnumber is internal extension or company DID
+   * - OUTBOUND: snumber is internal extension, cnumber/dnumber is external phone
+   * - INTERNAL: both snumber and cnumber/dnumber are internal extensions (e.g. transfers, voicemail)
+   * - UNKNOWN: can't determine
+   */
+  determineCallDirection(obj: CallRecordResponse['data']): 'INBOUND' | 'OUTBOUND' | 'INTERNAL' | 'UNKNOWN' {
+    const extensionPrefix = this.config.get<string>('EXTENSION_STARTS_WITH') || '56360';
+    
+    const isExtension = (val?: string) =>
+      typeof val === 'string' && val.startsWith(extensionPrefix);
+    const isExternalPhone = (val?: string) =>
+      typeof val === 'string' && (
+        /^0\d{10}$/.test(val) ||
+        /^\+44\d{10}$/.test(val) ||
+        /^447\d{9}$/.test(val) ||
+        /^07\d{9}$/.test(val)
+      );
+
+    const snumberIsInternal = isExtension(obj.snumber);
+    const cnumberIsExternal = isExternalPhone(obj.cnumber);
+    const snumberIsExternal = isExternalPhone(obj.snumber);
+    const cnumberIsInternal = isExtension(obj.cnumber);
+
+    // Check for special codes (e.g. *78 = voicemail)
+    const isSpecialCode = (val?: string) =>
+      typeof val === 'string' && val.startsWith('*');
+
+    if (snumberIsInternal && cnumberIsExternal) {
+      return 'OUTBOUND';
+    }
+    if (snumberIsExternal && (cnumberIsInternal || isExtension(obj.dnumber))) {
+      return 'INBOUND';
+    }
+    // External calling the company DID (01273...)
+    if (snumberIsExternal && !cnumberIsExternal) {
+      return 'INBOUND';
+    }
+    // Internal to internal (transfers, voicemail pickup)
+    if (snumberIsInternal && (cnumberIsInternal || isSpecialCode(obj.cnumber))) {
+      return 'INTERNAL';
+    }
+
+    this.logger.log(
+      `[CallDirection] Could not determine direction for uniqueid=${obj.uniqueid} ` +
+        `(snumber=${obj.snumber}, cnumber=${obj.cnumber})`,
+    );
+    return 'UNKNOWN';
+  }
+
+  /**
    * LLM-based agent identification fallback.
    * When CDR fields don't contain an internal extension, we send the transcript
    * to the LLM with the known agent list and ask it to identify the primary handler.
@@ -359,6 +410,8 @@ Rules:
       id: call.id,
       callSid: call.callSid,
       companyId: call.companyId,
+      callDirection: call.callDirection,
+      externalPhoneNumber: call.externalPhoneNumber,
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore // company is included
       companyName: call.company?.name, // Optional: include company name
@@ -442,6 +495,8 @@ Rules:
       id: call.id,
       callSid: call.callSid,
       companyId: call.companyId,
+      callDirection: call.callDirection,
+      externalPhoneNumber: call.externalPhoneNumber,
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore // company is included via repository
       companyName: call.company?.name,

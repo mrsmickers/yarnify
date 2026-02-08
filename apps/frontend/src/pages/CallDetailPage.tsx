@@ -19,7 +19,7 @@ import {
   getCallAnalysisControllerGetCallsQueryKey,
   storageControllerDownloadCallTranscript,
 } from '@/api/api-client'
-import { Loader2, ArrowLeft, Pause, Play, Download } from 'lucide-react'
+import { Loader2, ArrowLeft, Pause, Play, Download, PhoneIncoming, PhoneOutgoing, Phone, ArrowRightLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import type { AxiosError } from 'axios'
 import { useQueryClient } from '@tanstack/react-query'
@@ -267,6 +267,19 @@ const CallDetailPage = () => {
       ? (callDetails as { companyName: string }).companyName
       : callDetails.companyId
 
+  const directionConfig: Record<string, { label: string; icon: React.ElementType; className: string }> = {
+    INBOUND: { label: 'Inbound', icon: PhoneIncoming, className: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' },
+    OUTBOUND: { label: 'Outbound', icon: PhoneOutgoing, className: 'bg-blue-500/15 text-blue-400 border-blue-500/30' },
+    INTERNAL: { label: 'Internal', icon: ArrowRightLeft, className: 'bg-amber-500/15 text-amber-400 border-amber-500/30' },
+    UNKNOWN: { label: 'Unknown', icon: Phone, className: 'bg-zinc-500/15 text-zinc-400 border-zinc-500/30' },
+  }
+  const direction = (callDetails as any).callDirection || 'UNKNOWN'
+  const dirInfo = directionConfig[direction] || directionConfig.UNKNOWN
+  const DirectionIcon = dirInfo.icon
+
+  const externalPhone = (callDetails as any).externalPhoneNumber || null
+  const companyLookup = (callDetails.processingMetadata as any)?.companyLookup
+
   const formatLabel = (text: string) =>
     text.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())
 
@@ -309,11 +322,26 @@ const CallDetailPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            <div className="flex items-center gap-3 mb-2">
+              <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${dirInfo.className}`}>
+                <DirectionIcon className="h-3.5 w-3.5" />
+                {dirInfo.label}
+              </span>
+              {externalPhone && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/30 px-3 py-1 text-xs font-medium text-muted-foreground">
+                  <Phone className="h-3 w-3" />
+                  {externalPhone}
+                </span>
+              )}
+            </div>
             <div className="grid gap-4 sm:grid-cols-2">
               {[
                 {
                   label: 'Company',
                   value: displayCompany || 'N/A',
+                  sublabel: !displayCompany && companyLookup?.reason
+                    ? companyLookup.reason
+                    : undefined,
                 },
                 {
                   label: 'Agent',
@@ -335,6 +363,11 @@ const CallDetailPage = () => {
                   <p className="text-sm font-medium text-foreground">
                     {item.value}
                   </p>
+                  {'sublabel' in item && item.sublabel && (
+                    <p className="text-[11px] text-amber-400/80">
+                      {item.sublabel}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
