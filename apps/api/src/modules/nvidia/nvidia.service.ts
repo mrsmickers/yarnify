@@ -53,16 +53,18 @@ export class NvidiaService {
       maxTokens?: number;
       topP?: number;
     },
+    modelOverride?: string,
   ): Promise<OpenAI.Chat.ChatCompletion> {
     if (!this.client) {
       throw new Error('NVIDIA service not initialized - API key missing');
     }
 
-    this.logger.log(`Creating chat completion with NVIDIA model: ${this.model}`);
+    const effectiveModel = modelOverride || this.model;
+    this.logger.log(`Creating chat completion with NVIDIA model: ${effectiveModel}`);
 
     try {
       const completion = await this.client.chat.completions.create({
-        model: this.model,
+        model: effectiveModel,
         messages,
         temperature: options?.temperature ?? 0.7,
         max_tokens: options?.maxTokens ?? 4096,

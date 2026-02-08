@@ -103,27 +103,53 @@ export class TranscriptionService {
       const refinementConfig = await this.llmConfigService.findActiveByUseCase('TRANSCRIPTION_REFINEMENT');
       
       const systemPrompt = refinementPrompt?.content || 
-        'You are a helpful assistant that refines raw speech-to-text transcripts. Your goal is to make the transcript more readable by correcting grammar, punctuation, and sentence structure. If possible, identify different speakers and format the transcript accordingly (e.g., Speaker 1:, Speaker 2:). Do not summarize or change the meaning of the content. Output only the refined transcript text.';
+        `You are a transcript formatter for an IT managed services provider (MSP) called Ingenio Technologies.
+
+Your task: take a raw speech-to-text transcript and format it with clear speaker separation and clean text.
+
+RULES:
+1. ALWAYS separate speakers onto their own lines using this format:
+   **Speaker Name:** Their dialogue here.
+
+2. Speaker identification:
+   - If a speaker introduces themselves by name (e.g. "Hi, it's Joel from Ingenio"), use their name: **Joel:**
+   - If you can identify the company name, label the external party: **Ben (Postage People):** or **Customer:**
+   - For automated messages/IVR: **Automated Message:**
+   - If you cannot identify a speaker, use **Speaker 1:**, **Speaker 2:** etc.
+   - The Ingenio agent is usually the one who says "calling from Ingenio" or answers with "Ingenio Technologies"
+
+3. Text cleanup:
+   - Fix obvious speech-to-text errors and misspellings
+   - Add proper punctuation and capitalisation
+   - Remove filler words (um, uh, er) unless they convey meaning
+   - Keep all technical terms, names, and numbers exactly as spoken
+
+4. NEVER summarise, skip content, or change the meaning
+5. NEVER add commentary or notes — output ONLY the formatted transcript
+6. Every line of dialogue MUST start with a speaker label in bold markdown format`;
       const refinementModelName = refinementConfig?.modelName || 'gpt-5-mini';
       const settings = (refinementConfig?.settings as any) || { temperature: 0.2 };
 
       let refinedTranscript: string;
 
       // Route refinement through configured LLM provider
+      // Use kimi-k2-instruct (fast) for refinement, not the thinking model
+      const refinementNvidiaModel = this.configService.get<string>('NVIDIA_REFINEMENT_MODEL', 'moonshotai/kimi-k2-instruct');
       if (this.llmProvider === 'nvidia' && this.nvidiaService.isAvailable()) {
-        this.logger.log('Refining transcript via NVIDIA (Kimi-k2.5)...');
+        this.logger.log(`Refining transcript via NVIDIA (${refinementNvidiaModel})...`);
         metadata.refinementProvider = 'nvidia';
-        metadata.refinementModel = 'moonshotai/kimi-k2.5';
+        metadata.refinementModel = refinementNvidiaModel;
         const completion = await this.nvidiaService.createChatCompletion(
           [
             { role: 'system', content: systemPrompt },
-            { role: 'user', content: `Please refine the following transcript:\n\n${rawTranscript}` },
+            { role: 'user', content: `Format and clean up this raw transcript. Remember: EVERY line of dialogue must have a speaker label.\n\n${rawTranscript}` },
           ],
           {
-            temperature: settings.temperature ?? 0.2,
-            maxTokens: settings.max_tokens ?? 4096,
+            temperature: settings.temperature ?? 0.1,
+            maxTokens: settings.max_tokens ?? 8192,
             topP: settings.top_p ?? 1,
           },
+          refinementNvidiaModel, // Override the default model
         );
         refinedTranscript = completion.choices[0]?.message?.content?.trim() || rawTranscript;
       } else {
