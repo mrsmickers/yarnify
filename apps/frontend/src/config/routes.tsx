@@ -13,6 +13,7 @@ import LLMManagementPage from '../pages/LLMManagementPage'
 import CompanyInfoPage from '../pages/CompanyInfoPage'
 import TrainingRulesPage from '../pages/TrainingRulesPage'
 import ScoringCategoriesPage from '../pages/ScoringCategoriesPage'
+import SentimentAlertsPage from '../pages/SentimentAlertsPage'
 
 // Route configuration
 export const routes = [
@@ -75,6 +76,10 @@ export const routes = [
   {
     path: '/admin/scoring',
     element: <ScoringCategoriesPage />,
+  },
+  {
+    path: '/admin/sentiment-alerts',
+    element: <SentimentAlertsPage />,
   },
   {
     path: '*',

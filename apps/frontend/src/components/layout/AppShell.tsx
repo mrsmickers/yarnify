@@ -9,6 +9,7 @@ import {
   Headphones,
   KeyRound,
   Building2,
+  AlertTriangle,
   Menu,
   PhoneCall,
   Settings2,
@@ -84,6 +85,11 @@ const adminNav: NavSection = {
       label: 'Scoring',
       path: '/admin/scoring',
       icon: Target,
+    },
+    {
+      label: 'Sentiment Alerts',
+      path: '/admin/sentiment-alerts',
+      icon: AlertTriangle,
     },
     {
       label: 'Prompt Management',

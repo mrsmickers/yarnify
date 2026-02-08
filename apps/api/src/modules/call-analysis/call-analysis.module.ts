@@ -21,6 +21,7 @@ import { CallTranscriptEmbeddingRepository } from './repositories/call-transcrip
 import { PromptManagementModule } from '../prompt-management/prompt-management.module';
 import { CompanyInfoModule } from '../company-info/company-info.module';
 import { TrainingRulesModule } from '../training-rules/training-rules.module';
+import { SentimentAlertsModule } from '../sentiment-alerts/sentiment-alerts.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { TrainingRulesModule } from '../training-rules/training-rules.module';
     PromptManagementModule, // For PromptManagementService and LLMConfigService
     CompanyInfoModule, // For CompanyInfoService (prompt injection)
     TrainingRulesModule, // For TrainingRulesService (training rules prompt injection)
+    SentimentAlertsModule, // For SentimentAlertsService (post-analysis sentiment alerting)
   ],
   controllers: [CallAnalysisController], // Added controller
   providers: [

@@ -19,10 +19,12 @@ import {
   getCallAnalysisControllerGetCallsQueryKey,
   storageControllerDownloadCallTranscript,
 } from '@/api/api-client'
-import { Loader2, ArrowLeft, Pause, Play, Download, PhoneIncoming, PhoneOutgoing, Phone, ArrowRightLeft } from 'lucide-react'
+import { Loader2, ArrowLeft, Pause, Play, Download, PhoneIncoming, PhoneOutgoing, Phone, ArrowRightLeft, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import type { AxiosError } from 'axios'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { axiosInstance } from '@/api/axios-instance'
+import { Badge } from '@/components/ui/badge'
 import { PageHeader } from '@/components/layout/PageHeader'
 
 const CallDetailPage = () => {
@@ -55,6 +57,30 @@ const CallDetailPage = () => {
     void,
     AxiosError<{ message?: string }>
   >()
+
+  // Fetch sentiment alerts for this call
+  const { data: sentimentAlerts = [] } = useQuery<Array<{
+    id: string
+    alertType: string
+    severity: string
+    sentiment: string | null
+    frustration: string | null
+    reviewedAt: string | null
+    dismissedAt: string | null
+  }>>({
+    queryKey: ['sentiment-alerts', 'call', callId],
+    queryFn: async () => {
+      return await axiosInstance({
+        url: `/api/v1/admin/sentiment-alerts/call/${callId}`,
+        method: 'GET',
+      })
+    },
+    enabled: !!callId,
+  })
+
+  const pendingAlerts = sentimentAlerts.filter(
+    (a) => !a.reviewedAt && !a.dismissedAt,
+  )
 
   const failedStatuses = ['TRANSCRIPTION_FAILED', 'ANALYSIS_FAILED', 'FAILED']
 
@@ -312,6 +338,27 @@ const CallDetailPage = () => {
           </>
         }
       />
+
+      {/* Sentiment alert banner */}
+      {pendingAlerts.length > 0 && (
+        <div className="flex items-center gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3">
+          <AlertTriangle className="h-5 w-5 shrink-0 text-amber-500" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-amber-400">
+              ⚠️ This call has been flagged for review
+            </p>
+            <p className="text-xs text-amber-400/70">
+              {pendingAlerts.length} pending alert{pendingAlerts.length > 1 ? 's' : ''} —{' '}
+              {pendingAlerts.map((a) => a.severity).includes('critical')
+                ? 'Critical severity'
+                : 'Warning severity'}
+            </p>
+          </div>
+          <Button size="sm" variant="outline" asChild className="shrink-0 border-amber-500/30 text-amber-400 hover:bg-amber-500/20">
+            <Link to="/admin/sentiment-alerts">Review alerts</Link>
+          </Button>
+        </div>
+      )}
 
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
         <Card className="border border-border/80 bg-card/70 backdrop-blur-sm dark:border-[#242F3F]">

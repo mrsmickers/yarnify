@@ -23,6 +23,7 @@ import { CallTranscriptEmbeddingRepository } from './repositories/call-transcrip
 import { ConfigService } from '@nestjs/config';
 import { CompanyInfoService } from '../company-info/company-info.service';
 import { TrainingRulesService } from '../training-rules/training-rules.service';
+import { SentimentAlertsService } from '../sentiment-alerts/sentiment-alerts.service';
 @Injectable()
 @Processor(CALL_PROCESSING_QUEUE, { concurrency: 5 })
 export class CallProcessingConsumer extends WorkerHost {
@@ -46,6 +47,7 @@ export class CallProcessingConsumer extends WorkerHost {
     private readonly configService: ConfigService, // For chunk size/overlap
     private readonly companyInfoService: CompanyInfoService,
     private readonly trainingRulesService: TrainingRulesService,
+    private readonly sentimentAlertsService: SentimentAlertsService,
   ) {
     super();
   }
@@ -588,6 +590,20 @@ export class CallProcessingConsumer extends WorkerHost {
         status: 'LOG_SUCCESS',
         message: `Call analysis saved. Analysis ID: ${callAnalysisEntity.id}`,
       });
+
+      // Evaluate sentiment alerts after analysis is saved
+      try {
+        await this.sentimentAlertsService.evaluateCall(
+          callEntity.id,
+          callAnalysisEntity.id,
+          analysis as Record<string, unknown>,
+        );
+      } catch (alertError) {
+        // Non-fatal — don't fail the pipeline if alerting fails
+        this.logger.warn(
+          `[SentimentAlerts] Failed to evaluate call ${callEntity.id}: ${alertError.message}`,
+        );
+      }
 
       // Save LLM pipeline metadata for debugging/R&D
       const processingMetadata = {

@@ -73,6 +73,7 @@ model Call {
   agentsId                String?
   CallTranscriptEmbedding CallTranscriptEmbedding[]
   keywordAlerts           KeywordAlert[]
+  sentimentAlerts         SentimentAlert[]
 
   @@index([companyId])
 }
@@ -301,4 +302,46 @@ model KeywordAlert {
   @@index([agentId])
   @@index([reviewedAt])
   @@map("keyword_alerts")
+}
+
+// Sentiment alert configuration — defines what triggers a sentiment alert
+model SentimentAlertConfig {
+  id              String   @id @default(cuid())
+  name            String   // e.g. "Negative Sentiment Alert"
+  isActive        Boolean  @default(true)
+  // Trigger conditions (any matching condition triggers)
+  sentimentValues String[] // e.g. ["Negative", "Very Negative"]
+  frustrationMin  String?  // Minimum frustration level: "Medium", "High"
+  // Actions
+  flagForReview   Boolean  @default(true)
+  notifyEmails    String[] // Email addresses to notify (future use)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("sentiment_alert_configs")
+}
+
+// Sentiment alert instances created when a call matches an alert config
+model SentimentAlert {
+  id              String    @id @default(cuid())
+  callId          String
+  callAnalysisId  String
+  configId        String?   // Which config triggered this
+  alertType       String    // "negative_sentiment", "high_frustration", "manual"
+  severity        String    // "warning", "critical"
+  sentiment       String?   // The actual sentiment value
+  frustration     String?   // The actual frustration level
+  reviewedAt      DateTime?
+  reviewedBy      String?
+  reviewNotes     String?   @db.Text
+  dismissedAt     DateTime?
+  createdAt       DateTime  @default(now())
+
+  call            Call      @relation(fields: [callId], references: [id])
+
+  @@index([callId])
+  @@index([alertType])
+  @@index([reviewedAt])
+  @@index([dismissedAt])
+  @@map("sentiment_alerts")
 }
