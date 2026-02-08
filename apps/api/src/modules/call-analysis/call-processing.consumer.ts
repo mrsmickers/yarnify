@@ -263,6 +263,49 @@ export class CallProcessingConsumer extends WorkerHost {
         // Decide if this is a critical failure, for now, we continue to embedding if transcript is available
       }
 
+      // LLM-based agent identification fallback
+      // If CDR extraction didn't find an agent, try identifying from the transcript
+      if (!agentEntity && transcript) {
+        this.logger.log(
+          `[AgentAttribution/LLM] No agent from CDR for ${callRecordingId}, attempting LLM identification...`,
+        );
+        const llmResult = await this.callAnalysisService.identifyAgentFromTranscript(
+          transcript,
+          callRecordingId,
+        );
+
+        if (llmResult) {
+          // Look up the agent by name
+          const agents = await this.agentRepository.findMany({
+            where: { name: { equals: llmResult.agentName, mode: 'insensitive' } },
+          });
+          
+          if (agents.length > 0) {
+            agentEntity = agents[0];
+            callEntity = await this.callRepository.update(callEntity.id, {
+              agentsId: agentEntity.id,
+            });
+            this.logger.log(
+              `[AgentAttribution/LLM] Linked ${callRecordingId} to ${agentEntity.name} (confidence: ${llmResult.confidence}, reason: ${llmResult.reasoning})`,
+            );
+            await this.processingLogRepository.create({
+              callId: callEntity.id,
+              status: 'LOG_INFO',
+              message: `Agent identified via LLM: ${agentEntity.name} (confidence: ${llmResult.confidence}). Reason: ${llmResult.reasoning}`,
+            });
+          }
+        } else {
+          this.logger.log(
+            `[AgentAttribution/LLM] No agent identified from transcript for ${callRecordingId} (likely voicemail/IVR)`,
+          );
+          await this.processingLogRepository.create({
+            callId: callEntity.id,
+            status: 'LOG_INFO',
+            message: 'No agent identified from CDR or transcript (voicemail/IVR/automated).',
+          });
+        }
+      }
+
       // Chunk and Embed Transcript
       // Skip embeddings when SKIP_EMBEDDINGS=true (re-enable when Semantic Call Search is implemented — see PLAN.md #16)
       const skipEmbeddings = this.configService.get<string>('SKIP_EMBEDDINGS', 'false').toLowerCase() === 'true';

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { openai, createOpenAI } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
+import { z } from 'zod';
 import { instructions, callAnalysisSchema, CallAnalysisOutput } from './prompt';
 import { CallRecordResponse } from '../voip/dto/call-recording.dto';
 // import { Company } from '../connectwise-manage/types'; // Company type from Prisma might be more appropriate here
@@ -176,6 +177,99 @@ export class CallAnalysisService {
       `[AgentAttribution] No internal extension found for uniqueid=${obj.uniqueid}`,
     );
     return undefined;
+  }
+
+  /**
+   * LLM-based agent identification fallback.
+   * When CDR fields don't contain an internal extension, we send the transcript
+   * to the LLM with the known agent list and ask it to identify the primary handler.
+   */
+  async identifyAgentFromTranscript(
+    transcript: string,
+    callSid: string,
+  ): Promise<{ agentName: string; confidence: 'high' | 'medium' | 'low'; reasoning: string } | null> {
+    try {
+      // Build agent list from DB
+      const agents = await this.db.agent.findMany({
+        select: { name: true, extension: true },
+        orderBy: { name: 'asc' },
+      });
+
+      if (agents.length === 0) {
+        this.logger.warn('[AgentAttribution/LLM] No agents in database, cannot identify speaker');
+        return null;
+      }
+
+      const agentListStr = agents
+        .map((a) => `- ${a.name} (ext: ${a.extension})`)
+        .join('\n');
+
+      // Use first 3000 chars of transcript — enough for speaker identification
+      const truncatedTranscript = transcript.length > 3000
+        ? transcript.substring(0, 3000) + '\n... [transcript truncated]'
+        : transcript;
+
+      const speakerIdSchema = z.object({
+        agentName: z.string().describe('The name of the Ingenio staff member who is the primary handler in this call. Must exactly match one of the names from the agent list, or "NONE" if no agent is identifiable.'),
+        confidence: z.enum(['high', 'medium', 'low']).describe('How confident you are in the identification. high = agent clearly named/identified, medium = likely but inferred, low = uncertain'),
+        reasoning: z.string().describe('Brief explanation of how you identified the agent (e.g. "Agent introduces themselves as Joel" or "No live agent present - voicemail only")'),
+      });
+
+      const systemPrompt = `You are an agent identification system for Ingenio Technologies, an IT managed services provider.
+
+Your task: identify which Ingenio staff member is the PRIMARY HANDLER in this call transcript.
+
+Known Ingenio staff:
+${agentListStr}
+
+Rules:
+1. Look for the agent who HANDLES the customer's issue — not reception/transfer agents
+2. Agents often introduce themselves by name ("Hi, it's Joel speaking")
+3. Speaker labels like **Joel:** or **Freddie:** directly indicate the speaker
+4. If the call is voicemail, IVR, or automated with no live agent, return agentName="NONE"
+5. If a call is transferred, the primary handler is the person who deals with the customer's actual issue
+6. The agentName must EXACTLY match one of the names from the agent list above, or be "NONE"`;
+
+      const { object } = await generateObject({
+        model: this.getLLMProvider('gpt-5-mini'),
+        schema: speakerIdSchema,
+        prompt: `Identify the primary Ingenio agent in this call transcript:\n\n${truncatedTranscript}`,
+        system: systemPrompt,
+        temperature: 0.1, // Low temp for deterministic identification
+      });
+
+      this.logger.log(
+        `[AgentAttribution/LLM] Result for ${callSid}: agent="${object.agentName}" confidence=${object.confidence} reason="${object.reasoning}"`,
+      );
+
+      if (object.agentName === 'NONE') {
+        return null;
+      }
+
+      // Verify the name matches a real agent
+      const matchedAgent = agents.find(
+        (a) => a.name.toLowerCase() === object.agentName.toLowerCase(),
+      );
+
+      if (!matchedAgent) {
+        this.logger.warn(
+          `[AgentAttribution/LLM] LLM returned "${object.agentName}" but no matching agent in DB for ${callSid}`,
+        );
+        return null;
+      }
+
+      return {
+        agentName: matchedAgent.name,
+        confidence: object.confidence,
+        reasoning: object.reasoning,
+      };
+    } catch (error) {
+      this.logger.error(
+        `[AgentAttribution/LLM] Failed for ${callSid}: ${error.message}`,
+        error.stack,
+      );
+      return null; // Non-fatal — call still processes without attribution
+    }
   }
 
   async getCalls(query: GetCallsQueryDto): Promise<PaginatedCallsResponseDto> {
