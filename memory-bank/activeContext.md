@@ -1,79 +1,88 @@
 # Active Context
 
 This file tracks the project's current status, including recent changes, current goals, and open questions.
-2025-05-24 12:04:57 - Log of updates made.
 
-*
+## Current Status (February 2026)
+
+**The Oracle is live in production** at https://theoracle.ingeniotech.co.uk/
+
+### Working ✅
+- **Transcription:** OpenAI Whisper API (fast, reliable)
+- **LLM Analysis:** NVIDIA Kimi-k2.5 (`moonshotai/kimi-k2-thinking`) via NIM API
+- **Auth:** Microsoft Entra ID SSO + Cloudflare Access
+- **Storage:** Persistent Docker volume with correct permissions
+- **API:** All routes working via `/api/v1/` prefix
+- **Database:** PostgreSQL with pgvector
+
+### Infrastructure
+- **Hosted on:** Business Coolify (ingcoolify, 100.99.183.58 via Tailscale)
+- **App UUID:** `r84g88k8g0cg4wwccc8gk4sw`
+- **Port:** 3100:3000 (host:container)
+- **Tunnel:** ingpve1 via `*.ingeniotech.co.uk`
+- **Volume:** `r84g88k8g0cg4wwccc8gk4sw-oracle-storage` → `/app/storage-data`
 
 ## Current Focus
 
-*   Test the new `/call-analysis/calls` endpoint.
-*   Monitor for any issues related to `nestjs-zod` and the downgraded `@nestjs/swagger` version.
+1. **Fix agent attribution for transferred calls** — Priority issue
+2. Consider re-enabling transcript refinement with Kimi-2.5
+3. Process full recording backlog once attribution is fixed
 
-## Recent Changes
+## Open Issues
 
-*   [2025-05-30 08:44:26] - Reordered items in the "General Information" section of [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:313) to group caller information on the left and time/date/duration stats on the right.
-*   [2025-05-30 08:40:37] - Increased the navigation bar size by a total of 50% from its original dimensions in [`apps/frontend/src/components/Navigation.tsx`](apps/frontend/src/components/Navigation.tsx:26). This involved changing the main bar height to `h-24` (96px), desktop logo to `h-[60px]` (60px), mobile logo to `h-12` (48px), and mobile menu `top` to `top-24`.
-*   [2025-05-28 22:51:03] - Removed the "ID" field from the "Technical Info" section in [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:528), leaving only "Call SID".
-*   [2025-05-28 22:49:31] - Improved the styling of the "Technical Info" section in [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:521) using Shadcn-like card styling for better visual presentation.
-*   [2025-05-28 22:48:01] - Removed duplicated code block from the end of [`apps/frontend/src/pages/CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:557).
-*   [2025-05-27 21:51:29] - Updated instructions in [`apps/api/src/modules/call-analysis/prompt.ts`](apps/api/src/modules/call-analysis/prompt.ts:46) to clarify handling of undetermined enum values, aiming to resolve "No object generated: response did not match schema" errors.
-*   [2025-05-27 16:44:16] - Configured call data in [`VoipDashboardPage.tsx`](apps/frontend/src/pages/VoipDashboardPage.tsx:53:1) to refetch every 10 seconds by adding `refetchInterval: 10000` to the `useCallAnalysisControllerGetCalls` hook options.
-*   [2025-05-27 10:52:44] - Moved agent name display in [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:324) to the general information section to ensure it's visible even if call analysis fails.
-*   [2025-05-27 07:29:12] - Updated agent name display on [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:247:1) to use `callDetails.agentName` instead of `callDetails.analysis.agent_name`.
-*   [2025-05-27 07:22:54] - Reverted `ServeStaticModule` `exclude` option in [`apps/api/src/app.module.ts`](apps/api/src/app.module.ts:49:1) to `['/api/**']` to fix TypeScript error and attempt to resolve `path-to-regexp` error with a different glob pattern.
-*   [2025-05-27 07:22:13] - Updated `ServeStaticModule` in [`apps/api/src/app.module.ts`](apps/api/src/app.module.ts:49:1) to use a regular expression `exclude: [/^\/api\//]` to prevent `path-to-regexp` errors.
-*   [2025-05-27 07:13:35] - Updated `ServeStaticModule` in [`apps/api/src/app.module.ts`](apps/api/src/app.module.ts:50:1) to correctly rewrite all non-API requests to `index.html` by setting `exclude: ['/api/*']` and `renderPath: '*'`.
-*   [2025-05-26 23:37:46] - Corrected the import statement for the `path` module in [`StorageController`](apps/api/src/modules/storage/storage.controller.ts:14:1) to `import * as path from 'path';` to resolve a `TypeError` during call recording streaming.
-*   [2025-05-26 23:22:51] - Added an audio player to [`CallDetailPage.tsx`](apps/frontend/src/pages/CallDetailPage.tsx:0) to stream call recordings from the `/api/v1/storage/recordings/stream/:callId` endpoint.
-*   [2025-05-26 21:15:25] - Configured NestJS build process in `apps/api/nest-cli.json` to copy the `apps/api/client` directory (containing static assets like `index.html`) to the `dist/apps/api/client` output directory. This ensures that the `ServeStaticModule` can correctly serve these files.
-*   [2025-05-25 15:16:51] - Added a BullMQ job to sync call recordings every 15 minutes. This involved creating `CallRecordingSyncProducerService` to schedule the job, `CallRecordingSyncConsumer` to fetch recent recordings and queue them for processing using the refactored `CallRecordingService.processRecordingsByDateRangeInternal` method. `VoipModule` was updated to include these new components and register the `CALL_RECORDING_SYNC_QUEUE`.
-*   [2025-05-25 15:13:17] - Updated [`CallProcessingConsumer`](apps/api/src/modules/call-analysis/call-processing.consumer.ts:0) to handle transcription failures. If transcription results in an empty or null string, the call status is set to `"TRANSCRIPTION_FAILED"`, and subsequent analysis steps are skipped.
-*   [2025-05-25 15:09:20] - Updated [`CallProcessingConsumer`](apps/api/src/modules/call-analysis/call-processing.consumer.ts:0) to handle cases where `externalPhoneNumber` is not found or when ConnectWise lookup fails due to a missing phone number. In such scenarios, the call is marked with status `"INTERNAL_CALL_SKIPPED"` and further processing (company lookup, analysis) is bypassed.
-*   [2025-05-25 10:42:58] - Modified [`CallRecordingService`](apps/api/src/modules/voip/call-recording.service.ts:0) in `apps/api` to prevent queuing duplicate call processing jobs. The service now checks if a call with the same `uniqueid` (as `callSid`) already exists in the database with a `COMPLETED` status before adding it to the BullMQ queue. This involved injecting `CallRepository` and using its `findByCallSid` method. Corrected Prisma `CallStatus` enum import and usage.
-*   [2025-05-25 10:38:43] - Noted recommendation to enable "strict" compiler option in `apps/api/tsconfig.json` and `apps/api/tsconfig.build.json`.
-*   [2025-05-25 10:36:31] - Downgraded `@nestjs/swagger` to `^6.3.0` in `apps/api` to resolve runtime error `Cannot find module '@nestjs/core/router/legacy-route-converter'` due to version incompatibility with NestJS 9.x.
-*   [2025-05-25 10:34:20] - Created API endpoint `/call-analysis/calls` for retrieving paginated and filtered call and call analysis data. This involved:
-    *   Creating DTOs (`GetCallsQueryDto`, `CallResponseDto`, `PaginatedCallsResponseDto`) in `apps/api/src/modules/call-analysis/dto/get-calls.dto.ts`.
-    *   Creating `CallAnalysisController` in `apps/api/src/modules/call-analysis/call-analysis.controller.ts`.
-    *   Adding `getCalls` method to `CallAnalysisService` in `apps/api/src/modules/call-analysis/call-analysis.service.ts` to handle fetching and formatting data, using `CallRepository`.
-    *   Adding `findMany` and `count` methods to `CallRepository` in `apps/api/src/modules/call-analysis/repositories/call.repository.ts`.
-    *   Updating `CallAnalysisModule` in `apps/api/src/modules/call-analysis/call-analysis.module.ts` to include the new controller.
-    *   Installed `@nestjs/swagger`, `class-transformer`, `class-validator` dependencies.
-    *   Corrected Prisma type imports and usage in DTOs and services.
-    *   Switched to standard `ValidationPipe` in `CallAnalysisController`.
-*   [2025-05-25 10:03:14] - Planned integration of database persistence into the call processing workflow. This includes creating repository services, updating the `CallProcessingConsumer` to use Prisma transactions, and modifying the Prisma schema for `CallAnalysis` and `processingLog` to make `companyId` optional. Plan documented in `call_processing_db_integration_plan.md`.
-*   [2025-05-24 18:36:09] - Implemented BullMQ producer ([`TranscriptionProducerService`](apps/api/src/modules/transcription/transcription.producer.service.ts:15)) and consumer ([`TranscriptionConsumer`](apps/api/src/modules/transcription/transcription.consumer.ts:9)) for audio transcription with a concurrency of 5. Updated [`TranscriptionModule`](apps/api/src/modules/transcription/transcription.module.ts:19) to register the queue and provide services. Modified [`VoipController`](apps/api/src/modules/voip/voip.controller.ts:14) to use the producer service for queueing transcription jobs.
-*   [2025-05-24 15:57:42] - Refactored `supervisorAgent` and `callAnalysisAgent` into injectable NestJS services (`SupervisorAgentService` and `CallAnalysisService`). Updated `AgentsModule` to provide these services and `AgentsController` to inject `SupervisorAgentService`. Removed direct agent instantiations.
-*   [2025-05-24 16:00:32] - Updated `apps/api/src/main.ts` to initialize `VoltAgent` with the `SupervisorAgentService` instance obtained from the NestJS application context.
-*   [2025-05-24 16:02:31] - Updated `apps/api/src/main.ts` to also register `CallAnalysisService` (obtained via `app.get()`) with the `VoltAgent` instance, making both agents explicitly known at the top level.
-*   [2025-05-24 16:04:12] - Commented out conflicting `VoltAgent` initialization and agent instantiations in `apps/agents/src/index.ts` to ensure `apps/api/src/main.ts` is the single source of truth.
-*   [2025-05-24 16:44:31] - Corrected the Zod schema description for the `uniqueid` parameter in the `getCallRecordingTranscription` tool to accurately reflect its purpose.
-*   [2025-05-24 16:46:34] - Updated the `description` (now `instructions`) of `SupervisorAgentService` to explicitly instruct the LLM to use its tools and sub-agent, and then format the final output according to `callAnalysisSchema`.
-*   [2025-05-24 16:47:58] - Updated the prompt/instructions for `CallAnalysisService` in `apps/api/src/modules/agents/agents/callAnalysis/prompt.ts` to explicitly include the required JSON output schema (`callAnalysisSchema`).
-*   [2025-05-24 17:08:14] - Updated `SupervisorAgentService` instructions to refer to the `getCallRecordingTranscription` tool by its exact name "Get-Voice-Call-Recording-Transcription".
-*   [2025-05-24 17:47:24] - Added Prisma to the `apps/api` NestJS project: installed dependencies, initialized Prisma, created `PrismaService` and `PrismaModule`, imported `PrismaModule` into `AppModule`, and updated `.gitignore`.
-*   [2025-05-24 17:50:59] - Added Azure Blob Storage module to `apps/api`: installed `@azure/storage-blob`, created `StorageService` and `StorageModule`, and imported `StorageModule` into `AppModule`.
-*   [2025-05-24 17:54:05] - Corrected `uploadData` call in `StorageService` to convert string content to Buffer, resolving a TypeScript error.
-*   [2025-05-24 17:55:52] - Added `@nestjs/bullmq` to `apps/api` project and configured `BullModule` in `AppModule` to connect to Redis.
-*   [2025-05-24 18:12:49] - Created endpoint `/voip/recordings/transcribe` to get and transcribe call recordings by date range. This involved:
-    *   Adding `GetCallRecordingsQueryDto` to `apps/api/src/modules/voip/dto/call-recording.dto.ts`.
-    *   Creating `VoipController` in `apps/api/src/modules/voip/voip.controller.ts`.
-    *   Installing `nestjs-zod`.
-    *   Adding `getRecordingsByDateRange` method to `CallRecordingService`.
-    *   Updating `TranscriptionService` to accept `Buffer` and `mimeType`.
-    *   Updating `getCallRecordingTranscriptionTool` to pass `Buffer` and `mimeType`.
-    *   Updating `VoipModule` to include `VoipController` and import `TranscriptionModule`.
-*   [2025-05-24 18:16:07] - Updated `/voip/recordings/transcribe` endpoint in `VoipController` to default to the last 24 hours if `startDate` or `endDate` are not provided. Made `startDate` and `endDate` optional in `GetCallRecordingsQueryDto`.
+### Agent Attribution Bug ⚠️
+For transferred calls, wrong agent gets attributed.
 
-## Open Questions/Issues
+**Root Cause:** `extractInternalPhoneNumber()` in `call-analysis.service.ts` checks fields in this order:
+1. `snumber` (source number)
+2. `callerid_internal`
+3. `cnumber`
+4. `dnumber` (destination number)
 
-*   User needs to run `pnpm --filter api exec prisma generate` after schema modifications for optional `companyId` fields are applied by Code mode.
-*   Verify that the "No object generated: response did not match schema" error is resolved after clarifying instructions in [`apps/api/src/modules/call-analysis/prompt.ts`](apps/api/src/modules/call-analysis/prompt.ts:46).
-*   User needs to configure `DATABASE_URL`.
-*   User needs to add `AZURE_STORAGE_CONNECTION_STRING` and `AZURE_STORAGE_CONTAINER_NAME` to `apps/api/.env`.
-*   The TypeScript error regarding `BlobServiceClient.fromConnectionString` in `apps/api/src/storage/storage.service.ts` (line 28) still needs to be monitored/resolved by the user if it persists after IDE/TS server restart.
-*   Test the new `/voip/recordings/process` endpoint (formerly `/voip/recordings/transcribe`) to ensure jobs are queued and processed, including full database persistence.
-*   Test the new `/call-analysis/calls` endpoint.
-*   Monitor for issues related to `nestjs-zod` peer dependency on `@nestjs/swagger` now that `@nestjs/swagger` is downgraded.
-*   Consider enabling "strict" compiler option in `apps/api/tsconfig.json` and `apps/api/tsconfig.build.json` for improved type safety.
+First match wins — so for calls transferred from reception to technician, we pick the receptionist (initial answerer) not the technician (final handler).
+
+**Fix Options:**
+1. Reverse priority: check `dnumber` before `snumber`
+2. Use LLM analysis to identify speaker from transcript content
+3. Check NTA API for call disposition/final handler metadata
+
+### Key Files
+- Agent extraction: `apps/api/src/modules/call-analysis/call-analysis.service.ts`
+- NTA API reference: `docs/nta-api-reference.md`
+
+## Recent Changes (Feb 2026)
+
+- [2026-02-08] Switched from self-hosted Whisper to OpenAI Whisper API
+- [2026-02-08] Added `limit` parameter to `/api/v1/voip/recordings/process`
+- [2026-02-08] Fixed persistent storage with Docker volume + permissions
+- [2026-02-08] Added NTA API reference documentation
+- [2026-02-07] Deployed to business Coolify
+- [2026-02-07] Renamed from Yarnify to "The Oracle"
+- [2026-02-07] Added NVIDIA Kimi-k2.5 integration
+
+## Key Configuration
+
+```env
+# Transcription
+TRANSCRIPTION_PROVIDER=openai
+OPENAI_API_KEY=<configured in Coolify>
+SKIP_TRANSCRIPT_REFINEMENT=true
+
+# LLM Analysis
+LLM_PROVIDER=nvidia
+NVIDIA_API_KEY=<configured in Coolify>
+
+# VoIP
+EXTENSION_STARTS_WITH=56360
+NTA_API_BASE_URL=<NTA API endpoint>
+```
+
+## Key Staff Extensions
+- Joel Allen: 563601012
+- Freddy Carey: 563601007
+- Leanna Landers: 563601002
+
+## Notes
+
+- Container runs as `node:node` — volumes need `chown -R node:node /app/storage-data` after creation
+- Self-hosted Whisper (large-v3) proved unreliable: 12 timeouts vs 6 completions
+- GitHub repo is public for Coolify pulls
