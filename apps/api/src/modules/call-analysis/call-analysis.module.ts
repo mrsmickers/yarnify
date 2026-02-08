@@ -19,6 +19,7 @@ import { EmbeddingModule } from '../embedding/embedding.module';
 import { TextChunkingModule } from '../text-chunking/text-chunking.module';
 import { CallTranscriptEmbeddingRepository } from './repositories/call-transcript-embedding.repository';
 import { PromptManagementModule } from '../prompt-management/prompt-management.module';
+import { CompanyInfoModule } from '../company-info/company-info.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { PromptManagementModule } from '../prompt-management/prompt-management.m
     EmbeddingModule, // For EmbeddingService
     TextChunkingModule, // For TextChunkingService
     PromptManagementModule, // For PromptManagementService and LLMConfigService
+    CompanyInfoModule, // For CompanyInfoService (prompt injection)
   ],
   controllers: [CallAnalysisController], // Added controller
   providers: [

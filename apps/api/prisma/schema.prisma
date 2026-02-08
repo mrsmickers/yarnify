@@ -205,6 +205,22 @@ model DepartmentKeywordTrigger {
   @@map("department_keyword_triggers")
 }
 
+// Singleton company info for LLM prompt injection
+model CompanyInfo {
+  id                String   @id @default(cuid())
+  name              String   // "Ingenio Technologies Ltd"
+  description       String   @db.Text  // What the company does
+  industry          String?  // "IT Managed Services Provider (MSP)"
+  location          String?  // "Brighton, East Sussex, UK"
+  website           String?
+  additionalContext String?  @db.Text // Free text for anything else
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  updatedBy         String?
+
+  @@map("company_info")
+}
+
 // Keyword alert instances when triggers are matched
 model KeywordAlert {
   id          String   @id @default(cuid())

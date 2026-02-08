@@ -7,6 +7,7 @@ import {
   FileText,
   Headphones,
   KeyRound,
+  Building2,
   Menu,
   PhoneCall,
   Settings2,
@@ -52,6 +53,11 @@ const workspaceNav: NavSection = {
 const adminNav: NavSection = {
   title: 'Admin',
   items: [
+    {
+      label: 'Company Info',
+      path: '/admin/company-info',
+      icon: Building2,
+    },
     {
       label: 'User Management',
       path: '/admin/users',

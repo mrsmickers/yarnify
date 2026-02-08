@@ -21,6 +21,7 @@ import { EmbeddingService } from '../embedding/embedding.service';
 import { TextChunkingService } from '../text-chunking/text-chunking.service';
 import { CallTranscriptEmbeddingRepository } from './repositories/call-transcript-embedding.repository';
 import { ConfigService } from '@nestjs/config';
+import { CompanyInfoService } from '../company-info/company-info.service';
 @Injectable()
 @Processor(CALL_PROCESSING_QUEUE, { concurrency: 5 })
 export class CallProcessingConsumer extends WorkerHost {
@@ -42,6 +43,7 @@ export class CallProcessingConsumer extends WorkerHost {
     private readonly textChunkingService: TextChunkingService,
     private readonly callTranscriptEmbeddingRepository: CallTranscriptEmbeddingRepository,
     private readonly configService: ConfigService, // For chunk size/overlap
+    private readonly companyInfoService: CompanyInfoService,
   ) {
     super();
   }
@@ -95,7 +97,10 @@ export class CallProcessingConsumer extends WorkerHost {
       const externalPhoneNumber =
         await this.callAnalysisService.extractExternalPhoneNumber(recordingData);
       let earlyCompanyName: string | null = null;
-      const ownCompanyName = this.configService.get<string>('OWN_COMPANY_NAME', 'Ingenio Technologies');
+      // Use dynamic company info from DB, falling back to env var / hardcoded default
+      const companyInfo = await this.companyInfoService.get();
+      const ownCompanyName = companyInfo?.name
+        || this.configService.get<string>('OWN_COMPANY_NAME', 'Ingenio Technologies');
       if (externalPhoneNumber) {
         try {
           const cwCompany = await this.connectwise.getCompanyByPhoneNumber(externalPhoneNumber);
