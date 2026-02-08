@@ -45,6 +45,9 @@ let refreshTimer: ReturnType<typeof setTimeout> | null = null
 let idleTimer: ReturnType<typeof setTimeout> | null = null
 let idleWarningTimer: ReturnType<typeof setTimeout> | null = null
 let sessionStartTime: number | null = null
+let idleRemainingMs: number | null = null // Remaining idle time when tab was hidden
+let warningRemainingMs: number | null = null // Remaining warning time when tab was hidden
+let lastActivityTime: number = Date.now() // Track when user was last active
 
 /**
  * Check if session has exceeded absolute timeout (24 hours).
@@ -101,6 +104,13 @@ const resetIdleTimers = () => {
   if (idleTimer) clearTimeout(idleTimer)
   if (idleWarningTimer) clearTimeout(idleWarningTimer)
   
+  // Clear any paused state
+  idleRemainingMs = null
+  warningRemainingMs = null
+  
+  // Track last activity time
+  lastActivityTime = Date.now()
+  
   // Check absolute timeout first
   if (isSessionExpired()) {
     forceLogout('Absolute session timeout (24 hours)')
@@ -116,6 +126,64 @@ const resetIdleTimers = () => {
   idleTimer = setTimeout(() => {
     forceLogout('Idle timeout (15 minutes)')
   }, IDLE_TIMEOUT_MS)
+}
+
+/**
+ * Pause idle timers when tab becomes hidden.
+ * Calculates remaining time so we can resume accurately.
+ */
+const pauseIdleTimers = () => {
+  const elapsed = Date.now() - lastActivityTime
+  
+  // Calculate remaining time for each timer
+  const idleRemaining = IDLE_TIMEOUT_MS - elapsed
+  const warningRemaining = IDLE_WARNING_MS - elapsed
+  
+  // Only save remaining time if timer hasn't already fired
+  idleRemainingMs = idleRemaining > 0 ? idleRemaining : null
+  warningRemainingMs = warningRemaining > 0 ? warningRemaining : null
+  
+  // Clear the active timers (they won't fire while paused)
+  if (idleTimer) clearTimeout(idleTimer)
+  if (idleWarningTimer) clearTimeout(idleWarningTimer)
+  idleTimer = null
+  idleWarningTimer = null
+  
+  console.log(`[Session] Idle timers paused (${Math.round((idleRemaining) / 1000)}s remaining)`)
+}
+
+/**
+ * Resume idle timers when tab becomes visible again.
+ * Uses the remaining time from when we paused.
+ */
+const resumeIdleTimers = () => {
+  // Check absolute timeout first
+  if (isSessionExpired()) {
+    forceLogout('Absolute session timeout (24 hours) - detected on tab focus')
+    return
+  }
+  
+  // If we have paused state, resume with remaining time
+  if (idleRemainingMs !== null && idleRemainingMs > 0) {
+    console.log(`[Session] Resuming idle timers (${Math.round(idleRemainingMs / 1000)}s remaining)`)
+    
+    if (warningRemainingMs !== null && warningRemainingMs > 0) {
+      idleWarningTimer = setTimeout(() => {
+        showIdleWarning()
+      }, warningRemainingMs)
+    }
+    
+    idleTimer = setTimeout(() => {
+      forceLogout('Idle timeout (15 minutes)')
+    }, idleRemainingMs)
+    
+    // Clear paused state
+    idleRemainingMs = null
+    warningRemainingMs = null
+  } else {
+    // No paused state (or timer already expired) — treat return as new activity
+    resetIdleTimers()
+  }
 }
 
 /**
@@ -198,19 +266,16 @@ const initializeSessionManagement = () => {
     
     // Handle visibility changes (tab switching)
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === 'hidden') {
+        // Tab hidden — pause idle timers so they don't fire in the background
+        pauseIdleTimers()
+      } else if (document.visibilityState === 'visible') {
         console.log('[Session] Tab became visible, checking session validity')
         
-        // Check if session expired while tab was hidden
-        if (isSessionExpired()) {
-          forceLogout('Absolute session timeout (24 hours) - detected on tab focus')
-          return
-        }
+        // Resume idle timers with remaining time (doesn't reset the clock)
+        resumeIdleTimers()
         
-        // Reset idle timers (user is back)
-        resetIdleTimers()
-        
-        // Trigger immediate token refresh if needed
+        // Trigger token refresh if needed (token may have expired while away)
         refreshTokenProactively()
       }
     })
