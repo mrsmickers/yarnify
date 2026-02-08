@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OpenAIService } from '../openai/openai.service';
+import { NvidiaService } from '../nvidia/nvidia.service';
 import { WhisperService } from './whisper.service';
 import { LLMConfigService } from '../prompt-management/llm-config.service';
 import { PromptManagementService } from '../prompt-management/prompt-management.service';
@@ -13,12 +14,13 @@ import { PromptManagementService } from '../prompt-management/prompt-management.
 export class TranscriptionService {
   private readonly logger = new Logger(TranscriptionService.name);
   private readonly useLocalWhisper: boolean;
-
   private readonly skipRefinement: boolean;
+  private readonly llmProvider: string;
 
   constructor(
     private readonly configService: ConfigService,
     private readonly openaiService: OpenAIService,
+    private readonly nvidiaService: NvidiaService,
     private readonly whisperService: WhisperService,
     private readonly llmConfigService: LLMConfigService,
     private readonly promptService: PromptManagementService,
@@ -27,7 +29,9 @@ export class TranscriptionService {
     this.useLocalWhisper = this.configService.get<string>('TRANSCRIPTION_PROVIDER', 'whisper') === 'whisper';
     // Skip refinement step to save costs - raw transcript goes directly to analysis
     this.skipRefinement = this.configService.get<string>('SKIP_TRANSCRIPT_REFINEMENT', 'false') === 'true';
-    this.logger.log(`Transcription provider: ${this.useLocalWhisper ? 'Self-hosted Whisper' : 'OpenAI'}, Refinement: ${this.skipRefinement ? 'disabled' : 'enabled'}`);
+    // LLM provider for refinement (nvidia = free Kimi-k2.5, openai = GPT-4o)
+    this.llmProvider = this.configService.get<string>('LLM_PROVIDER', 'openai');
+    this.logger.log(`Transcription provider: ${this.useLocalWhisper ? 'Self-hosted Whisper' : 'OpenAI'}, Refinement: ${this.skipRefinement ? 'disabled' : `enabled (${this.llmProvider})`}`);
   }
 
   async transcribeAudio(
@@ -91,15 +95,34 @@ export class TranscriptionService {
       const refinementModelName = refinementConfig?.modelName || 'gpt-4o';
       const settings = (refinementConfig?.settings as any) || { temperature: 0.2 };
 
-      // Refine the transcript using database config
-      const refinedTranscript = await this.openaiService.refineTranscript(
-        rawTranscript,
-        refinementModelName,
-        systemPrompt,
-        settings,
-      );
+      let refinedTranscript: string;
 
-      this.logger.log('Transcript refinement successful.');
+      // Route refinement through configured LLM provider
+      if (this.llmProvider === 'nvidia' && this.nvidiaService.isAvailable()) {
+        this.logger.log('Refining transcript via NVIDIA (Kimi-k2.5)...');
+        const completion = await this.nvidiaService.createChatCompletion(
+          [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: `Please refine the following transcript:\n\n${rawTranscript}` },
+          ],
+          {
+            temperature: settings.temperature ?? 0.2,
+            maxTokens: settings.max_tokens ?? 4096,
+            topP: settings.top_p ?? 1,
+          },
+        );
+        refinedTranscript = completion.choices[0]?.message?.content?.trim() || rawTranscript;
+      } else {
+        this.logger.log(`Refining transcript via OpenAI (${refinementModelName})...`);
+        refinedTranscript = await this.openaiService.refineTranscript(
+          rawTranscript,
+          refinementModelName,
+          systemPrompt,
+          settings,
+        );
+      }
+
+      this.logger.log(`Transcript refinement successful (provider: ${this.llmProvider}).`);
       return refinedTranscript;
     } catch (error) {
       this.logger.error(
