@@ -42,6 +42,7 @@ export class TranscriptionService {
     base64: string,
     mimeType?: string,
     modelName?: string,
+    callContext?: { agentName?: string | null; companyName?: string | null },
   ): Promise<{ text: string; metadata: { transcriptionProvider: string; transcriptionModel: string; refinementProvider: string | null; refinementModel: string | null } }> {
     const metadata = {
       transcriptionProvider: this.useLocalWhisper ? 'self-hosted-whisper' : 'openai',
@@ -127,6 +128,15 @@ RULES:
 4. NEVER summarise, skip content, or change the meaning
 5. NEVER add commentary or notes — output ONLY the formatted transcript
 6. Every line of dialogue MUST start with a speaker label in bold markdown format`;
+
+      // Inject known caller context if available
+      let contextHint = '';
+      if (callContext?.agentName || callContext?.companyName) {
+        const parts: string[] = [];
+        if (callContext.agentName) parts.push(`The Ingenio agent on this call is: ${callContext.agentName}`);
+        if (callContext.companyName) parts.push(`The customer's company is: ${callContext.companyName}`);
+        contextHint = `\n\nKNOWN CONTEXT:\n${parts.join('\n')}\nUse these names for speaker labels where applicable.`;
+      }
       const refinementModelName = refinementConfig?.modelName || 'gpt-5-mini';
       const settings = (refinementConfig?.settings as any) || { temperature: 0.2 };
 
@@ -141,7 +151,7 @@ RULES:
         metadata.refinementModel = refinementNvidiaModel;
         const completion = await this.nvidiaService.createChatCompletion(
           [
-            { role: 'system', content: systemPrompt },
+            { role: 'system', content: systemPrompt + contextHint },
             { role: 'user', content: `Format and clean up this raw transcript. Remember: EVERY line of dialogue must have a speaker label.\n\n${rawTranscript}` },
           ],
           {
@@ -159,7 +169,7 @@ RULES:
         refinedTranscript = await this.openaiService.refineTranscript(
           rawTranscript,
           refinementModelName,
-          systemPrompt,
+          systemPrompt + contextHint,
           settings,
         );
       }

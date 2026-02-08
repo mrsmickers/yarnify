@@ -91,6 +91,23 @@ export class CallProcessingConsumer extends WorkerHost {
       );
       const internalExtensionName = extensionInfo?.callername_internal || null;
 
+      // Early CW lookup for company context (used in transcript refinement)
+      const externalPhoneNumber =
+        await this.callAnalysisService.extractExternalPhoneNumber(recordingData);
+      let earlyCompanyName: string | null = null;
+      if (externalPhoneNumber) {
+        try {
+          const cwCompany = await this.connectwise.getCompanyByPhoneNumber(externalPhoneNumber);
+          earlyCompanyName = cwCompany?.name || null;
+          if (earlyCompanyName) {
+            this.logger.log(`[EarlyLookup] CW company for ${externalPhoneNumber}: ${earlyCompanyName}`);
+          }
+        } catch (err) {
+          // Non-fatal — refinement still works without company name
+          this.logger.warn(`[EarlyLookup] CW lookup failed for ${externalPhoneNumber}: ${err.message}`);
+        }
+      }
+
       // Handle Agent - check if agent exists, if not create it
       let agentEntity: Agent | null = null;
       if (internalExtensionNumber && internalExtensionName) {
@@ -199,6 +216,11 @@ export class CallProcessingConsumer extends WorkerHost {
       const transcriptionResult = await this.transcriptionService.transcribeAudio(
         audioBase64,
         mimeType,
+        undefined, // modelName
+        {
+          agentName: internalExtensionName || null,
+          companyName: earlyCompanyName || null,
+        },
       );
       const transcript = transcriptionResult.text;
       const transcriptionMetadata = transcriptionResult.metadata;
@@ -392,12 +414,7 @@ export class CallProcessingConsumer extends WorkerHost {
         }
       }
 
-      // 4. Handle Company
-      const externalPhoneNumber =
-        await this.callAnalysisService.extractExternalPhoneNumber(
-          recordingData,
-        ); // Existing service method
-
+      // 4. Handle Company (externalPhoneNumber already extracted above for early CW lookup)
       if (!externalPhoneNumber) {
         this.logger.warn(
           `No external phone number extracted for Call ID ${callEntity.id}. Marking as internal and skipping further company processing and analysis.`,
