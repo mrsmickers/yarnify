@@ -504,44 +504,102 @@ const CallDetailPage = () => {
         <CardHeader>
           <CardTitle>Technical info</CardTitle>
           <CardDescription>
-            Identifiers and timestamps that support debugging and audits.
+            Identifiers, timestamps, and LLM pipeline details for debugging and audits.
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1 rounded-xl border border-border/60 bg-muted/20 p-4 sm:col-span-2">
-            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Call SID
-            </span>
-            <span className="break-all text-sm font-medium text-foreground">
-              {callDetails.callSid}
-            </span>
-          </div>
-          <div className="space-y-1 rounded-xl border border-border/60 bg-muted/20 p-4">
-            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Started
-            </span>
-            <span className="text-sm font-medium text-foreground">
-              {new Date(callDetails.startTime).toLocaleString()}
-            </span>
-          </div>
-          {callDetails.endTime ? (
-            <div className="space-y-1 rounded-xl border border-border/60 bg-muted/20 p-4">
+        <CardContent className="space-y-6">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1 rounded-xl border border-border/60 bg-muted/20 p-4 sm:col-span-2">
               <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Ended
+                Call SID
               </span>
-              <span className="text-sm font-medium text-foreground">
-                {new Date(callDetails.endTime).toLocaleString()}
+              <span className="break-all text-sm font-medium text-foreground">
+                {callDetails.callSid}
               </span>
             </div>
-          ) : null}
-          {callDetails.duration ? (
             <div className="space-y-1 rounded-xl border border-border/60 bg-muted/20 p-4">
               <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Duration
+                Started
               </span>
               <span className="text-sm font-medium text-foreground">
-                {formatTime(callDetails.duration)}
+                {new Date(callDetails.startTime).toLocaleString()}
               </span>
+            </div>
+            {callDetails.endTime ? (
+              <div className="space-y-1 rounded-xl border border-border/60 bg-muted/20 p-4">
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Ended
+                </span>
+                <span className="text-sm font-medium text-foreground">
+                  {new Date(callDetails.endTime).toLocaleString()}
+                </span>
+              </div>
+            ) : null}
+            {callDetails.duration ? (
+              <div className="space-y-1 rounded-xl border border-border/60 bg-muted/20 p-4">
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Duration
+                </span>
+                <span className="text-sm font-medium text-foreground">
+                  {formatTime(callDetails.duration)}
+                </span>
+              </div>
+            ) : null}
+          </div>
+
+          {callDetails.processingMetadata ? (
+            <div className="space-y-3">
+              <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                LLM Pipeline
+              </h4>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {[
+                  {
+                    label: 'Transcription',
+                    provider: callDetails.processingMetadata.transcription?.provider,
+                    model: callDetails.processingMetadata.transcription?.model,
+                    color: 'text-blue-400',
+                  },
+                  {
+                    label: 'Refinement',
+                    provider: callDetails.processingMetadata.refinement?.provider,
+                    model: callDetails.processingMetadata.refinement?.model,
+                    color: callDetails.processingMetadata.refinement?.provider === 'skipped' ? 'text-zinc-500' : 'text-purple-400',
+                  },
+                  {
+                    label: 'Analysis',
+                    provider: callDetails.processingMetadata.analysis?.provider,
+                    model: callDetails.processingMetadata.analysis?.model,
+                    color: 'text-purple-400',
+                  },
+                  {
+                    label: 'Embeddings',
+                    provider: callDetails.processingMetadata.embeddings?.provider,
+                    model: callDetails.processingMetadata.embeddings?.model,
+                    color: callDetails.processingMetadata.embeddings?.provider === 'skipped' ? 'text-zinc-500' : 'text-blue-400',
+                  },
+                ].map((step) => (
+                  <div
+                    key={step.label}
+                    className="rounded-xl border border-border/60 bg-muted/20 p-3"
+                  >
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      {step.label}
+                    </span>
+                    <p className={`mt-1 text-xs font-semibold ${step.color}`}>
+                      {step.provider || 'N/A'}
+                    </p>
+                    <p className="mt-0.5 truncate text-[11px] text-muted-foreground" title={step.model || undefined}>
+                      {step.model || '—'}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              {callDetails.processingMetadata.processedAt ? (
+                <p className="text-[11px] text-muted-foreground">
+                  Processed {new Date(callDetails.processingMetadata.processedAt).toLocaleString()}
+                </p>
+              ) : null}
             </div>
           ) : null}
         </CardContent>

@@ -67,6 +67,8 @@ export class CallAnalysisService {
     analysis: CallAnalysisOutput;
     promptTemplateId?: string;
     llmConfigId?: string;
+    analysisProvider: string;
+    analysisModel: string;
   }> {
     // Fetch active prompt and LLM config from database
     const activePrompt = await this.promptService.findActiveByUseCase('CALL_ANALYSIS');
@@ -78,6 +80,7 @@ export class CallAnalysisService {
     const settings = (activeLLMConfig?.settings as any) || {};
     
     const llmProvider = this.config.get<string>('LLM_PROVIDER', 'openai');
+    const nvidiaModel = this.config.get<string>('NVIDIA_MODEL', 'moonshotai/kimi-k2.5');
     this.logger.log(`Analyzing transcript with provider: ${llmProvider}, model: ${modelName}, prompt: ${activePrompt?.name || 'default'}`);
 
     const { object } = await generateObject({
@@ -92,10 +95,17 @@ export class CallAnalysisService {
       presencePenalty: settings.presence_penalty,
     });
 
+    // Determine actual provider/model used
+    const nvidiaApiKey = this.config.get<string>('NVIDIA_API_KEY');
+    const actualProvider = (llmProvider === 'nvidia' && nvidiaApiKey) ? 'nvidia' : 'openai';
+    const actualModel = (llmProvider === 'nvidia' && nvidiaApiKey) ? nvidiaModel : modelName;
+
     return {
       analysis: { ...object },
       promptTemplateId: activePrompt?.id,
       llmConfigId: activeLLMConfig?.id,
+      analysisProvider: actualProvider,
+      analysisModel: actualModel,
     };
   }
 
@@ -245,8 +255,9 @@ export class CallAnalysisService {
       duration: call.duration,
       transcriptUrl: call.transcriptUrl, // Added transcriptUrl
       callStatus: call.callStatus, // Prisma model uses string for callStatus
-      agentName: call.Agents?.name || null, // Optional: include agent name{
+      agentName: call.Agents?.name || null, // Optional: include agent name
       analysis: call.analysis?.data, // Assuming analysis data is in 'data' field
+      processingMetadata: call.processingMetadata,
       createdAt: call.createdAt,
       updatedAt: call.updatedAt,
     }));
@@ -333,6 +344,7 @@ export class CallAnalysisService {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore // Agents is included via repository (after update)
       agentName: call.Agents?.name || null,
+      processingMetadata: call.processingMetadata,
       createdAt: call.createdAt,
       updatedAt: call.updatedAt,
     };

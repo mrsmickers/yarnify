@@ -196,10 +196,12 @@ export class CallProcessingConsumer extends WorkerHost {
       });
 
       // 3. Transcribe audio
-      const transcript = await this.transcriptionService.transcribeAudio(
+      const transcriptionResult = await this.transcriptionService.transcribeAudio(
         audioBase64,
         mimeType,
       );
+      const transcript = transcriptionResult.text;
+      const transcriptionMetadata = transcriptionResult.metadata;
       if (!transcript || transcript.trim() === '') {
         this.logger.error(
           `Transcription resulted in empty text for Call ID ${callEntity.id}. Marking as TRANSCRIPTION_FAILED.`,
@@ -439,7 +441,7 @@ export class CallProcessingConsumer extends WorkerHost {
       Phone Number: ${externalPhoneNumber}\n
       Transcript: ${transcript}`;
 
-      const { analysis, promptTemplateId, llmConfigId } = 
+      const { analysis, promptTemplateId, llmConfigId, analysisProvider, analysisModel } = 
         await this.callAnalysisService.analyzeTranscript(promptTranscript);
       
       await this.processingLogRepository.create({
@@ -467,8 +469,30 @@ export class CallProcessingConsumer extends WorkerHost {
         message: `Call analysis saved. Analysis ID: ${callAnalysisEntity.id}`,
       });
 
+      // Save LLM pipeline metadata for debugging/R&D
+      const processingMetadata = {
+        transcription: {
+          provider: transcriptionMetadata.transcriptionProvider,
+          model: transcriptionMetadata.transcriptionModel,
+        },
+        refinement: transcriptionMetadata.refinementProvider ? {
+          provider: transcriptionMetadata.refinementProvider,
+          model: transcriptionMetadata.refinementModel,
+        } : { provider: 'skipped', model: null },
+        analysis: {
+          provider: analysisProvider,
+          model: analysisModel,
+        },
+        embeddings: {
+          provider: skipEmbeddings ? 'skipped' : 'openai',
+          model: skipEmbeddings ? null : 'text-embedding-3-small',
+        },
+        processedAt: new Date().toISOString(),
+      };
+
       await this.callRepository.update(callEntity.id, {
         callStatus: 'COMPLETED',
+        processingMetadata,
       });
 
       await this.processingLogRepository.create({

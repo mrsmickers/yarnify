@@ -34,15 +34,27 @@ export class TranscriptionService {
     this.logger.log(`Transcription provider: ${this.useLocalWhisper ? 'Self-hosted Whisper' : 'OpenAI'}, Refinement: ${this.skipRefinement ? 'disabled' : `enabled (${this.llmProvider})`}`);
   }
 
+  /**
+   * Transcribe audio and optionally refine the transcript.
+   * Returns { text, metadata } with LLM provider/model info for each step.
+   */
   async transcribeAudio(
     base64: string,
     mimeType?: string,
     modelName?: string,
-  ): Promise<string> {
+  ): Promise<{ text: string; metadata: { transcriptionProvider: string; transcriptionModel: string; refinementProvider: string | null; refinementModel: string | null } }> {
+    const metadata = {
+      transcriptionProvider: this.useLocalWhisper ? 'self-hosted-whisper' : 'openai',
+      transcriptionModel: '',
+      refinementProvider: null as string | null,
+      refinementModel: null as string | null,
+    };
+
     try {
       // Fetch active LLM config for transcription from database
       const transcriptionConfig = await this.llmConfigService.findActiveByUseCase('TRANSCRIPTION');
       const effectiveModelName = transcriptionConfig?.modelName || modelName || 'whisper-1';
+      metadata.transcriptionModel = effectiveModelName;
       
       this.logger.log(
         `Starting transcription with provider: ${this.useLocalWhisper ? 'Whisper' : 'OpenAI'}. ` +
@@ -81,7 +93,7 @@ export class TranscriptionService {
       // Skip refinement if configured - send raw transcript directly to analysis
       if (this.skipRefinement) {
         this.logger.log('Skipping transcript refinement (SKIP_TRANSCRIPT_REFINEMENT=true)');
-        return rawTranscript;
+        return { text: rawTranscript, metadata };
       }
 
       this.logger.log('Refining transcript...');
@@ -100,6 +112,8 @@ export class TranscriptionService {
       // Route refinement through configured LLM provider
       if (this.llmProvider === 'nvidia' && this.nvidiaService.isAvailable()) {
         this.logger.log('Refining transcript via NVIDIA (Kimi-k2.5)...');
+        metadata.refinementProvider = 'nvidia';
+        metadata.refinementModel = 'moonshotai/kimi-k2.5';
         const completion = await this.nvidiaService.createChatCompletion(
           [
             { role: 'system', content: systemPrompt },
@@ -114,6 +128,8 @@ export class TranscriptionService {
         refinedTranscript = completion.choices[0]?.message?.content?.trim() || rawTranscript;
       } else {
         this.logger.log(`Refining transcript via OpenAI (${refinementModelName})...`);
+        metadata.refinementProvider = 'openai';
+        metadata.refinementModel = refinementModelName;
         refinedTranscript = await this.openaiService.refineTranscript(
           rawTranscript,
           refinementModelName,
@@ -123,7 +139,7 @@ export class TranscriptionService {
       }
 
       this.logger.log(`Transcript refinement successful (provider: ${this.llmProvider}).`);
-      return refinedTranscript;
+      return { text: refinedTranscript, metadata };
     } catch (error) {
       this.logger.error(
         `Error during transcription: ${error.message}`,

@@ -128,6 +128,9 @@ export class CallResponseDto {
 
   @ApiPropertyOptional()
   agentName?: string; // Optional: include agent name if available
+
+  @ApiPropertyOptional({ description: 'LLM pipeline metadata (providers, models used for each step)' })
+  processingMetadata?: any;
 }
 
 export class CallMetricsDto {
