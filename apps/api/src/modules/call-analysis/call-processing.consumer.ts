@@ -515,9 +515,10 @@ export class CallProcessingConsumer extends WorkerHost {
       }
 
       // 5. Analyze transcript
-      const promptTranscript = `
-      client_name: ${companyEntity?.name || 'Not found'}\n
-      Phone Number: ${externalPhoneNumber}\n
+      // Inject company context from admin settings for richer LLM analysis
+      const companyContext = await this.companyInfoService.getForPromptInjection();
+      const promptTranscript = `${companyContext ? companyContext + '\n\n' : ''}client_name: ${companyEntity?.name || 'Not found'}
+      Phone Number: ${externalPhoneNumber}
       Transcript: ${transcript}`;
 
       const { analysis, promptTemplateId, llmConfigId, analysisProvider, analysisModel } = 
