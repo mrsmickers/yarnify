@@ -9,6 +9,8 @@ import { NvidiaService } from '../nvidia/nvidia.service';
 import { WhisperService } from './whisper.service';
 import { LLMConfigService } from '../prompt-management/llm-config.service';
 import { PromptManagementService } from '../prompt-management/prompt-management.service';
+import { PromptVariableResolverService } from '../prompt-management/prompt-variable-resolver.service';
+import { CompanyInfoService } from '../company-info/company-info.service';
 
 @Injectable()
 export class TranscriptionService {
@@ -24,6 +26,8 @@ export class TranscriptionService {
     private readonly whisperService: WhisperService,
     private readonly llmConfigService: LLMConfigService,
     private readonly promptService: PromptManagementService,
+    private readonly variableResolver: PromptVariableResolverService,
+    private readonly companyInfoService: CompanyInfoService,
   ) {
     // Use self-hosted Whisper by default, fallback to OpenAI if WHISPER_API_URL is not set
     this.useLocalWhisper = this.configService.get<string>('TRANSCRIPTION_PROVIDER', 'whisper') === 'whisper';
@@ -103,8 +107,8 @@ export class TranscriptionService {
       const refinementPrompt = await this.promptService.findActiveByUseCase('TRANSCRIPTION_REFINEMENT');
       const refinementConfig = await this.llmConfigService.findActiveByUseCase('TRANSCRIPTION_REFINEMENT');
       
-      const systemPrompt = refinementPrompt?.content || 
-        `You are a transcript formatter for an IT managed services provider (MSP) called Ingenio Technologies.
+      const rawSystemPrompt = refinementPrompt?.content || 
+        `You are a transcript formatter for an IT managed services provider (MSP) called {{company_name}}.
 
 Your task: take a raw speech-to-text transcript and format it with clear speaker separation and clean text.
 
@@ -117,7 +121,7 @@ RULES:
    - If you can identify the company name, label the external party: **Ben (Postage People):** or **Customer:**
    - For automated messages/IVR: **Automated Message:**
    - If you cannot identify a speaker, use **Speaker 1:**, **Speaker 2:** etc.
-   - The Ingenio agent is usually the one who says "calling from Ingenio" or answers with "Ingenio Technologies"
+   - The {{company_name}} agent is usually the one who says "calling from {{company_name}}" or answers with "{{company_name}}"
 
 3. Text cleanup:
    - Fix obvious speech-to-text errors and misspellings
@@ -129,11 +133,22 @@ RULES:
 5. NEVER add commentary or notes — output ONLY the formatted transcript
 6. Every line of dialogue MUST start with a speaker label in bold markdown format`;
 
-      // Inject known caller context if available
+      // Resolve {{variable}} placeholders in the prompt
+      const companyInfo = await this.companyInfoService.get();
+      const companyContext = await this.companyInfoService.getForPromptInjection();
+      const systemPrompt = this.variableResolver.resolve(rawSystemPrompt, {
+        company_name: companyInfo?.name || 'Ingenio Technologies',
+        company_context: companyContext || '',
+        agent_name: callContext?.agentName || '',
+        caller_company: callContext?.companyName || '',
+      });
+
+      // Inject known caller context if available (appended AFTER variable resolution)
       let contextHint = '';
       if (callContext?.agentName || callContext?.companyName) {
+        const companyLabel = companyInfo?.name || 'Ingenio';
         const parts: string[] = [];
-        if (callContext.agentName) parts.push(`The Ingenio agent on this call is: ${callContext.agentName}`);
+        if (callContext.agentName) parts.push(`The ${companyLabel} agent on this call is: ${callContext.agentName}`);
         if (callContext.companyName) parts.push(`The customer's company is: ${callContext.companyName}`);
         contextHint = `\n\nKNOWN CONTEXT:\n${parts.join('\n')}\nUse these names for speaker labels where applicable.`;
       }

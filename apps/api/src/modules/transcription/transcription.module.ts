@@ -9,6 +9,7 @@ import { TranscriptionConsumer } from './transcription.consumer';
 import { OpenAIModule } from '../openai/openai.module';
 import { NvidiaModule } from '../nvidia/nvidia.module';
 import { PromptManagementModule } from '../prompt-management/prompt-management.module';
+import { CompanyInfoModule } from '../company-info/company-info.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PromptManagementModule } from '../prompt-management/prompt-management.m
     OpenAIModule,
     NvidiaModule,
     PromptManagementModule,
+    CompanyInfoModule,
     BullModule.registerQueue({
       name: TRANSCRIPTION_QUEUE,
     }),

@@ -18,7 +18,9 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { CallProcessingProducerService } from './call-processing.producer.service';
 import { PromptManagementService } from '../prompt-management/prompt-management.service';
+import { PromptVariableResolverService } from '../prompt-management/prompt-variable-resolver.service';
 import { LLMConfigService } from '../prompt-management/llm-config.service';
+import { CompanyInfoService } from '../company-info/company-info.service';
 // Removed: import { Prisma } from '../../../../generated/prisma';
 
 @Injectable()
@@ -32,6 +34,8 @@ export class CallAnalysisService {
     private readonly callProcessingProducer: CallProcessingProducerService, // Added
     private readonly promptService: PromptManagementService,
     private readonly llmConfigService: LLMConfigService,
+    private readonly variableResolver: PromptVariableResolverService,
+    private readonly companyInfoService: CompanyInfoService,
   ) {}
   
   /**
@@ -76,8 +80,18 @@ export class CallAnalysisService {
     const activeLLMConfig = await this.llmConfigService.findActiveByUseCase('CALL_ANALYSIS');
 
     // Use database values if available, otherwise fall back to hardcoded defaults
-    const systemPrompt = activePrompt?.content || instructions;
+    const rawSystemPrompt = activePrompt?.content || instructions;
     const modelName = activeLLMConfig?.modelName || 'gpt-5-mini';
+
+    // Resolve {{variable}} placeholders in the prompt
+    const companyInfo = await this.companyInfoService.get();
+    const companyContext = await this.companyInfoService.getForPromptInjection();
+    const systemPrompt = this.variableResolver.resolve(rawSystemPrompt, {
+      company_name: companyInfo?.name || 'Unknown',
+      company_description: companyInfo?.description || '',
+      company_industry: companyInfo?.industry || '',
+      company_context: companyContext || '',
+    });
     const settings = (activeLLMConfig?.settings as any) || {};
     
     const llmProvider = this.config.get<string>('LLM_PROVIDER', 'openai');
@@ -275,16 +289,21 @@ export class CallAnalysisService {
         : transcript;
 
       const speakerIdSchema = z.object({
-        agentName: z.string().describe('The name of the Ingenio staff member who is the primary handler in this call. Must exactly match one of the names from the agent list, or "NONE" if no agent is identifiable.'),
+        agentName: z.string().describe('The name of the staff member who is the primary handler in this call. Must exactly match one of the names from the agent list, or "NONE" if no agent is identifiable.'),
         confidence: z.enum(['high', 'medium', 'low']).describe('How confident you are in the identification. high = agent clearly named/identified, medium = likely but inferred, low = uncertain'),
         reasoning: z.string().describe('Brief explanation of how you identified the agent (e.g. "Agent introduces themselves as Joel" or "No live agent present - voicemail only")'),
       });
 
-      const systemPrompt = `You are an agent identification system for Ingenio Technologies, an IT managed services provider.
+      // Try to load prompt from DB, fall back to hardcoded default
+      const activePrompt = await this.promptService.findActiveByUseCase('AGENT_IDENTIFICATION');
+      const companyInfo = await this.companyInfoService.get();
+      const companyName = companyInfo?.name || 'Ingenio Technologies';
 
-Your task: identify which Ingenio staff member is the PRIMARY HANDLER in this call transcript.
+      const defaultPrompt = `You are an agent identification system for {{company_name}}, an IT managed services provider.
 
-Known Ingenio staff:
+Your task: identify which {{company_name}} staff member is the PRIMARY HANDLER in this call transcript.
+
+Known {{company_name}} staff:
 ${agentListStr}
 
 Rules:
@@ -294,6 +313,12 @@ Rules:
 4. If the call is voicemail, IVR, or automated with no live agent, return agentName="NONE"
 5. If a call is transferred, the primary handler is the person who deals with the customer's actual issue
 6. The agentName must EXACTLY match one of the names from the agent list above, or be "NONE"`;
+
+      const rawPrompt = activePrompt?.content || defaultPrompt;
+      const systemPrompt = this.variableResolver.resolve(rawPrompt, {
+        company_name: companyName,
+        agent_list: agents.map((a) => a.name).join(', '),
+      });
 
       const { object } = await generateObject({
         model: this.getLLMProvider('gpt-5-mini'),

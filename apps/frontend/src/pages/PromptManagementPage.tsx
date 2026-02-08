@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react'
+import { useState, useEffect, useRef, FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { axiosInstance, handleApiError } from '@/api/axios-instance'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import { CheckCircle, Edit, Trash2 } from 'lucide-react'
+import { CheckCircle, Edit, Trash2, ChevronDown, ChevronUp, Code } from 'lucide-react'
 
 type PromptTemplate = {
   id: string
@@ -45,8 +45,14 @@ type PromptTemplate = {
 const USE_CASES = [
   { value: 'TRANSCRIPTION_REFINEMENT', label: 'Transcription Refinement' },
   { value: 'CALL_ANALYSIS', label: 'Call Analysis' },
+  { value: 'AGENT_IDENTIFICATION', label: 'Agent Identification' },
   { value: 'CUSTOM', label: 'Custom' },
 ]
+
+type TemplateVariable = {
+  name: string
+  description: string
+}
 
 export default function PromptManagementPage() {
   const queryClient = useQueryClient()
@@ -316,6 +322,50 @@ function PromptDialog({
   })
   const [localError, setLocalError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [variablesExpanded, setVariablesExpanded] = useState(false)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  // Fetch available variables for the selected use case
+  const { data: availableVariables = [] } = useQuery<TemplateVariable[]>({
+    queryKey: ['admin', 'prompts', 'variables', formState.useCase],
+    queryFn: async () => {
+      if (formState.useCase === 'CUSTOM') return []
+      return await axiosInstance({
+        url: `/api/v1/admin/prompts/variables/${formState.useCase}`,
+        method: 'GET',
+      })
+    },
+    enabled: formState.useCase !== 'CUSTOM',
+  })
+
+  // Auto-expand variables panel when variables are available
+  useEffect(() => {
+    if (availableVariables.length > 0) {
+      setVariablesExpanded(true)
+    } else {
+      setVariablesExpanded(false)
+    }
+  }, [availableVariables])
+
+  const insertVariable = (variableName: string) => {
+    const textarea = textareaRef.current
+    if (!textarea) return
+
+    const start = textarea.selectionStart
+    const end = textarea.selectionEnd
+    const text = formState.content
+    const insertion = `{{${variableName}}}`
+    const newContent = text.substring(0, start) + insertion + text.substring(end)
+
+    setFormState({ ...formState, content: newContent })
+
+    // Restore cursor position after the inserted variable
+    requestAnimationFrame(() => {
+      textarea.focus()
+      const newPos = start + insertion.length
+      textarea.setSelectionRange(newPos, newPos)
+    })
+  }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -421,6 +471,7 @@ function PromptDialog({
             <Label htmlFor="content">Prompt Content *</Label>
             <Textarea
               id="content"
+              ref={textareaRef}
               value={formState.content}
               onChange={(e) =>
                 setFormState({ ...formState, content: e.target.value })
@@ -430,7 +481,55 @@ function PromptDialog({
               required
               className="font-mono text-sm"
             />
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <Code className="h-3 w-3" />
+              Use <code className="px-1 py-0.5 rounded bg-muted font-mono text-xs">{'{{variable_name}}'}</code> syntax for dynamic values.
+              {availableVariables.length > 0 && ' Available variables are shown below.'}
+            </p>
           </div>
+
+          {/* Variable reference panel */}
+          {availableVariables.length > 0 && (
+            <div className="rounded-lg border border-border/80 bg-muted/30">
+              <button
+                type="button"
+                className="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors"
+                onClick={() => setVariablesExpanded(!variablesExpanded)}
+              >
+                <span className="flex items-center gap-2">
+                  <Code className="h-4 w-4 text-muted-foreground" />
+                  Available Variables ({availableVariables.length})
+                </span>
+                {variablesExpanded ? (
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                )}
+              </button>
+              {variablesExpanded && (
+                <div className="border-t border-border/60 px-4 py-3">
+                  <div className="flex flex-wrap gap-2">
+                    {availableVariables.map((v) => (
+                      <button
+                        key={v.name}
+                        type="button"
+                        onClick={() => insertVariable(v.name)}
+                        className="group inline-flex flex-col items-start rounded-md border border-border/80 bg-background px-3 py-2 text-left transition-colors hover:border-primary/50 hover:bg-primary/5"
+                        title={`Click to insert {{${v.name}}}`}
+                      >
+                        <code className="text-xs font-mono font-semibold text-primary group-hover:text-primary/80">
+                          {`{{${v.name}}}`}
+                        </code>
+                        <span className="text-[11px] text-muted-foreground mt-0.5 leading-tight">
+                          {v.description}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="flex gap-2 justify-end pt-4">
             <Button type="button" variant="outline" onClick={onClose}>

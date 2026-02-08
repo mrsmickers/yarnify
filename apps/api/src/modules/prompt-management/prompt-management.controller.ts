@@ -21,6 +21,7 @@ import {
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { PromptManagementService } from './prompt-management.service';
+import { PromptVariableResolverService } from './prompt-variable-resolver.service';
 import { ZodValidationPipe } from 'nestjs-zod';
 import {
   CreatePromptDto,
@@ -41,6 +42,7 @@ export class PromptManagementController {
 
   constructor(
     private readonly promptManagementService: PromptManagementService,
+    private readonly variableResolver: PromptVariableResolverService,
   ) {}
 
   @Get()
@@ -49,6 +51,13 @@ export class PromptManagementController {
   async findAll() {
     this.logger.log('Admin requested prompt templates list');
     return this.promptManagementService.findAll();
+  }
+
+  @Get('variables/:useCase')
+  @ApiOperation({ summary: 'Get available template variables for a use case' })
+  @ApiResponse({ status: 200, description: 'Returns list of available variables' })
+  async getVariables(@Param('useCase') useCase: string) {
+    return this.variableResolver.getAvailableVariables(useCase);
   }
 
   @Get(':id')
