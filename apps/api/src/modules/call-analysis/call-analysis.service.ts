@@ -111,6 +111,8 @@ export class CallAnalysisService {
   }
 
   async extractExternalPhoneNumber(obj: CallRecordResponse['data']) {
+    const companyDid = this.config.get<string>('COMPANY_DID', '01273806211');
+    const extensionPrefix = this.config.get<string>('EXTENSION_STARTS_WITH') || '56360';
     const fields = [
       obj.callerid_internal,
       obj.cnumber,
@@ -120,12 +122,21 @@ export class CallAnalysisService {
 
     for (const raw of fields) {
       if (typeof raw === 'string') {
+        let candidate: string | null = null;
         const match = raw.match(/0\d{10}/); // match UK national format
-        if (match) return match[0];
-        const e164 = raw.match(/\+44\d{10}/);
-        if (e164) return '0' + e164[0].slice(3); // convert +44 to 0
-        const stripped = raw.match(/447\d{9}/);
-        if (stripped) return '0' + stripped[0].slice(2);
+        if (match) candidate = match[0];
+        if (!candidate) {
+          const e164 = raw.match(/\+44\d{10}/);
+          if (e164) candidate = '0' + e164[0].slice(3); // convert +44 to 0
+        }
+        if (!candidate) {
+          const stripped = raw.match(/44[1-9]\d{8,10}/);
+          if (stripped) candidate = '0' + stripped[0].slice(2);
+        }
+        // Skip our own company DID and internal extensions — we want the *external* party
+        if (candidate && candidate !== companyDid && !candidate.startsWith(extensionPrefix)) {
+          return candidate;
+        }
       }
     }
     return undefined;
@@ -188,37 +199,40 @@ export class CallAnalysisService {
    */
   determineCallDirection(obj: CallRecordResponse['data']): 'INBOUND' | 'OUTBOUND' | 'INTERNAL' | 'UNKNOWN' {
     const extensionPrefix = this.config.get<string>('EXTENSION_STARTS_WITH') || '56360';
+    const companyDid = this.config.get<string>('COMPANY_DID', '01273806211');
     
     const isExtension = (val?: string) =>
       typeof val === 'string' && val.startsWith(extensionPrefix);
-    const isExternalPhone = (val?: string) =>
+    // Match any UK phone number: mobiles (07), landlines (01/02), or E.164 (+44)
+    const isPhoneNumber = (val?: string) =>
       typeof val === 'string' && (
-        /^0\d{10}$/.test(val) ||
+        /^0[1-9]\d{8,10}$/.test(val) ||
         /^\+44\d{10}$/.test(val) ||
-        /^447\d{9}$/.test(val) ||
-        /^07\d{9}$/.test(val)
+        /^44[1-9]\d{8,10}$/.test(val)
       );
+    const isCompanyDid = (val?: string) =>
+      typeof val === 'string' && val === companyDid;
 
     const snumberIsInternal = isExtension(obj.snumber);
-    const cnumberIsExternal = isExternalPhone(obj.cnumber);
-    const snumberIsExternal = isExternalPhone(obj.snumber);
+    const snumberIsPhone = isPhoneNumber(obj.snumber);
     const cnumberIsInternal = isExtension(obj.cnumber);
+    const cnumberIsPhone = isPhoneNumber(obj.cnumber);
 
     // Check for special codes (e.g. *78 = voicemail)
     const isSpecialCode = (val?: string) =>
       typeof val === 'string' && val.startsWith('*');
 
-    if (snumberIsInternal && cnumberIsExternal) {
+    // OUTBOUND: agent (internal extension) calls an external phone number
+    if (snumberIsInternal && cnumberIsPhone && !isCompanyDid(obj.cnumber)) {
       return 'OUTBOUND';
     }
-    if (snumberIsExternal && (cnumberIsInternal || isExtension(obj.dnumber))) {
-      return 'INBOUND';
+    // INBOUND: external phone calls in, reaches an extension or company DID
+    if (snumberIsPhone && !snumberIsInternal) {
+      if (cnumberIsInternal || isExtension(obj.dnumber) || isCompanyDid(obj.cnumber)) {
+        return 'INBOUND';
+      }
     }
-    // External calling the company DID (01273...)
-    if (snumberIsExternal && !cnumberIsExternal) {
-      return 'INBOUND';
-    }
-    // Internal to internal (transfers, voicemail pickup)
+    // INTERNAL: extension to extension, or extension to special code (*78 voicemail etc)
     if (snumberIsInternal && (cnumberIsInternal || isSpecialCode(obj.cnumber))) {
       return 'INTERNAL';
     }
