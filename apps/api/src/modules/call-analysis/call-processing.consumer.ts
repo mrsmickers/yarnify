@@ -95,12 +95,17 @@ export class CallProcessingConsumer extends WorkerHost {
       const externalPhoneNumber =
         await this.callAnalysisService.extractExternalPhoneNumber(recordingData);
       let earlyCompanyName: string | null = null;
+      const ownCompanyName = this.configService.get<string>('OWN_COMPANY_NAME', 'Ingenio Technologies');
       if (externalPhoneNumber) {
         try {
           const cwCompany = await this.connectwise.getCompanyByPhoneNumber(externalPhoneNumber);
-          earlyCompanyName = cwCompany?.name || null;
-          if (earlyCompanyName) {
+          const cwName = cwCompany?.name || null;
+          // Filter out own company — staff mobiles registered in CW return Ingenio
+          if (cwName && cwName.toLowerCase() !== ownCompanyName.toLowerCase()) {
+            earlyCompanyName = cwName;
             this.logger.log(`[EarlyLookup] CW company for ${externalPhoneNumber}: ${earlyCompanyName}`);
+          } else if (cwName) {
+            this.logger.log(`[EarlyLookup] CW returned own company (${cwName}) for ${externalPhoneNumber} — skipping`);
           }
         } catch (err) {
           // Non-fatal — refinement still works without company name
