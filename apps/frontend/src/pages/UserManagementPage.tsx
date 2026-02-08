@@ -28,6 +28,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { axiosInstance, handleApiError } from '@/api/axios-instance'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 
 dayjs.extend(relativeTime)
 
@@ -61,6 +62,7 @@ type AdminUser = {
   email: string
   displayName: string | null
   department: string | null
+  contextBox: string | null
   role: UserRole
   enabled: boolean
   lastLoginAt: string | null
@@ -118,6 +120,7 @@ type UpdateUserPayload = {
   department: Department
   role?: UserRole
   enabled?: boolean
+  contextBox?: string | null
 }
 
 type UpdateUserResponse = {
@@ -343,6 +346,9 @@ const UserManagementPage = () => {
     }
     if (input.enabled !== undefined && input.enabled !== null) {
       payload.enabled = Boolean(input.enabled)
+    }
+    if (input.contextBox !== undefined) {
+      payload.contextBox = input.contextBox
     }
 
     console.log('[handleUpdateUser] Sending payload:', JSON.stringify(payload, null, 2))
@@ -936,6 +942,7 @@ type EditUserFormState = {
   department: Department
   role: UserRole
   status: 'enabled' | 'disabled'
+  contextBox: string
 }
 
 const EditUserDialog = ({
@@ -950,6 +957,7 @@ const EditUserDialog = ({
     department: normalizeDepartment(user.department),
     role: user.role,
     status: user.enabled ? 'enabled' : 'disabled',
+    contextBox: user.contextBox || '',
   })
   const [localError, setLocalError] = useState<string | null>(null)
 
@@ -960,6 +968,7 @@ const EditUserDialog = ({
         department: normalizeDepartment(user.department),
         role: user.role,
         status: user.enabled ? 'enabled' : 'disabled',
+        contextBox: user.contextBox || '',
       })
       setLocalError(null)
     }
@@ -991,6 +1000,7 @@ const EditUserDialog = ({
         department: formState.department,
         role: formState.role,
         enabled: formState.status === 'enabled',
+        contextBox: formState.contextBox || null,
       }
       console.log('[EditUserDialog] Submitting payload:', payload)
       await onSubmit(payload)
@@ -1080,6 +1090,27 @@ const EditUserDialog = ({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="edit-user-context-box">Profile Context</Label>
+            <Textarea
+              id="edit-user-context-box"
+              value={formState.contextBox}
+              onChange={(event) =>
+                setFormState((previous) => ({
+                  ...previous,
+                  contextBox: event.target.value,
+                }))
+              }
+              placeholder="Describe role, skills, and context for AI analysis..."
+              rows={4}
+              className="resize-y"
+              disabled={isSubmitting}
+            />
+            <p className="text-xs text-muted-foreground">
+              This context is included when the AI analyses the user's calls.
+            </p>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">

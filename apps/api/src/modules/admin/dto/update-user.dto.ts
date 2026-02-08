@@ -12,6 +12,7 @@ export const UpdateUserSchema = z.object({
   department: DepartmentSchema,
   role: z.enum(['admin', 'user']).optional(),
   enabled: z.boolean().optional(),
+  contextBox: z.string().nullish(),
 });
 
 export type UpdateUserDto = z.infer<typeof UpdateUserSchema>;

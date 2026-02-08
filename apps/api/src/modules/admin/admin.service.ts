@@ -42,6 +42,7 @@ export class AdminService {
         displayName: true,
         department: true,
         role: true,
+        contextBox: true,
         enabled: true,
         lastLoginAt: true,
         lastSyncedAt: true,
@@ -245,6 +246,7 @@ export class AdminService {
         department: string;
         role?: 'admin' | 'user';
         enabled?: boolean;
+        contextBox?: string | null;
         updatedAt: Date;
       } = {
         displayName: payload.displayName.trim(),
@@ -257,6 +259,9 @@ export class AdminService {
       }
       if (payload.enabled !== undefined) {
         updateData.enabled = payload.enabled;
+      }
+      if (payload.contextBox !== undefined) {
+        updateData.contextBox = payload.contextBox ?? null;
       }
 
       const user = await this.prisma.entraUser.update({

@@ -517,7 +517,30 @@ export class CallProcessingConsumer extends WorkerHost {
       // 5. Analyze transcript
       // Inject company context from admin settings for richer LLM analysis
       const companyContext = await this.companyInfoService.getForPromptInjection();
-      const promptTranscript = `${companyContext ? companyContext + '\n\n' : ''}client_name: ${companyEntity?.name || 'Not found'}
+
+      // Fetch agent's user context box if linked to an EntraUser
+      let agentContextBox: string | null = null;
+      if (agentEntity?.entraUserId) {
+        try {
+          const linkedUser = await this.prisma.entraUser.findUnique({
+            where: { id: agentEntity.entraUserId },
+            select: { contextBox: true },
+          });
+          agentContextBox = linkedUser?.contextBox ?? null;
+          if (agentContextBox) {
+            this.logger.log(
+              `[AgentContext] Found context box for agent ${agentEntity.name} (user ${agentEntity.entraUserId})`,
+            );
+          }
+        } catch (err) {
+          this.logger.warn(`[AgentContext] Failed to fetch context box: ${err.message}`);
+        }
+      }
+
+      const agentContextSection = agentContextBox
+        ? `\nAgent Profile Context:\n${agentContextBox}\n`
+        : '';
+      const promptTranscript = `${companyContext ? companyContext + '\n\n' : ''}${agentContextSection}client_name: ${companyEntity?.name || 'Not found'}
       Phone Number: ${externalPhoneNumber}
       Transcript: ${transcript}`;
 

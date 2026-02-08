@@ -8,6 +8,7 @@ export type CurrentUser = {
   tenantId: string | null
   roles: string[]
   department: string | null
+  contextBox: string | null
 }
 
 const CURRENT_USER_QUERY_KEY = ['current-user'] as const

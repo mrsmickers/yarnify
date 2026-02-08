@@ -48,6 +48,7 @@ type Agent = {
     id: string
     email: string
     displayName: string | null
+    contextBox: string | null
   } | null
   createdAt: string
   updatedAt: string
@@ -345,6 +346,14 @@ export default function AgentManagementPage() {
                           <div className="text-muted-foreground">
                             {agent.entraUser.email}
                           </div>
+                          {agent.entraUser.contextBox && (
+                            <div
+                              className="mt-1 text-xs text-muted-foreground italic line-clamp-2"
+                              title={agent.entraUser.contextBox}
+                            >
+                              {agent.entraUser.contextBox}
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <span className="text-muted-foreground">Not linked</span>

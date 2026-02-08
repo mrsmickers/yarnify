@@ -135,6 +135,7 @@ model EntraUser {
   displayName  String?
   department   String?
   role         String    @default("user") // 'admin' or 'user'
+  contextBox   String?   @db.Text // Free text: role, purpose, skills, extension info
   enabled      Boolean   @default(true) // Can be disabled by admin
   lastLoginAt  DateTime?
   lastSyncedAt DateTime  @default(now())

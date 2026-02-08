@@ -78,6 +78,7 @@ export class AgentRepository {
             id: true,
             email: true,
             displayName: true,
+            contextBox: true,
           },
         },
         _count: {
@@ -104,6 +105,7 @@ export class AgentRepository {
             id: true,
             email: true,
             displayName: true,
+            contextBox: true,
           },
         },
         _count: {

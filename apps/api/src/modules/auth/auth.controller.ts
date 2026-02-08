@@ -6,7 +6,10 @@ import {
   Req,
   UseGuards,
   Post,
+  Patch,
+  Body,
   Logger,
+  BadRequestException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
@@ -108,21 +111,24 @@ export class AuthController {
     }
     let department: string | null = null;
     let role: string | null = null;
+    let contextBox: string | null = null;
 
     if (payload.oid) {
       const storedUser = await this.prisma.entraUser.findUnique({
         where: { oid: payload.oid },
-        select: { department: true, role: true },
+        select: { department: true, role: true, contextBox: true },
       });
       department = storedUser?.department ?? null;
       role = storedUser?.role ?? null;
+      contextBox = storedUser?.contextBox ?? null;
     } else if (payload.email) {
       const storedUser = await this.prisma.entraUser.findUnique({
         where: { email: payload.email.toLowerCase() },
-        select: { department: true, role: true },
+        select: { department: true, role: true, contextBox: true },
       });
       department = storedUser?.department ?? null;
       role = storedUser?.role ?? null;
+      contextBox = storedUser?.contextBox ?? null;
     }
 
     return {
@@ -133,6 +139,52 @@ export class AuthController {
       roles: payload.roles || [],
       department,
       role,
+      contextBox,
+    };
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('me/context-box')
+  @ApiOperation({ summary: 'Update own context box' })
+  @ApiResponse({ status: 200, description: 'Context box updated.' })
+  async updateContextBox(
+    @Req() req: Request,
+    @Body() body: { contextBox: string | null },
+  ) {
+    const payload = req.user as JwtPayload | undefined;
+    if (!payload) {
+      throw new BadRequestException('No user payload on request.');
+    }
+
+    const contextBox = body.contextBox ?? null;
+
+    // Find user by oid or email
+    let user;
+    if (payload.oid) {
+      user = await this.prisma.entraUser.findUnique({
+        where: { oid: payload.oid },
+      });
+    }
+    if (!user && payload.email) {
+      user = await this.prisma.entraUser.findUnique({
+        where: { email: payload.email.toLowerCase() },
+      });
+    }
+
+    if (!user) {
+      throw new BadRequestException('User not found.');
+    }
+
+    const updated = await this.prisma.entraUser.update({
+      where: { id: user.id },
+      data: { contextBox, updatedAt: new Date() },
+    });
+
+    this.logger.log(`User ${updated.email} updated their context box`);
+
+    return {
+      success: true,
+      contextBox: updated.contextBox,
     };
   }
 

@@ -1,5 +1,7 @@
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react'
-import { Check } from 'lucide-react'
+import { Check, Loader2 } from 'lucide-react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 import {
   Card,
@@ -12,10 +14,12 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { Theme, useTheme } from '@/theme/theme-provider'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
+import { axiosInstance, handleApiError } from '@/api/axios-instance'
 
 const THEME_OPTIONS: Array<{
   value: Theme
@@ -36,8 +40,10 @@ const THEME_OPTIONS: Array<{
 
 export default function PersonalSettingsPage() {
   const { theme, setTheme } = useTheme()
+  const queryClient = useQueryClient()
   const { data: profileData } = useCurrentUser()
   const hasHydratedProfile = useRef(false)
+  const hasHydratedContextBox = useRef(false)
   const fallbackTimezone =
     Intl.DateTimeFormat().resolvedOptions().timeZone || ''
   const [profile, setProfile] = useState({
@@ -48,6 +54,7 @@ export default function PersonalSettingsPage() {
     role: '',
     timezone: fallbackTimezone,
   })
+  const [contextBox, setContextBox] = useState('')
 
   useEffect(() => {
     if (profileData && !hasHydratedProfile.current) {
@@ -60,7 +67,34 @@ export default function PersonalSettingsPage() {
       }))
       hasHydratedProfile.current = true
     }
+    if (profileData && !hasHydratedContextBox.current) {
+      setContextBox(profileData.contextBox ?? '')
+      hasHydratedContextBox.current = true
+    }
   }, [profileData])
+
+  const contextBoxMutation = useMutation({
+    mutationFn: async (value: string) => {
+      return await axiosInstance({
+        url: '/api/v1/auth/me/context-box',
+        method: 'PATCH',
+        data: { contextBox: value || null },
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['current-user'] })
+    },
+  })
+
+  const handleContextBoxSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const mutationPromise = contextBoxMutation.mutateAsync(contextBox)
+    toast.promise(mutationPromise, {
+      loading: 'Saving profile context...',
+      success: 'Profile context saved.',
+      error: (err) => handleApiError(err),
+    })
+  }
 
   const handleProfileChange =
     (field: keyof typeof profile) => (event: ChangeEvent<HTMLInputElement>) => {
@@ -78,6 +112,48 @@ export default function PersonalSettingsPage() {
         title="Personal settings"
         description="Update the details that personalise your Oracle workspace and control how the interface looks while you work."
       />
+
+      {/* Profile Context Card - full width */}
+      <Card className="border border-border/80 bg-card/70 backdrop-blur-sm dark:border-[#242F3F]">
+        <form onSubmit={handleContextBoxSubmit} className="flex flex-col gap-6">
+          <CardHeader>
+            <CardTitle>Profile Context</CardTitle>
+            <CardDescription>
+              Describe your role, department, skills, and any other context that
+              helps the AI understand who you are when analysing your calls.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="contextBox">Context</Label>
+              <Textarea
+                id="contextBox"
+                value={contextBox}
+                onChange={(e) => setContextBox(e.target.value)}
+                placeholder="e.g. I'm a senior service desk engineer specialising in networking and security. I handle escalations from the 1st-line team and manage key client accounts."
+                rows={5}
+                className="resize-y"
+              />
+              <p className="text-xs text-muted-foreground">
+                This text is included when the AI analyses your calls so it can
+                provide more relevant and personalised insights.
+              </p>
+            </div>
+          </CardContent>
+          <CardFooter className="border-t pt-6">
+            <Button type="submit" disabled={contextBoxMutation.isPending}>
+              {contextBoxMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving…
+                </>
+              ) : (
+                'Save context'
+              )}
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <Card className="border border-border/80 bg-card/70 backdrop-blur-sm dark:border-[#242F3F]">
