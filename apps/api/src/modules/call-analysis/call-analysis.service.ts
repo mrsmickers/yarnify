@@ -74,7 +74,7 @@ export class CallAnalysisService {
 
     // Use database values if available, otherwise fall back to hardcoded defaults
     const systemPrompt = activePrompt?.content || instructions;
-    const modelName = activeLLMConfig?.modelName || 'gpt-4o';
+    const modelName = activeLLMConfig?.modelName || 'gpt-5-mini';
     const settings = (activeLLMConfig?.settings as any) || {};
     
     const llmProvider = this.config.get<string>('LLM_PROVIDER', 'openai');

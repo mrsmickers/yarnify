@@ -92,7 +92,7 @@ export class TranscriptionService {
       
       const systemPrompt = refinementPrompt?.content || 
         'You are a helpful assistant that refines raw speech-to-text transcripts. Your goal is to make the transcript more readable by correcting grammar, punctuation, and sentence structure. If possible, identify different speakers and format the transcript accordingly (e.g., Speaker 1:, Speaker 2:). Do not summarize or change the meaning of the content. Output only the refined transcript text.';
-      const refinementModelName = refinementConfig?.modelName || 'gpt-4o';
+      const refinementModelName = refinementConfig?.modelName || 'gpt-5-mini';
       const settings = (refinementConfig?.settings as any) || { temperature: 0.2 };
 
       let refinedTranscript: string;

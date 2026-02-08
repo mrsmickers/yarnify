@@ -95,7 +95,7 @@ export class OpenAIService {
    */
   async createChatCompletion(
     messages: OpenAI.Chat.ChatCompletionMessageParam[],
-    model = 'gpt-4o-mini',
+    model = 'gpt-5-mini',
     options?: Partial<OpenAI.Chat.ChatCompletionCreateParams>,
   ): Promise<OpenAI.Chat.ChatCompletion> {
     this.logger.log(`Creating chat completion with model: ${model}`);
@@ -124,7 +124,7 @@ export class OpenAIService {
    */
   async refineTranscript(
     rawTranscript: string,
-    model = 'gpt-4o',
+    model = 'gpt-5-mini',
     systemPrompt?: string,
     settings?: any,
   ): Promise<string> {
