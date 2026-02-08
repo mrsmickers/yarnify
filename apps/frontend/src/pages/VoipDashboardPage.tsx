@@ -371,6 +371,7 @@ const VoipDashboardPage = () => {
                 variant: 'secondary',
                 size: 'sm',
               })}
+              onClick={(e) => e.stopPropagation()}
             >
               More
             </Link>
