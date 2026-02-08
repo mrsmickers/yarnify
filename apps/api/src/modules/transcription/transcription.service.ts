@@ -14,6 +14,8 @@ export class TranscriptionService {
   private readonly logger = new Logger(TranscriptionService.name);
   private readonly useLocalWhisper: boolean;
 
+  private readonly skipRefinement: boolean;
+
   constructor(
     private readonly configService: ConfigService,
     private readonly openaiService: OpenAIService,
@@ -23,7 +25,9 @@ export class TranscriptionService {
   ) {
     // Use self-hosted Whisper by default, fallback to OpenAI if WHISPER_API_URL is not set
     this.useLocalWhisper = this.configService.get<string>('TRANSCRIPTION_PROVIDER', 'whisper') === 'whisper';
-    this.logger.log(`Transcription provider: ${this.useLocalWhisper ? 'Self-hosted Whisper' : 'OpenAI'}`);
+    // Skip refinement step to save costs - raw transcript goes directly to analysis
+    this.skipRefinement = this.configService.get<string>('SKIP_TRANSCRIPT_REFINEMENT', 'false') === 'true';
+    this.logger.log(`Transcription provider: ${this.useLocalWhisper ? 'Self-hosted Whisper' : 'OpenAI'}, Refinement: ${this.skipRefinement ? 'disabled' : 'enabled'}`);
   }
 
   async transcribeAudio(
@@ -68,7 +72,15 @@ export class TranscriptionService {
         rawTranscript = transcription.text;
       }
 
-      this.logger.log('Raw transcription successful. Refining transcript...');
+      this.logger.log('Raw transcription successful.');
+
+      // Skip refinement if configured - send raw transcript directly to analysis
+      if (this.skipRefinement) {
+        this.logger.log('Skipping transcript refinement (SKIP_TRANSCRIPT_REFINEMENT=true)');
+        return rawTranscript;
+      }
+
+      this.logger.log('Refining transcript...');
 
       // Fetch active prompt and LLM config for transcript refinement
       const refinementPrompt = await this.promptService.findActiveByUseCase('TRANSCRIPTION_REFINEMENT');
