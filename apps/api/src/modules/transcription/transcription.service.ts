@@ -149,19 +149,31 @@ RULES:
         this.logger.log(`Refining transcript via NVIDIA (${refinementNvidiaModel})...`);
         metadata.refinementProvider = 'nvidia';
         metadata.refinementModel = refinementNvidiaModel;
+        // Scale maxTokens based on input length — refined output is typically 1.3-1.5x the input
+        // (speaker labels + markdown add overhead). Minimum 4096, cap at 32768.
+        const estimatedInputTokens = Math.ceil(rawTranscript.length / 3.5);
+        const dynamicMaxTokens = Math.min(Math.max(estimatedInputTokens * 2, 4096), 32768);
+        this.logger.log(`Refinement: input ~${estimatedInputTokens} tokens, maxTokens=${dynamicMaxTokens}`);
+        
         const completion = await this.nvidiaService.createChatCompletion(
           [
             { role: 'system', content: systemPrompt + contextHint },
-            { role: 'user', content: `Format and clean up this raw transcript. Remember: EVERY line of dialogue must have a speaker label.\n\n${rawTranscript}` },
+            { role: 'user', content: `Format and clean up this raw transcript. Remember: EVERY line of dialogue must have a speaker label. Do NOT truncate or omit any part of the conversation — include everything from start to finish.\n\n${rawTranscript}` },
           ],
           {
             temperature: settings.temperature ?? 0.1,
-            maxTokens: settings.max_tokens ?? 8192,
+            maxTokens: settings.max_tokens ?? dynamicMaxTokens,
             topP: settings.top_p ?? 1,
           },
           refinementNvidiaModel, // Override the default model
         );
         refinedTranscript = completion.choices[0]?.message?.content?.trim() || rawTranscript;
+        
+        // Check if output was truncated (finish_reason !== 'stop')
+        const finishReason = completion.choices[0]?.finish_reason;
+        if (finishReason === 'length') {
+          this.logger.warn(`Refinement output was TRUNCATED (hit maxTokens=${dynamicMaxTokens}). Call may have incomplete transcript.`);
+        }
       } else {
         this.logger.log(`Refining transcript via OpenAI (${refinementModelName})...`);
         metadata.refinementProvider = 'openai';

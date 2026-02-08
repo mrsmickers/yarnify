@@ -40,7 +40,8 @@ export class OpenAIService {
         file: audioFile,
         model,
         language: 'en', // Default to English, can be overridden in options
-        ...options, // Spread options first
+        prompt: 'This is a phone call between an IT support agent and a customer. Include all speech including greetings, goodbyes, and closing remarks.',
+        ...options, // Spread options first (can override prompt if needed)
         response_format: 'verbose_json', // Ensure verbose_json for timestamps
         timestamp_granularities: ['segment'], // Ensure segment-level timestamps
         stream: false, // Explicitly set stream to false for non-streaming
