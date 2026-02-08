@@ -262,80 +262,89 @@ export class CallProcessingConsumer extends WorkerHost {
       }
 
       // Chunk and Embed Transcript
-      const chunkSize = this.configService.get<number>(
-        'EMBEDDING_CHUNK_SIZE_TOKENS',
-        7500,
-      );
-      const chunkOverlap = this.configService.get<number>(
-        'EMBEDDING_CHUNK_OVERLAP_TOKENS',
-        200,
-      );
-      const transcriptChunks = this.textChunkingService.chunkText(
-        transcript,
-        chunkSize,
-        chunkOverlap,
-      );
+      // Skip embeddings when SKIP_EMBEDDINGS=true (re-enable when Semantic Call Search is implemented — see PLAN.md #16)
+      const skipEmbeddings = this.configService.get<string>('SKIP_EMBEDDINGS', 'false').toLowerCase() === 'true';
+      
+      if (skipEmbeddings) {
+        this.logger.log(`Skipping embeddings for Call ID ${callEntity.id} (SKIP_EMBEDDINGS=true)`);
+        await this.processingLogRepository.create({
+          callId: callEntity.id,
+          status: 'LOG_INFO',
+          message: 'Embedding generation skipped (SKIP_EMBEDDINGS=true).',
+        });
+      } else {
+        const chunkSize = this.configService.get<number>(
+          'EMBEDDING_CHUNK_SIZE_TOKENS',
+          7500,
+        );
+        const chunkOverlap = this.configService.get<number>(
+          'EMBEDDING_CHUNK_OVERLAP_TOKENS',
+          200,
+        );
+        const transcriptChunks = this.textChunkingService.chunkText(
+          transcript,
+          chunkSize,
+          chunkOverlap,
+        );
 
-      if (transcriptChunks && transcriptChunks.length > 0) {
-        for (let i = 0; i < transcriptChunks.length; i++) {
-          const chunk = transcriptChunks[i];
-          try {
-            const embeddingVector =
-              await this.embeddingService.generateEmbedding(chunk);
-            if (embeddingVector && embeddingVector.length > 0) {
-              await this.callTranscriptEmbeddingRepository.create({
-                callId: callEntity.id,
-                chunkSequence: i,
-                embedding: embeddingVector, // Removed cast
-                modelName: 'text-embedding-ada-002', // Or from config
-              });
-              await this.processingLogRepository.create({
-                callId: callEntity.id,
-                status: 'LOG_INFO',
-                message: `Embedding generated and stored for chunk ${i + 1}/${
-                  transcriptChunks.length
-                }.`,
-              });
-            } else {
-              this.logger.warn(
-                `Embedding for chunk ${i + 1} was empty. Skipping storage.`,
+        if (transcriptChunks && transcriptChunks.length > 0) {
+          for (let i = 0; i < transcriptChunks.length; i++) {
+            const chunk = transcriptChunks[i];
+            try {
+              const embeddingVector =
+                await this.embeddingService.generateEmbedding(chunk);
+              if (embeddingVector && embeddingVector.length > 0) {
+                await this.callTranscriptEmbeddingRepository.create({
+                  callId: callEntity.id,
+                  chunkSequence: i,
+                  embedding: embeddingVector, // Removed cast
+                  modelName: 'text-embedding-ada-002', // Or from config
+                });
+                await this.processingLogRepository.create({
+                  callId: callEntity.id,
+                  status: 'LOG_INFO',
+                  message: `Embedding generated and stored for chunk ${i + 1}/${
+                    transcriptChunks.length
+                  }.`,
+                });
+              } else {
+                this.logger.warn(
+                  `Embedding for chunk ${i + 1} was empty. Skipping storage.`,
+                );
+                await this.processingLogRepository.create({
+                  callId: callEntity.id,
+                  status: 'LOG_WARN',
+                  message: `Embedding for chunk ${i + 1}/${
+                    transcriptChunks.length
+                  } was empty. Skipped storage.`,
+                });
+              }
+            } catch (embeddingError) {
+              this.logger.error(
+                `Failed to generate or store embedding for chunk ${
+                  i + 1
+                } of Call ID ${callEntity.id}: ${embeddingError.message}`,
+                embeddingError.stack,
               );
               await this.processingLogRepository.create({
                 callId: callEntity.id,
-                status: 'LOG_WARN',
-                message: `Embedding for chunk ${i + 1}/${
+                status: 'LOG_ERROR',
+                message: `Failed to generate/store embedding for chunk ${i + 1}/${
                   transcriptChunks.length
-                } was empty. Skipped storage.`,
+                }: ${embeddingError.message}`,
               });
             }
-          } catch (embeddingError) {
-            this.logger.error(
-              `Failed to generate or store embedding for chunk ${
-                i + 1
-              } of Call ID ${callEntity.id}: ${embeddingError.message}`,
-              embeddingError.stack,
-            );
-            await this.processingLogRepository.create({
-              callId: callEntity.id,
-              status: 'LOG_ERROR',
-              message: `Failed to generate/store embedding for chunk ${i + 1}/${
-                transcriptChunks.length
-              }: ${embeddingError.message}`,
-            });
-            // Decide on error strategy: fail job, or mark call with partial success/error?
-            // For now, we log and continue, but this might lead to incomplete embeddings.
-            // Consider throwing error here to fail the job if any chunk fails.
           }
+        } else {
+          this.logger.warn(
+            `No chunks generated for transcript of Call ID ${callEntity.id}. Skipping embedding.`,
+          );
+          await this.processingLogRepository.create({
+            callId: callEntity.id,
+            status: 'LOG_WARN',
+            message: 'No transcript chunks generated. Skipped embedding process.',
+          });
         }
-      } else {
-        this.logger.warn(
-          `No chunks generated for transcript of Call ID ${callEntity.id}. Skipping embedding.`,
-        );
-        await this.processingLogRepository.create({
-          callId: callEntity.id,
-          status: 'LOG_WARN',
-          message: 'No transcript chunks generated. Skipped embedding process.',
-        });
       }
 
       // 4. Handle Company

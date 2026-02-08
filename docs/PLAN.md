@@ -329,6 +329,29 @@ Overall Score = Weighted average of categories
 
 ---
 
+## 16. Semantic Call Search
+
+**Goal:** Search across all call transcripts using natural language queries.
+
+**Details:**
+- Search box on dashboard/calls page: type natural language like "calls where customer complained about slow response" or "any calls mentioning server migration"
+- Query is embedded via OpenAI `text-embedding-3-small` and matched against stored transcript chunk embeddings using pgvector cosine similarity
+- Returns ranked results with relevant transcript snippets highlighted
+- Filter results by date range, agent, company, sentiment
+
+**Infrastructure:** Already built — transcripts are chunked (6k tokens, 200 overlap) and embedded into `CallTranscriptEmbedding` table via pgvector. **Currently disabled** (`SKIP_EMBEDDINGS=true`) until this search feature is implemented.
+
+**Implementation:**
+- Backend: Add similarity search endpoint using `<=>` cosine distance operator on pgvector
+- Frontend: Search bar component with results list showing call card + matching snippet
+- Re-enable embeddings (`SKIP_EMBEDDINGS=false`) when shipping this feature
+
+**Ties to:** Dispatch Central (#15), Report Builder (#11)
+
+**Location:** Calls page search bar, Dispatch Central search
+
+---
+
 ## Implementation Priority
 
 *To be determined based on business value and dependencies*
@@ -350,6 +373,7 @@ Overall Score = Weighted average of categories
 | 13 | Scoring System | Training Filters |
 | 14 | Sentiment Alerting | - |
 | 15 | Dispatch Central | ConnectWise API, Permission System |
+| 16 | Semantic Call Search | Embeddings (re-enable SKIP_EMBEDDINGS) |
 
 ---
 
