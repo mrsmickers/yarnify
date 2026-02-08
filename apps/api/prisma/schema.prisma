@@ -222,6 +222,26 @@ model CompanyInfo {
   @@map("company_info")
 }
 
+// Training rules for LLM call analysis evaluation
+model TrainingRule {
+  id          String   @id @default(cuid())
+  title       String   // Short name, e.g. "No understaffing disclosure"
+  description String   @db.Text // Full rule text for the LLM
+  category    String   @default("general") // e.g. "compliance", "customer_service", "sales"
+  department  String?  // Optional: only apply to calls from this department
+  isActive    Boolean  @default(true)
+  isCritical  Boolean  @default(false) // Auto-fail flag for future scoring
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?
+
+  @@index([category])
+  @@index([isActive])
+  @@index([department])
+  @@map("training_rules")
+}
+
 // Keyword alert instances when triggers are matched
 model KeywordAlert {
   id          String   @id @default(cuid())

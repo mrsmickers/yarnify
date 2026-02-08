@@ -5,6 +5,7 @@ import {
   ChevronLeft,
   ChevronRight,
   FileText,
+  GraduationCap,
   Headphones,
   KeyRound,
   Building2,
@@ -72,6 +73,11 @@ const adminNav: NavSection = {
       label: 'Agent Management',
       path: '/admin/agents',
       icon: Headphones,
+    },
+    {
+      label: 'Training Rules',
+      path: '/admin/training-rules',
+      icon: GraduationCap,
     },
     {
       label: 'Prompt Management',

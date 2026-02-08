@@ -63,6 +63,10 @@ export class PromptVariableResolverService {
           name: 'transcript',
           description: 'The call transcript text',
         },
+        {
+          name: 'training_rules',
+          description: 'Active training rules formatted for LLM evaluation',
+        },
       ],
       TRANSCRIPTION_REFINEMENT: [
         {

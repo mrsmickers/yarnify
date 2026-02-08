@@ -11,6 +11,7 @@ import ApiCredentialsPage from '../pages/ApiCredentialsPage'
 import PromptManagementPage from '../pages/PromptManagementPage'
 import LLMManagementPage from '../pages/LLMManagementPage'
 import CompanyInfoPage from '../pages/CompanyInfoPage'
+import TrainingRulesPage from '../pages/TrainingRulesPage'
 
 // Route configuration
 export const routes = [
@@ -65,6 +66,10 @@ export const routes = [
   {
     path: '/admin/company-info',
     element: <CompanyInfoPage />,
+  },
+  {
+    path: '/admin/training-rules',
+    element: <TrainingRulesPage />,
   },
   {
     path: '*',

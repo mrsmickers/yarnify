@@ -22,6 +22,7 @@ import { TextChunkingService } from '../text-chunking/text-chunking.service';
 import { CallTranscriptEmbeddingRepository } from './repositories/call-transcript-embedding.repository';
 import { ConfigService } from '@nestjs/config';
 import { CompanyInfoService } from '../company-info/company-info.service';
+import { TrainingRulesService } from '../training-rules/training-rules.service';
 @Injectable()
 @Processor(CALL_PROCESSING_QUEUE, { concurrency: 5 })
 export class CallProcessingConsumer extends WorkerHost {
@@ -44,6 +45,7 @@ export class CallProcessingConsumer extends WorkerHost {
     private readonly callTranscriptEmbeddingRepository: CallTranscriptEmbeddingRepository,
     private readonly configService: ConfigService, // For chunk size/overlap
     private readonly companyInfoService: CompanyInfoService,
+    private readonly trainingRulesService: TrainingRulesService,
   ) {
     super();
   }
@@ -540,8 +542,23 @@ export class CallProcessingConsumer extends WorkerHost {
       const agentContextSection = agentContextBox
         ? `\nAgent Profile Context:\n${agentContextBox}\n`
         : '';
+
+      // Fetch training rules for prompt injection
+      let trainingRulesContext: string | null = null;
+      try {
+        trainingRulesContext = await this.trainingRulesService.getForPromptInjection();
+        if (trainingRulesContext) {
+          this.logger.log(`[TrainingRules] Injecting ${trainingRulesContext.split('\n').length - 3} training rules into prompt`);
+        }
+      } catch (err) {
+        this.logger.warn(`[TrainingRules] Failed to fetch training rules: ${err.message}`);
+      }
+
+      const trainingRulesSection = trainingRulesContext
+        ? `\n\n${trainingRulesContext}`
+        : '';
       const promptTranscript = `${companyContext ? companyContext + '\n\n' : ''}${agentContextSection}client_name: ${companyEntity?.name || 'Not found'}
-      Phone Number: ${externalPhoneNumber}
+      Phone Number: ${externalPhoneNumber}${trainingRulesSection}
       Transcript: ${transcript}`;
 
       const { analysis, promptTemplateId, llmConfigId, analysisProvider, analysisModel } = 
