@@ -352,6 +352,60 @@ Overall Score = Weighted average of categories
 
 ---
 
+---
+
+## Feature #17: Agent-User Identity Linking
+
+**Goal:** Automatically link VoIP agent identities (NTA extensions) to logged-in user profiles (Entra ID/SSO accounts), creating a unified identity per staff member that enriches call data with user context.
+
+**Why it matters:**
+- Enables "My Calls" view — agents see their own calls on login
+- Unlocks per-agent dashboards, performance metrics, and personalised coaching
+- Connects call data to org structure (department, role, manager) from Entra ID
+- Foundation for permission scoping ("users see own calls, managers see team")
+
+**Current state:**
+- `Agent` model has `entraUserId` FK → `entra_users` table (schema ready, no records linked)
+- `Agent` records created automatically from NTA extension data during call processing (name + extension)
+- `entra_users` records created on first SSO login (Entra OID, email, displayName, department, role)
+- 5 agents exist, 4 Entra users exist — Freddy and Joel appear in both but aren't linked
+
+**Technical approach:**
+
+1. **Auto-matching on login/sync:**
+   - When an Entra user logs in, fuzzy-match their `displayName` or `email` against `Agent.name` / `Agent.email`
+   - If match found and `Agent.entraUserId` is null → link automatically
+   - Log the link for audit trail
+
+2. **Admin UI for manual linking:**
+   - Agent Management page already exists (`/admin/agents`)
+   - Add dropdown to select Entra user for each agent
+   - Handle edge cases: name mismatches, shared extensions, contractors without SSO
+
+3. **NTA extension sync enrichment:**
+   - NTA extensions API returns `callername_internal` — currently used to create Agent records
+   - Could also pull email from NTA if available, improving auto-match accuracy
+
+4. **Data enrichment once linked:**
+   - Call detail page shows agent's department, role, profile photo (from Entra/Graph API)
+   - Filter calls by "My Calls" using logged-in user's linked agent
+   - Team views for managers (filter by department)
+
+**Schema (already in place):**
+```
+Agent.entraUserId (String?, @unique) → EntraUser.id
+```
+
+**Key files:**
+- `apps/api/prisma/schema.prisma` — Agent model with entraUserId relation
+- `apps/api/src/modules/admin/admin-agents.service.ts` — Agent management (sync, link, CRUD)
+- `apps/api/src/modules/auth/auth.service.ts` — Entra SSO login flow (place for auto-match)
+- `apps/api/src/modules/call-analysis/call-processing.consumer.ts` — Agent creation during processing
+
+**Ties to:** User Profiles (#1), Permission System (#4), Dashboards (#12), Scoring (#13)
+
+---
+
 ## Implementation Priority
 
 *To be determined based on business value and dependencies*
@@ -374,6 +428,7 @@ Overall Score = Weighted average of categories
 | 14 | Sentiment Alerting | - |
 | 15 | Dispatch Central | ConnectWise API, Permission System |
 | 16 | Semantic Call Search | Embeddings (re-enable SKIP_EMBEDDINGS) |
+| 17 | Agent-User Identity Linking | User Profiles, Entra SSO |
 
 ---
 
