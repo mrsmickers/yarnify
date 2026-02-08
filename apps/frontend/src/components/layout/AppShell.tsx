@@ -1,6 +1,7 @@
 import { type ReactNode, useMemo, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import {
+  BarChart3,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -45,10 +46,15 @@ const workspaceNav: NavSection = {
   title: 'Workspace',
   items: [
     {
-      label: 'VoIP Dashboard',
+      label: 'Dashboard',
       path: '/',
-      icon: PhoneCall,
+      icon: BarChart3,
       end: true,
+    },
+    {
+      label: 'All Calls',
+      path: '/calls',
+      icon: PhoneCall,
     },
     {
       label: 'My Calls',

@@ -1,4 +1,5 @@
 import { NotFoundPage } from '../routes'
+import DashboardPage from '../pages/DashboardPage'
 import VoipDashboardPage from '../pages/VoipDashboardPage'
 import CallDetailPage from '../pages/CallDetailPage'
 import MyCallsPage from '../pages/MyCallsPage'
@@ -19,10 +20,14 @@ import SentimentAlertsPage from '../pages/SentimentAlertsPage'
 export const routes = [
   {
     path: '/',
-    element: <VoipDashboardPage />,
+    element: <DashboardPage />,
   },
   {
     path: '/dashboard',
+    element: <DashboardPage />,
+  },
+  {
+    path: '/calls',
     element: <VoipDashboardPage />,
   },
   {
