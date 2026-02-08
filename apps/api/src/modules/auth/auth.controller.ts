@@ -64,16 +64,21 @@ export class AuthController {
       const secureCookies =
         this.configService.get<string>('NODE_ENV') === 'production';
 
+      // 24 hours in milliseconds
+      const cookieMaxAge = 24 * 60 * 60 * 1000;
+
       res.cookie('access_token', accessToken, {
         httpOnly: true,
         secure: secureCookies,
         sameSite: 'lax',
+        maxAge: cookieMaxAge,
       });
 
       res.cookie('refresh_token', refreshToken, {
         httpOnly: true,
         secure: secureCookies,
         sameSite: 'lax',
+        maxAge: cookieMaxAge,
       });
 
       const redirectUrl = `${this.frontendUrl}/dashboard`;
@@ -196,16 +201,21 @@ export class AuthController {
           currentRefreshCount,
         );
 
+      // 24 hours in milliseconds
+      const cookieMaxAge = 24 * 60 * 60 * 1000;
+
       res.cookie('access_token', accessToken, {
         httpOnly: true,
         secure: secureCookies,
         sameSite: 'lax',
+        maxAge: cookieMaxAge,
       });
 
       res.cookie('refresh_token', newRefreshToken, {
         httpOnly: true,
         secure: secureCookies,
         sameSite: 'lax',
+        maxAge: cookieMaxAge,
       });
 
       this.logger.debug('Successfully refreshed token and set new cookies');
