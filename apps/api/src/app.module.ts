@@ -19,6 +19,7 @@ import { PromptManagementModule } from './modules/prompt-management/prompt-manag
 import { NvidiaModule } from './modules/nvidia/nvidia.module';
 import { CompanyInfoModule } from './modules/company-info/company-info.module';
 import { TrainingRulesModule } from './modules/training-rules/training-rules.module';
+import { ScoringModule } from './modules/scoring/scoring.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -59,6 +60,7 @@ import { join } from 'path';
     NvidiaModule,
     CompanyInfoModule,
     TrainingRulesModule,
+    ScoringModule,
     // Serve frontend static files in production (SPA with client-side routing)
     // __dirname in dist is /app/apps/api/dist/src, client is at /app/apps/api/client
     ServeStaticModule.forRoot({

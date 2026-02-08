@@ -91,6 +91,7 @@ model CallAnalysis {
   Call              Call?
   promptTemplate    PromptTemplate?    @relation("PromptUsedInCall", fields: [promptTemplateId], references: [id])
   llmConfig         LLMConfiguration?  @relation("LLMUsedInCall", fields: [llmConfigId], references: [id])
+  evaluations       TrainingRuleEvaluation[]
 
   @@index([callId])
   @@index([promptTemplateId])
@@ -231,15 +232,52 @@ model TrainingRule {
   department  String?  // Optional: only apply to calls from this department
   isActive    Boolean  @default(true)
   isCritical  Boolean  @default(false) // Auto-fail flag for future scoring
+  weight      Int      @default(10) // Weight within category (0-100)
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   createdBy   String?
 
+  evaluations TrainingRuleEvaluation[]
+
   @@index([category])
   @@index([isActive])
   @@index([department])
   @@map("training_rules")
+}
+
+// Scoring categories for weighted call quality scoring
+model ScoringCategory {
+  id        String   @id @default(cuid())
+  name      String   @unique // e.g. "compliance", "customer_service", "sales"
+  label     String   // Display name, e.g. "Customer Service"
+  weight    Int      @default(100) // Weight percentage (0-100), all categories should sum to 100
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("scoring_categories")
+}
+
+// Per-call training rule evaluation results
+model TrainingRuleEvaluation {
+  id             String   @id @default(cuid())
+  callAnalysisId String
+  trainingRuleId String
+  passed         Boolean  // Did the agent pass this rule?
+  score          Int      @default(0) // 0-10 scale
+  reasoning      String?  @db.Text // LLM's reasoning
+  evidence       String?  @db.Text // Relevant transcript excerpt
+  createdAt      DateTime @default(now())
+
+  callAnalysis CallAnalysis @relation(fields: [callAnalysisId], references: [id], onDelete: Cascade)
+  trainingRule TrainingRule @relation(fields: [trainingRuleId], references: [id])
+
+  @@unique([callAnalysisId, trainingRuleId])
+  @@index([callAnalysisId])
+  @@index([trainingRuleId])
+  @@map("training_rule_evaluations")
 }
 
 // Keyword alert instances when triggers are matched

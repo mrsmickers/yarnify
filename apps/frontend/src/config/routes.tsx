@@ -12,6 +12,7 @@ import PromptManagementPage from '../pages/PromptManagementPage'
 import LLMManagementPage from '../pages/LLMManagementPage'
 import CompanyInfoPage from '../pages/CompanyInfoPage'
 import TrainingRulesPage from '../pages/TrainingRulesPage'
+import ScoringCategoriesPage from '../pages/ScoringCategoriesPage'
 
 // Route configuration
 export const routes = [
@@ -70,6 +71,10 @@ export const routes = [
   {
     path: '/admin/training-rules',
     element: <TrainingRulesPage />,
+  },
+  {
+    path: '/admin/scoring',
+    element: <ScoringCategoriesPage />,
   },
   {
     path: '*',

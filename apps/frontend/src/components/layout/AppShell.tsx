@@ -12,6 +12,7 @@ import {
   Menu,
   PhoneCall,
   Settings2,
+  Target,
   Users,
   UserCircle2,
   X,
@@ -78,6 +79,11 @@ const adminNav: NavSection = {
       label: 'Training Rules',
       path: '/admin/training-rules',
       icon: GraduationCap,
+    },
+    {
+      label: 'Scoring',
+      path: '/admin/scoring',
+      icon: Target,
     },
     {
       label: 'Prompt Management',
