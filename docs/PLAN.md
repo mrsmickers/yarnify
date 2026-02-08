@@ -215,18 +215,117 @@ This document captures planned features and ideas for The Oracle call analysis p
 
 **Goal:** Quantify training filter performance.
 
-**Details:**
-- Each training filter has a score type:
-  - **Boolean:** 0 or 10 (e.g., "said we're understaffed" = 0 or 10)
-  - **Scale:** 0-10 sliding scale (e.g., "professionalism" rated 1-10)
-- **Overall score** calculated from individual filter scores
-- Weighting system (some filters more important than others)
-- Scores feed into:
-  - Training Box (#10)
-  - Dashboards (#12)
-  - Reports (#11)
+**Typical Approach (Industry Standard):**
+
+**Weighted Categories:**
+- Group filters into categories (Compliance, Customer Service, Sales, etc.)
+- Each category has a weight (e.g., Compliance 30%, Customer Service 40%, Sales 30%)
+- Filters within each category contribute to that category's score
+
+**Critical/Auto-Fail Rules:**
+- Some filters instantly fail or cap the overall score
+- E.g., "Disclosed confidential info" = auto-fail regardless of other scores
+- "Said we're understaffed" might cap max score at 70%
+
+**Example Structure:**
+```
+Overall Score = Weighted average of categories
+├── Compliance (30% weight) - Critical, auto-fail possible
+│   ├── GDPR mentioned when required (boolean)
+│   └── No confidential disclosure (boolean, CRITICAL)
+├── Customer Service (40% weight)
+│   ├── Used customer name (boolean)
+│   ├── Professional tone (1-10 scale)
+│   └── Never said "understaffed" (boolean)
+└── Sales/Resolution (30% weight)
+    ├── Offered callback (boolean)
+    └── Issue resolved (1-10 scale)
+```
+
+**Implementation:**
+- Each filter has:
+  - Score type: Boolean (0 or 10) or Scale (0-10)
+  - Category assignment
+  - Critical flag (auto-fail or score cap)
+  - Weight within category
+- Admins configure weights and critical flags via UI
+- Start simple, add complexity as needed
+
+**Scores feed into:**
+- Training Box (#10)
+- Dashboards (#12)
+- Reports (#11)
 
 **Ties to:** Training Filters (#9), Training Box (#10)
+
+---
+
+## 14. Sentiment Analysis with Alerting
+
+**Goal:** Detect problematic calls in real-time and escalate automatically.
+
+**Details:**
+- Analyse call sentiment (already captured: mood, frustration level)
+- **Alerting thresholds:**
+  - If sentiment is "very negative" or frustration is "high" → flag for review
+  - Configurable thresholds per metric
+- **Escalation actions:**
+  - Create ticket for manager review
+  - Send email alert to designated recipients
+  - Add to "Needs Review" queue in dashboard
+- **Error elimination:**
+  - Option to auto-resubmit flagged calls to a second model
+  - Compare results to reduce false positives
+  - Human review for confirmed issues
+
+**Use cases:**
+- Catch customer complaints before they escalate
+- Identify agents who need immediate coaching
+- Compliance monitoring (angry customer + sensitive topic)
+
+**Location:** Admin → Alerting Rules, Dashboard → Flagged Calls
+
+---
+
+## 15. Dispatch Central
+
+**Goal:** Central hub for dispatchers, service desk coordinators, and managers.
+
+**Details:**
+
+**Chat/Collaboration:**
+- Chat interface about all tickets or individual tickets
+- Tag team members, attach call summaries
+- Threaded discussions per ticket
+
+**Statistics & Monitoring:**
+- General stats (tickets open, resolved, SLA status)
+- Engineer load (who has capacity, who's overloaded)
+- Real-time queue status
+
+**Time Entry Auditing:**
+- Check time entries across engineers
+- **Mismatch detection:** Compare when ticket was actually logged vs. timestamp on ticket
+- Audit trail for accountability
+- Flag suspicious patterns
+
+**Canned Checks (Prompt Library):**
+- Pre-built queries/reports, e.g.:
+  - "Who missed SLAs today?"
+  - "Who has overlapping tickets?"
+  - "Time entry mismatch report"
+  - "Engineers with no activity in last 2 hours"
+- Users can run these with one click
+- Admins can create new canned checks
+
+**Report Generation:**
+- Create ad-hoc reports from any data in the system
+- Export or email reports
+- Schedule recurring reports
+
+**Location:** Dispatch Central (main nav, elevated permissions)
+
+**Integration:** ConnectWise PSA for ticket/time data
 
 ---
 
@@ -234,21 +333,23 @@ This document captures planned features and ideas for The Oracle call analysis p
 
 *To be determined based on business value and dependencies*
 
-| Priority | Feature | Dependencies |
-|----------|---------|--------------|
-| TBD | User Profiles | - |
-| TBD | Company Match | CRM integration |
-| TBD | Our Company Info | - |
-| TBD | Permission System | - |
-| TBD | Sales Trainer | Product Catalogue |
-| TBD | Prompt Editor | - |
-| TBD | Default Visibility | Permission System |
-| TBD | CW Integration | ConnectWise API |
-| TBD | Training Filters | Prompt Editor |
-| TBD | Training Box | Training Filters, Scoring |
-| TBD | Report Builder | Dashboards |
-| TBD | Dashboards | Scoring System |
-| TBD | Scoring System | Training Filters |
+| # | Feature | Dependencies |
+|---|---------|--------------|
+| 1 | User Profiles | - |
+| 2 | Company Match | CRM integration |
+| 3 | Our Company Info | - |
+| 4 | Permission System | - |
+| 5 | Sales Trainer | Product Catalogue |
+| 6 | Prompt Editor | - |
+| 7 | Default Visibility | Permission System |
+| 8 | CW Integration | ConnectWise API |
+| 9 | Training Filters | Prompt Editor |
+| 10 | Training Box | Training Filters, Scoring |
+| 11 | Report Builder | Dashboards |
+| 12 | Dashboards | Scoring System |
+| 13 | Scoring System | Training Filters |
+| 14 | Sentiment Alerting | - |
+| 15 | Dispatch Central | ConnectWise API, Permission System |
 
 ---
 
