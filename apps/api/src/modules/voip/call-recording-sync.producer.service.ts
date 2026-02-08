@@ -1,6 +1,7 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Queue } from 'bullmq';
+import { ConfigService } from '@nestjs/config';
 import { CALL_RECORDING_SYNC_QUEUE } from './constants';
 
 @Injectable()
@@ -8,6 +9,7 @@ export class CallRecordingSyncProducerService implements OnModuleInit {
   constructor(
     @InjectQueue(CALL_RECORDING_SYNC_QUEUE)
     private readonly callRecordingSyncQueue: Queue,
+    private readonly configService: ConfigService,
   ) {}
 
   // log
@@ -16,6 +18,11 @@ export class CallRecordingSyncProducerService implements OnModuleInit {
   );
 
   async onModuleInit() {
+    const disableSync = this.configService.get<string>('DISABLE_VOIP_SYNC', 'false').toLowerCase() === 'true';
+    if (disableSync) {
+      this.logger.warn('VoIP auto-sync is DISABLED (DISABLE_VOIP_SYNC=true). Use manual /api/v1/voip/recordings/process to trigger.');
+      return;
+    }
     await this.scheduleCallRecordingSync();
   }
 

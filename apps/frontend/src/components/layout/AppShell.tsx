@@ -427,6 +427,11 @@ export function AppShell({ children }: AppShellProps) {
           {sidebarContent}
         </aside>
         <div className="flex min-h-screen flex-1 flex-col">
+          {window.location.hostname.includes('staging') && (
+            <div className="bg-amber-500 px-4 py-1.5 text-center text-xs font-bold uppercase tracking-wider text-black">
+              ⚠️ Staging Environment — Changes here do not affect production
+            </div>
+          )}
           <main className="flex-1 px-4 py-8 sm:px-6 lg:px-10">
             <div className="mx-auto w-full max-w-6xl space-y-10">{children}</div>
           </main>
