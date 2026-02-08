@@ -134,11 +134,23 @@ export class CallAnalysisService {
     const extensionStartsWith =
       this.config.get<string>('EXTENSION_STARTS_WITH') || '56360';
 
+    // Log all phone number fields for attribution analysis
+    this.logger.log(
+      `[AgentAttribution] CDR fields — uniqueid=${obj.uniqueid} ` +
+        `snumber=${obj.snumber} cnumber=${obj.cnumber} dnumber=${obj.dnumber} ` +
+        `callerid_internal=${obj.callerid_internal} name=${obj.name}`,
+    );
+
+    // Priority: dnumber first (destination/final handler for transferred calls),
+    // then callerid_internal, cnumber, snumber as fallbacks.
+    // For transfers: snumber=initial answerer, dnumber=final handler.
+    // For direct inbound: dnumber=answering agent.
+    // For outbound: dnumber=external party (no extension match), falls through to snumber.
     const fields = [
-      { name: 'snumber', value: obj.snumber }, // Source number - often the internal extension for outbound
+      { name: 'dnumber', value: obj.dnumber }, // Destination - final handler (transferred calls)
       { name: 'callerid_internal', value: obj.callerid_internal },
-      { name: 'cnumber', value: obj.cnumber },
-      { name: 'dnumber', value: obj.dnumber },
+      { name: 'cnumber', value: obj.cnumber }, // Called number (what was dialed)
+      { name: 'snumber', value: obj.snumber }, // Source - initial answerer / outbound caller
     ];
 
     for (const field of fields) {
@@ -152,11 +164,17 @@ export class CallAnalysisService {
           const extracted = extensionMatch[1];
           // Ensure it's a reasonable length (5-15 digits)
           if (extracted.length >= 5 && extracted.length <= 15) {
+            this.logger.log(
+              `[AgentAttribution] Matched extension ${extracted} from field '${field.name}' (uniqueid=${obj.uniqueid})`,
+            );
             return extracted;
           }
         }
       }
     }
+    this.logger.log(
+      `[AgentAttribution] No internal extension found for uniqueid=${obj.uniqueid}`,
+    );
     return undefined;
   }
 
