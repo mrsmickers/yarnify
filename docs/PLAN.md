@@ -406,6 +406,43 @@ Agent.entraUserId (String?, @unique) → EntraUser.id
 
 ---
 
+## Feature #18: Frontend State Management & URL Persistence
+
+**Goal:** Persist UI state (filters, sort order, pagination, view preferences) across navigation so users don't lose context when drilling into a call and coming back.
+
+**Problem today:**
+- Navigating from the call list into a call detail page and pressing "Back" resets all filters
+- No URL-based state — can't share a filtered view with a colleague via link
+- Filter selections (date range, company, agent, sentiment, status) are lost on every navigation
+
+**Approach:**
+
+1. **URL search params for filters:**
+   - Sync filter state to URL query params (`?company=X&agent=Y&sentiment=positive&page=2`)
+   - On page load, hydrate filters from URL — shareable, bookmarkable
+   - Use `useSearchParams` from React Router (already in the stack)
+
+2. **Persist across navigation:**
+   - When navigating to call detail → back, URL params survive automatically
+   - No need for separate state store if URL is the source of truth
+
+3. **Optional: localStorage fallback for preferences:**
+   - "Last used" sort order, page size, date range preference
+   - Not filters themselves (URL handles that), but defaults/preferences
+
+4. **Scope:**
+   - Dashboard call list (primary — this is where filters live)
+   - Admin pages (agent list, prompt editor) — lower priority
+   - Call detail page — no filters, but "back" navigation should preserve parent list state
+
+**Key files:**
+- `apps/frontend/src/pages/DashboardPage.tsx` — main call list with filters
+- `apps/frontend/src/pages/CallDetailPage.tsx` — back button navigation
+
+**Ties to:** Dashboards (#12), Training Filters (#9)
+
+---
+
 ## Implementation Priority
 
 *To be determined based on business value and dependencies*
@@ -429,6 +466,7 @@ Agent.entraUserId (String?, @unique) → EntraUser.id
 | 15 | Dispatch Central | ConnectWise API, Permission System |
 | 16 | Semantic Call Search | Embeddings (re-enable SKIP_EMBEDDINGS) |
 | 17 | Agent-User Identity Linking | User Profiles, Entra SSO |
+| 18 | Frontend State Management | - |
 
 ---
 
