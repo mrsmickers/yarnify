@@ -1,10 +1,8 @@
 import z from 'zod';
+import { RoleSchema } from './create-user.dto';
 
 export const UpdateUserRoleSchema = z.object({
-  role: z.enum(['admin', 'user'], {
-    required_error: 'Role is required',
-    invalid_type_error: 'Role must be admin or user',
-  }),
+  role: RoleSchema,
 });
 
 export type UpdateUserRoleDto = z.infer<typeof UpdateUserRoleSchema>;

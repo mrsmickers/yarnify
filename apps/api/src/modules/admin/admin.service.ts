@@ -180,7 +180,7 @@ export class AdminService {
   /**
    * Update a user's RBAC role.
    */
-  async updateUserRole(id: string, role: 'admin' | 'user') {
+  async updateUserRole(id: string, role: 'admin' | 'manager' | 'team_lead' | 'user') {
     try {
       const user = await this.prisma.entraUser.update({
         where: { id },
@@ -244,7 +244,7 @@ export class AdminService {
       const updateData: {
         displayName: string;
         department: string;
-        role?: 'admin' | 'user';
+        role?: 'admin' | 'manager' | 'team_lead' | 'user';
         enabled?: boolean;
         contextBox?: string | null;
         updatedAt: Date;

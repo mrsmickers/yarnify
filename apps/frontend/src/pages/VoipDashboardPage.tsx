@@ -27,6 +27,7 @@ import {
   FilterXIcon,
   RefreshCcwIcon,
   RotateCcwIcon,
+  UserCircle2,
 } from 'lucide-react' // Added Icons
 import { cn } from '@/lib/utils' // Added cn
 import dayjs from 'dayjs' // Switch to dayjs
@@ -48,6 +49,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { useCurrentUser } from '@/hooks/useCurrentUser'
 
 interface CallStat {
   title: string
@@ -69,12 +71,20 @@ interface TransformedCallLog {
   // Add other relevant fields from CallResponseDto.analysis if needed
 }
 
+const SCOPE_LABELS: Record<string, string> = {
+  admin: '',
+  manager: 'Showing calls for your department',
+  team_lead: 'Showing calls for your team',
+  user: 'Showing your calls',
+}
+
 const VoipDashboardPage = () => {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [stats, setStats] = useState<CallStat[]>([])
   const [callLogs, setCallLogs] = useState<TransformedCallLog[]>([])
   const [showFilters, setShowFilters] = useState(false) // State for filter visibility
+  const { data: currentUser } = useCurrentUser()
 
   // Filter states initialized from URL search params or defaults
   const [companyIdFilter, setCompanyIdFilter] = useState(
@@ -429,6 +439,17 @@ const VoipDashboardPage = () => {
           </>
         }
       />
+
+      {/* Scope indicator for non-admin users */}
+      {currentUser?.role && currentUser.role !== 'admin' && SCOPE_LABELS[currentUser.role] && (
+        <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-muted/50 px-4 py-2.5 text-sm text-muted-foreground">
+          <UserCircle2 className="h-4 w-4 shrink-0" />
+          <span>{SCOPE_LABELS[currentUser.role]}</span>
+          {(currentUser.role === 'manager' || currentUser.role === 'team_lead') && currentUser.department && (
+            <Badge variant="secondary" className="ml-1 text-xs">{currentUser.department}</Badge>
+          )}
+        </div>
+      )}
 
       {/* Stats Cards */}
       <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

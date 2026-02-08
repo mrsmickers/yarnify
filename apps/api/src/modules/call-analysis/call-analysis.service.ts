@@ -362,7 +362,17 @@ Rules:
     }
   }
 
-  async getCalls(query: GetCallsQueryDto): Promise<PaginatedCallsResponseDto> {
+  /**
+   * User context for role-based call scoping.
+   * - admin: sees all calls
+   * - manager: sees calls for agents in the same department
+   * - team_lead: same as manager for now (can be refined later)
+   * - user: sees only their own calls (via linked agent)
+   */
+  async getCalls(
+    query: GetCallsQueryDto,
+    userContext?: { role: string; userId: string; department?: string | null },
+  ): Promise<PaginatedCallsResponseDto> {
     const {
       page = 1,
       limit = 10,
@@ -378,6 +388,34 @@ Rules:
     const skip = (page - 1) * limit;
 
     const where: Prisma.CallWhereInput = {}; // Use Prisma.CallWhereInput
+
+    // Apply role-based scoping if userContext is provided
+    if (userContext && userContext.role !== 'admin') {
+      if (userContext.role === 'manager' || userContext.role === 'team_lead') {
+        // Manager/Team Lead: see calls for agents in their department
+        if (userContext.department) {
+          where.Agents = {
+            entraUser: {
+              department: { equals: userContext.department, mode: 'insensitive' },
+            },
+          };
+        } else {
+          // No department set — fall back to own calls only
+          where.Agents = {
+            entraUser: {
+              oid: userContext.userId,
+            },
+          };
+        }
+      } else {
+        // Default 'user' role: see only their own calls (via linked agent)
+        where.Agents = {
+          entraUser: {
+            oid: userContext.userId,
+          },
+        };
+      }
+    }
     if (startDate) {
       if (typeof where.startTime !== 'object' || where.startTime === null) {
         where.startTime = {};
@@ -673,6 +711,18 @@ Rules:
       agentLinked: true,
       agentName: agent.name,
     };
+  }
+
+  /**
+   * Look up a user's role and department by their Entra OID.
+   * Used by the controller to build user context for role-based call scoping.
+   */
+  async getUserContext(oid: string): Promise<{ role: string; department: string | null } | null> {
+    const user = await this.db.entraUser.findUnique({
+      where: { oid },
+      select: { role: true, department: true },
+    });
+    return user ? { role: user.role, department: user.department } : null;
   }
 
   async getCompanyList(): Promise<CompanyListItemDto[]> {

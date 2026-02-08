@@ -41,9 +41,27 @@ export class CallAnalysisController {
   })
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async getCalls(
+    @Req() req: Request,
     @Query() query: GetCallsQueryDto,
   ): Promise<PaginatedCallsResponseDto> {
-    return this.callAnalysisService.getCalls(query);
+    const payload = req.user as JwtPayload;
+    
+    // Build user context for role-based call scoping
+    let userContext: { role: string; userId: string; department?: string | null } | undefined;
+    if (payload?.oid) {
+      // Look up the user's actual role and department from DB
+      // (JWT roles array is for guard checks; we need the single role value for scoping)
+      const storedUser = await this.callAnalysisService.getUserContext(payload.oid);
+      if (storedUser) {
+        userContext = {
+          role: storedUser.role,
+          userId: payload.oid,
+          department: storedUser.department,
+        };
+      }
+    }
+
+    return this.callAnalysisService.getCalls(query, userContext);
   }
 
   @Get('calls/mine')

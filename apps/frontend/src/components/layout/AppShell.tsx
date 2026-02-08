@@ -337,7 +337,7 @@ export function AppShell({ children }: AppShellProps) {
         aria-label="Primary"
       >
         {renderNavSection(workspaceNav)}
-        {renderNavSection(adminNav)}
+        {currentUser?.roles?.includes('admin') && renderNavSection(adminNav)}
       </nav>
 
       <div

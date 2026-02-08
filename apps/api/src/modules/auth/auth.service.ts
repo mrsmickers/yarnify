@@ -327,7 +327,16 @@ export class AuthService {
   }
 
   private mapRoleToClaims(role: string): string[] {
-    return role === 'admin' ? ['admin', 'user'] : ['user'];
+    switch (role) {
+      case 'admin':
+        return ['admin', 'manager', 'team_lead', 'user'];
+      case 'manager':
+        return ['manager', 'team_lead', 'user'];
+      case 'team_lead':
+        return ['team_lead', 'user'];
+      default:
+        return ['user'];
+    }
   }
 
   private normalizeEmail(email?: string | null): string | null {

@@ -11,6 +11,13 @@ export const DepartmentSchema = z.enum(
 
 export type Department = z.infer<typeof DepartmentSchema>;
 
+export const RoleSchema = z.enum(['admin', 'manager', 'team_lead', 'user'], {
+  required_error: 'Role is required',
+  invalid_type_error: 'Role must be one of: admin, manager, team_lead, user',
+});
+
+export type UserRole = z.infer<typeof RoleSchema>;
+
 export const CreateUserSchema = z.object({
   oid: z
     .string({
@@ -36,10 +43,7 @@ export const CreateUserSchema = z.object({
     .trim()
     .min(1, 'Display name cannot be empty'),
   department: DepartmentSchema,
-  role: z.enum(['admin', 'user'], {
-    required_error: 'Role is required',
-    invalid_type_error: 'Role must be admin or user',
-  }),
+  role: RoleSchema,
   enabled: z
     .boolean({
       invalid_type_error: 'Enabled must be a boolean',

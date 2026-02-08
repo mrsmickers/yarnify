@@ -7,6 +7,7 @@ export type CurrentUser = {
   name: string | null
   tenantId: string | null
   roles: string[]
+  role: string | null
   department: string | null
   contextBox: string | null
 }

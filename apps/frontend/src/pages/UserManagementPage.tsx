@@ -40,7 +40,14 @@ const DEPARTMENT_OPTIONS = [
   { value: 'projects', label: 'Projects' },
 ] as const
 
-type UserRole = 'admin' | 'user'
+type UserRole = 'admin' | 'manager' | 'team_lead' | 'user'
+
+const ROLE_OPTIONS = [
+  { value: 'admin', label: 'Admin' },
+  { value: 'manager', label: 'Manager' },
+  { value: 'team_lead', label: 'Team Lead' },
+  { value: 'user', label: 'User' },
+] as const
 type Department = 'sales' | 'service' | 'marketing' | 'finance' | 'projects'
 
 // Helper to normalize department value from database to enum
@@ -421,9 +428,16 @@ const UserManagementPage = () => {
         accessorKey: 'role',
         cell: ({ row }) => {
           const user = row.original
+          const roleConfig: Record<string, { variant: 'default' | 'secondary' | 'outline'; label: string; className?: string }> = {
+            admin: { variant: 'default', label: 'Admin' },
+            manager: { variant: 'default', label: 'Manager', className: 'bg-purple-500/15 text-purple-600 dark:bg-purple-500/20 dark:text-purple-300 border-0' },
+            team_lead: { variant: 'default', label: 'Team Lead', className: 'bg-blue-500/15 text-blue-600 dark:bg-blue-500/20 dark:text-blue-300 border-0' },
+            user: { variant: 'secondary', label: 'User' },
+          }
+          const config = roleConfig[user.role] || roleConfig.user
           return (
-            <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
-              {user.role === 'admin' ? 'Admin' : 'User'}
+            <Badge variant={config.variant} className={config.className}>
+              {config.label}
             </Badge>
           )
         },
@@ -869,8 +883,11 @@ const AddUserDialog = ({
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="user">User</SelectItem>
+                  {ROLE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -1116,15 +1133,27 @@ const EditUserDialog = ({
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="edit-user-role">Role</Label>
-              <Input
-                id="edit-user-role"
-                value={formState.role === 'admin' ? 'Admin' : 'User'}
-                disabled
-                className="bg-muted capitalize"
-              />
-              <p className="text-xs text-muted-foreground">
-                Role cannot be changed here
-              </p>
+              <Select
+                value={formState.role}
+                onValueChange={(value) =>
+                  setFormState((previous) => ({
+                    ...previous,
+                    role: value as UserRole,
+                  }))
+                }
+                disabled={isSubmitting}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ROLE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label>Account status</Label>

@@ -1,5 +1,5 @@
 import z from 'zod';
-import { DepartmentSchema } from './create-user.dto';
+import { DepartmentSchema, RoleSchema } from './create-user.dto';
 
 export const UpdateUserSchema = z.object({
   displayName: z
@@ -10,7 +10,7 @@ export const UpdateUserSchema = z.object({
     .trim()
     .min(1, 'Display name cannot be empty'),
   department: DepartmentSchema,
-  role: z.enum(['admin', 'user']).optional(),
+  role: RoleSchema.optional(),
   enabled: z.boolean().optional(),
   contextBox: z.string().nullish(),
 });
