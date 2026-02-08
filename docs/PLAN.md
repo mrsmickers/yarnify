@@ -470,6 +470,23 @@ Agent.entraUserId (String?, @unique) → EntraUser.id
 
 ---
 
+## Deployment & Environments
+
+See `docs/ENVIRONMENTS.md` for full details.
+
+| | Staging | Production |
+|---|---|---|
+| **URL** | staging-oracle.ingeniotech.co.uk | theoracle.ingeniotech.co.uk |
+| **Branch** | `develop` | `main` |
+| **Port** | 3101 | 3100 |
+| **Database** | Separate (yarnify_staging) | Separate (yarnify) |
+| **VoIP sync** | Disabled (manual only) | Auto every 15min |
+| **Auto-deploy** | On push to `develop` | On push to `main` |
+
+**Workflow:** feature branches → `develop` (staging) → `main` (production). No PRs needed while solo dev.
+
+---
+
 ## Questions to Clarify
 
 *(Add questions here as they arise during implementation)*
