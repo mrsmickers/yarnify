@@ -43,6 +43,7 @@ export class JwtOrStagingGuard extends AuthGuard('jwt') implements CanActivate {
           name: 'Staging Admin',
           tid: process.env.ENTRA_TENANT_ID || 'staging-tenant',
           role: 'admin',
+          roles: ['admin'],  // RolesGuard expects array
           department: undefined,
           impersonatedBy: undefined,
         };
