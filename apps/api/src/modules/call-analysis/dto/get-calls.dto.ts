@@ -162,6 +162,19 @@ export class CallResponseDto {
 
   @ApiPropertyOptional({ description: 'VoIP destination type (phone, external, number)' })
   destinationType?: string;
+
+  // Transfer detection fields
+  @ApiPropertyOptional({ description: 'Name of the agent the call was transferred to (if detected)' })
+  transferredToAgentName?: string;
+
+  @ApiPropertyOptional({ description: 'ID of the agent the call was transferred to' })
+  transferredToAgentId?: string;
+
+  @ApiPropertyOptional({ description: 'Brief note about the detected transfer' })
+  transferNote?: string;
+
+  @ApiPropertyOptional({ description: 'When the transfer was detected' })
+  transferDetectedAt?: Date;
 }
 
 export class CallMetricsDto {

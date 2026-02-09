@@ -37,6 +37,24 @@ export const callAnalysisSchema = z.object({
     .describe(
       "Name of the client on the call. Use 'undetermined' if not identifiable.",
     ),
+  // Transfer detection fields
+  detected_transfer: z
+    .boolean()
+    .describe(
+      "Was a call transfer detected? True if the call was transferred to another agent during the conversation.",
+    ),
+  transferred_to_agent: z
+    .string()
+    .optional()
+    .describe(
+      "Name of the agent the call was transferred to. Only set if detected_transfer is true. Use the exact agent name from the staff list if possible.",
+    ),
+  transfer_context: z
+    .string()
+    .optional()
+    .describe(
+      "Brief description of the transfer context (e.g., 'Transferred to Cameron for technical support'). Only set if detected_transfer is true.",
+    ),
 });
 
 export type CallAnalysisOutput = z.infer<typeof callAnalysisSchema>;

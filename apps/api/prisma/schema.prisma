@@ -34,17 +34,18 @@ model Company {
 }
 
 model Agent {
-  id            String         @id @default(cuid())
-  name          String
-  email         String?
-  extension     String?        @unique
-  entraUserId   String?        @unique // Link to EntraUser for login account mapping
-  entraUser     EntraUser?     @relation(fields: [entraUserId], references: [id])
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  calls         Call[]
-  keywordAlerts KeywordAlert[]
-  userAccess    UserAgentAccess[]
+  id                    String         @id @default(cuid())
+  name                  String
+  email                 String?
+  extension             String?        @unique
+  entraUserId           String?        @unique // Link to EntraUser for login account mapping
+  entraUser             EntraUser?     @relation(fields: [entraUserId], references: [id])
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  calls                 Call[]         @relation("PrimaryAgent")
+  transferredCalls      Call[]         @relation("TransferredToAgent") // Calls transferred TO this agent
+  keywordAlerts         KeywordAlert[]
+  userAccess            UserAgentAccess[]
 
   @@index([entraUserId])
 }
@@ -79,8 +80,15 @@ model Call {
   analysis                CallAnalysis?             @relation(fields: [callAnalysisId], references: [id])
   callAnalysisId          String?                   @unique
   processingLog           ProcessingLog[]
-  Agents                  Agent?                    @relation(fields: [agentsId], references: [id])
+  Agents                  Agent?                    @relation("PrimaryAgent", fields: [agentsId], references: [id])
   agentsId                String?
+  
+  // Transfer detection - secondary agent who received the call via transfer
+  TransferredToAgent      Agent?                    @relation("TransferredToAgent", fields: [transferredToAgentId], references: [id])
+  transferredToAgentId    String?
+  transferDetectedAt      DateTime?                 // When the transfer was detected
+  transferNote            String?                   // Optional note about the transfer (e.g., "Detected from transcript")
+  
   CallTranscriptEmbedding CallTranscriptEmbedding[]
   keywordAlerts           KeywordAlert[]
   sentimentAlerts         SentimentAlert[]

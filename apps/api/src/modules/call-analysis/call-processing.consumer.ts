@@ -632,6 +632,39 @@ export class CallProcessingConsumer extends WorkerHost {
         );
       }
 
+      // Process detected transfers from analysis
+      try {
+        const analysisData = analysis as Record<string, unknown>;
+        if (analysisData.detected_transfer === true && analysisData.transferred_to_agent) {
+          const transferredToAgentName = String(analysisData.transferred_to_agent);
+          this.logger.log(`[TransferDetection] Detected transfer to "${transferredToAgentName}" for call ${callEntity.id}`);
+          
+          // Look up the agent by name
+          const transferredToAgent = await this.agentRepository.findByName(transferredToAgentName);
+          
+          if (transferredToAgent) {
+            await this.callRepository.update(callEntity.id, {
+              transferredToAgentId: transferredToAgent.id,
+              transferDetectedAt: new Date(),
+              transferNote: analysisData.transfer_context ? String(analysisData.transfer_context) : `Transferred to ${transferredToAgentName}`,
+            });
+            this.logger.log(`[TransferDetection] Linked call ${callEntity.id} to transferred agent ${transferredToAgent.name} (${transferredToAgent.id})`);
+          } else {
+            this.logger.warn(`[TransferDetection] Agent "${transferredToAgentName}" not found in database for call ${callEntity.id}`);
+            // Still save the note even if we can't link the agent
+            await this.callRepository.update(callEntity.id, {
+              transferDetectedAt: new Date(),
+              transferNote: analysisData.transfer_context ? String(analysisData.transfer_context) : `Transferred to ${transferredToAgentName} (agent not found)`,
+            });
+          }
+        }
+      } catch (transferError) {
+        // Non-fatal — don't fail the pipeline if transfer detection fails
+        this.logger.warn(
+          `[TransferDetection] Failed to process transfer for call ${callEntity.id}: ${transferError.message}`,
+        );
+      }
+
       // Save LLM pipeline metadata for debugging/R&D
       const processingMetadata = {
         transcription: {

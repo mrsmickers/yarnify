@@ -24,6 +24,21 @@ export class AgentRepository {
     });
   }
 
+  async findByName(
+    name: string,
+    prisma: Prisma.TransactionClient = this.prisma,
+  ): Promise<Agent | null> {
+    // Case-insensitive search for agent by name
+    return prisma.agent.findFirst({
+      where: { 
+        name: { 
+          equals: name, 
+          mode: 'insensitive' 
+        } 
+      },
+    });
+  }
+
   async create(
     data: Prisma.AgentCreateInput,
     prisma: Prisma.TransactionClient = this.prisma,

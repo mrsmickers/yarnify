@@ -492,7 +492,8 @@ Rules:
       include: {
         analysis: true, // Include related call analysis data
         company: true, // Include company data
-        Agents: true, // Include related agents if necessary
+        Agents: true, // Include primary agent
+        TransferredToAgent: true, // Include transferred-to agent
       },
     });
 
@@ -544,6 +545,11 @@ Rules:
         isTransferred: !!call.callGroupId && groupSize > 1,
         sourceType: call.sourceType,
         destinationType: call.destinationType,
+        // Transfer detection fields
+        transferredToAgentName: call.TransferredToAgent?.name || null,
+        transferredToAgentId: call.transferredToAgentId || null,
+        transferNote: call.transferNote || null,
+        transferDetectedAt: call.transferDetectedAt || null,
       };
     });
 
@@ -686,6 +692,15 @@ Rules:
       sourceType: call.sourceType,
       // @ts-ignore
       destinationType: call.destinationType,
+      // Transfer detection fields
+      // @ts-ignore
+      transferredToAgentName: call.TransferredToAgent?.name || null,
+      // @ts-ignore
+      transferredToAgentId: call.transferredToAgentId || null,
+      // @ts-ignore
+      transferNote: call.transferNote || null,
+      // @ts-ignore
+      transferDetectedAt: call.transferDetectedAt || null,
     };
   }
 
@@ -793,12 +808,19 @@ Rules:
       };
     }
 
-    // Find calls where this agent is directly assigned OR is part of a grouped call
-    // Step 1: Get group IDs where this agent has a call
+    // Find calls where this agent is:
+    // 1. Directly assigned as primary agent (agentsId)
+    // 2. The transferred-to agent (transferredToAgentId) 
+    // 3. Part of a grouped call where they handled one leg
+    
+    // Step 1: Get group IDs where this agent has a call (either as primary or transferred-to)
     // @ts-ignore - new fields not in Prisma types yet
     const agentCallGroups: Array<{ callGroupId: string | null }> = await this.db.call.findMany({
       where: {
-        agentsId: agent.id,
+        OR: [
+          { agentsId: agent.id },
+          { transferredToAgentId: agent.id },
+        ],
         callGroupId: { not: null },
       } as any,
       select: { callGroupId: true } as any,
@@ -808,35 +830,20 @@ Rules:
       .map((c: any) => c.callGroupId)
       .filter((id): id is string => id !== null);
 
-    // Step 2: Build query that includes direct calls AND calls in shared groups
+    // Step 2: Build query that includes direct calls, transferred calls, AND calls in shared groups
     const myQuery: GetCallsQueryDto = {
       ...query,
       // We'll handle the agentId filter specially below
     };
 
     // Custom query with OR logic for agent attribution
-    // This is a bit complex because we need to include calls from shared groups
-    if (agentGroupIds.length > 0) {
-      // Override getCalls to use our custom where clause
-      const result = await this.getCallsWithGroupAccess(myQuery, agent.id, agentGroupIds);
-      return {
-        ...result,
-        agentLinked: true,
-        agentName: agent.name,
-      };
-    } else {
-      // No grouped calls, just filter by direct agent assignment
-      const myQueryWithAgent: GetCallsQueryDto = {
-        ...query,
-        agentId: agent.id,
-      };
-      const result = await this.getCalls(myQueryWithAgent);
-      return {
-        ...result,
-        agentLinked: true,
-        agentName: agent.name,
-      };
-    }
+    // Include calls where agent is primary, transferred-to, or in a shared group
+    const result = await this.getCallsWithGroupAccess(myQuery, agent.id, agentGroupIds);
+    return {
+      ...result,
+      agentLinked: true,
+      agentName: agent.name,
+    };
   }
 
   /**
@@ -852,12 +859,16 @@ Rules:
     const limit = query.limit || 10;
     const skip = (page - 1) * limit;
 
-    // Build where clause: direct agent assignment OR in shared group
+    // Build where clause: direct agent assignment, transferred-to, OR in shared group
+    const orConditions: any[] = [
+      { agentsId: agentId },
+      { transferredToAgentId: agentId },
+    ];
+    if (groupIds.length > 0) {
+      orConditions.push({ callGroupId: { in: groupIds } });
+    }
     const where: any = {
-      OR: [
-        { agentsId: agentId },
-        { callGroupId: { in: groupIds } },
-      ],
+      OR: orConditions,
     };
 
     // Apply other filters
@@ -881,6 +892,7 @@ Rules:
           company: true,
           analysis: true,
           Agents: true,
+          TransferredToAgent: true,
         },
         skip,
         take: limit,
@@ -941,6 +953,11 @@ Rules:
           isTransferred: !!call.callGroupId && groupSize > 1,
           sourceType: call.sourceType,
           destinationType: call.destinationType,
+          // Transfer detection fields
+          transferredToAgentName: call.TransferredToAgent?.name || null,
+          transferredToAgentId: call.transferredToAgentId || null,
+          transferNote: call.transferNote || null,
+          transferDetectedAt: call.transferDetectedAt || null,
         };
       }),
       total,
