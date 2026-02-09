@@ -6,6 +6,66 @@ import Axios, {
 } from 'axios'
 
 // ===========================
+// STAGING KEY BYPASS
+// ===========================
+const STAGING_KEY_STORAGE_KEY = 'staging_api_key'
+
+/**
+ * Check for staging key in URL hash on page load.
+ * Format: /#staging=KEY or ?staging_key=KEY
+ */
+const checkForStagingKey = () => {
+  if (typeof window === 'undefined') return
+
+  // Check hash first: /#staging=KEY
+  const hash = window.location.hash
+  if (hash.startsWith('#staging=')) {
+    const key = hash.slice('#staging='.length)
+    if (key) {
+      console.log('[Staging] Key detected in URL hash')
+      localStorage.setItem(STAGING_KEY_STORAGE_KEY, key)
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    }
+  }
+
+  // Also check query param: ?staging_key=KEY
+  const params = new URLSearchParams(window.location.search)
+  const keyParam = params.get('staging_key')
+  if (keyParam) {
+    console.log('[Staging] Key detected in query param')
+    localStorage.setItem(STAGING_KEY_STORAGE_KEY, keyParam)
+    params.delete('staging_key')
+    const newSearch = params.toString()
+    window.history.replaceState(null, '', window.location.pathname + (newSearch ? '?' + newSearch : ''))
+  }
+}
+
+/**
+ * Get the current staging key (if any).
+ */
+export const getStagingKey = (): string | null => {
+  if (typeof window === 'undefined') return null
+  return localStorage.getItem(STAGING_KEY_STORAGE_KEY)
+}
+
+/**
+ * Check if we're in staging bypass mode.
+ */
+export const isStagingMode = (): boolean => {
+  return getStagingKey() !== null
+}
+
+/**
+ * Clear staging key.
+ */
+export const clearStagingKey = () => {
+  localStorage.removeItem(STAGING_KEY_STORAGE_KEY)
+}
+
+// Check for staging key on module load
+checkForStagingKey()
+
+// ===========================
 // IMPERSONATION TOKEN HANDLING
 // ===========================
 const IMPERSONATION_TOKEN_KEY = 'impersonation_token'
@@ -299,6 +359,12 @@ const scheduleTokenRefresh = () => {
  * Disabled when impersonating (impersonation tokens have their own 30-min expiry).
  */
 const initializeSessionManagement = () => {
+  // Skip session management when using staging key bypass
+  if (isStagingMode()) {
+    console.log('[Session] Skipping session management - staging mode active')
+    return
+  }
+
   // Skip session management when impersonating
   // Impersonation tokens have their own 30-minute expiry and can't be refreshed
   if (isImpersonating()) {
@@ -357,13 +423,23 @@ const initializeSessionManagement = () => {
 // Initialize session management when module loads
 initializeSessionManagement()
 
-// Request interceptor - add impersonation token if present
+// Request interceptor - add staging key or impersonation token if present
 AXIOS_INSTANCE.interceptors.request.use(
   (config) => {
+    config.headers = config.headers || new AxiosHeaders()
+
+    // If we have a staging key, add it to bypass auth
+    const stagingKey = getStagingKey()
+    if (stagingKey) {
+      config.headers.set('X-Staging-Key', stagingKey)
+      // Don't send cookies when using staging key
+      config.withCredentials = false
+      return config
+    }
+
     // If we have an impersonation token, use it instead of cookies
     const impersonationToken = getImpersonationToken()
     if (impersonationToken) {
-      config.headers = config.headers || new AxiosHeaders()
       config.headers.set('Authorization', `Bearer ${impersonationToken}`)
       // Don't send cookies when impersonating - use token auth only
       config.withCredentials = false
@@ -386,6 +462,13 @@ AXIOS_INSTANCE.interceptors.response.use(
     }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
+      // If we're using staging key and get a 401, the key is invalid
+      // Don't redirect - just reject so we can see the error
+      if (isStagingMode()) {
+        console.error('[Staging] Auth failed - staging key may be invalid')
+        return Promise.reject(error)
+      }
+
       // If we're impersonating and get a 401, the impersonation token expired
       // Exit impersonation mode - don't try to refresh
       if (isImpersonating()) {
