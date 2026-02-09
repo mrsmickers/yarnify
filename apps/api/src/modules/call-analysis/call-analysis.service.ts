@@ -468,9 +468,11 @@ Rules:
       };
     }
     
-    // Exclude queue legs from main list - these are internal routing steps, not primary calls
-    // Queue legs are shown in the call detail timeline view for grouped/transferred calls
-    where.sourceType = { not: 'queue' };
+    // Exclude queue and api legs from main list:
+    // - queue: internal routing steps (IVR/queue to agent)
+    // - api: duplicate "inbound perspective" of outbound calls (same conversation recorded twice)
+    // These are shown in the call detail timeline view for grouped/transferred calls
+    where.sourceType = { notIn: ['queue', 'api'] };
     
     if (searchTerm) {
       where.OR = [
