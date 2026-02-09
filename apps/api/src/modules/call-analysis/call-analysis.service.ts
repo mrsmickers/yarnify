@@ -986,4 +986,49 @@ Rules:
       name: agent.name as string, // Assert name is string as we filtered out nulls
     }));
   }
+
+  /**
+   * Delete all calls within a date range (inclusive).
+   * Also deletes related CallAnalysis and ProcessingLog records.
+   */
+  async bulkDeleteByDateRange(dateFrom: string, dateTo: string): Promise<number> {
+    const startDate = new Date(dateFrom);
+    startDate.setHours(0, 0, 0, 0);
+    
+    const endDate = new Date(dateTo);
+    endDate.setHours(23, 59, 59, 999);
+
+    // Find call IDs in range
+    const calls = await this.db.call.findMany({
+      where: {
+        startTime: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      select: { id: true },
+    });
+
+    if (calls.length === 0) {
+      return 0;
+    }
+
+    const callIds = calls.map((c) => c.id);
+
+    // Delete related records first (FK constraints)
+    await this.db.callAnalysis.deleteMany({
+      where: { callId: { in: callIds } },
+    });
+
+    await this.db.processingLog.deleteMany({
+      where: { callId: { in: callIds } },
+    });
+
+    // Delete calls
+    const result = await this.db.call.deleteMany({
+      where: { id: { in: callIds } },
+    });
+
+    return result.count;
+  }
 }

@@ -274,4 +274,31 @@ export class CallAnalysisController {
     await this.callGroupingService.unlinkCall(id);
     return { message: 'Call unlinked from group' };
   }
+
+  @Post('calls/bulk-delete')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Delete multiple calls by date range (admin only)' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        dateFrom: { type: 'string', format: 'date', example: '2026-02-09' },
+        dateTo: { type: 'string', format: 'date', example: '2026-02-09' },
+      },
+      required: ['dateFrom', 'dateTo'],
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Calls deleted successfully.',
+  })
+  async bulkDeleteCalls(
+    @Body() body: { dateFrom: string; dateTo: string },
+  ): Promise<{ deleted: number; message: string }> {
+    const deleted = await this.callAnalysisService.bulkDeleteByDateRange(
+      body.dateFrom,
+      body.dateTo,
+    );
+    return { deleted, message: `Deleted ${deleted} calls` };
+  }
 }
