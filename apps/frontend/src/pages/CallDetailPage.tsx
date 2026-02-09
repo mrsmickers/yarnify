@@ -19,7 +19,7 @@ import {
   getCallAnalysisControllerGetCallsQueryKey,
   storageControllerDownloadCallTranscript,
 } from '@/api/api-client'
-import { Loader2, ArrowLeft, Pause, Play, Download, PhoneIncoming, PhoneOutgoing, Phone, ArrowRightLeft, AlertTriangle } from 'lucide-react'
+import { Loader2, ArrowLeft, Pause, Play, Download, PhoneIncoming, PhoneOutgoing, Phone, ArrowRightLeft, AlertTriangle, GitBranch, Clock, User } from 'lucide-react'
 import { toast } from 'sonner'
 import type { AxiosError } from 'axios'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -543,6 +543,103 @@ const CallDetailPage = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Related Calls (Transfer Chain) */}
+      {((callDetails as any).isTransferred || (callDetails as any).relatedCalls?.length > 0) && (
+        <Card className="border border-purple-500/30 bg-card/70 backdrop-blur-sm dark:border-purple-500/30">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <GitBranch className="h-5 w-5 text-purple-400" />
+              <CardTitle>Transfer chain</CardTitle>
+            </div>
+            <CardDescription>
+              This call was transferred. Viewing leg {(callDetails as any).callLegOrder} of {(callDetails as any).groupSize} in the chain.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="relative space-y-4">
+              {/* Current call indicator */}
+              <div className="flex items-start gap-4">
+                <div className="flex flex-col items-center">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-500 text-white text-sm font-bold">
+                    {(callDetails as any).callLegOrder}
+                  </div>
+                  {(callDetails as any).relatedCalls?.length > 0 && (
+                    <div className="mt-2 h-full w-0.5 bg-purple-500/30" />
+                  )}
+                </div>
+                <div className="flex-1 rounded-lg border-2 border-purple-500/50 bg-purple-500/10 p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="bg-purple-500/20 text-purple-400">
+                        Current call
+                      </Badge>
+                      <span className="text-sm font-medium text-foreground">
+                        {callDetails.agentName || 'Unknown agent'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      {callDetails.duration ? formatTime(callDetails.duration) : 'N/A'}
+                    </div>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {new Date(callDetails.startTime).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+
+              {/* Related calls */}
+              {(callDetails as any).relatedCalls?.map((related: any, index: number) => (
+                <div key={related.id} className="flex items-start gap-4">
+                  <div className="flex flex-col items-center">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-purple-500/50 bg-background text-sm font-medium text-purple-400">
+                      {related.callLegOrder}
+                    </div>
+                    {index < (callDetails as any).relatedCalls.length - 1 && (
+                      <div className="mt-2 h-full w-0.5 bg-purple-500/30" />
+                    )}
+                  </div>
+                  <Link
+                    to={`/calls/${related.id}`}
+                    className="flex-1 rounded-lg border border-border/60 bg-muted/20 p-4 transition-colors hover:bg-muted/40 hover:border-purple-500/30"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-medium text-foreground">
+                          {related.agentName || 'Unknown agent'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        {related.duration ? formatTime(related.duration) : 'N/A'}
+                      </div>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {new Date(related.startTime).toLocaleString()}
+                    </p>
+                    {related.analysis?.sentiment && (
+                      <Badge
+                        variant="outline"
+                        className={`mt-2 text-[10px] ${
+                          related.analysis.sentiment === 'Positive'
+                            ? 'border-green-500/30 text-green-400'
+                            : related.analysis.sentiment === 'Negative'
+                            ? 'border-red-500/30 text-red-400'
+                            : 'border-yellow-500/30 text-yellow-400'
+                        }`}
+                      >
+                        {related.analysis.sentiment}
+                      </Badge>
+                    )}
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {callDetails?.transcriptUrl ? (
         <Card className="border border-border/80 bg-card/70 backdrop-blur-sm dark:border-[#242F3F]">

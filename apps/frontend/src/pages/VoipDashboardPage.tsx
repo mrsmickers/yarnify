@@ -27,6 +27,7 @@ import {
   RefreshCcwIcon,
   RotateCcwIcon,
   UserCircle2,
+  ArrowRightLeft,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import dayjs from 'dayjs'
@@ -66,6 +67,10 @@ interface TransformedCallLog {
   mood: string
   agentName: string
   aiConfidence: string
+  // Transfer fields
+  isTransferred: boolean
+  callLegOrder?: number
+  groupSize?: number
 }
 
 const SCOPE_LABELS: Record<string, string> = {
@@ -226,6 +231,10 @@ const VoipDashboardPage = () => {
             mood,
             agentName: call.agentName || 'N/A',
             aiConfidence,
+            // Transfer fields
+            isTransferred: !!(call as any).isTransferred,
+            callLegOrder: (call as any).callLegOrder,
+            groupSize: (call as any).groupSize,
           }
         }
       )
@@ -311,6 +320,22 @@ const VoipDashboardPage = () => {
     {
       accessorKey: 'time',
       header: 'Time',
+    },
+    {
+      id: 'transfer',
+      header: '',
+      cell: ({ row }) => {
+        if (!row.original.isTransferred) return null
+        return (
+          <span
+            className="inline-flex items-center gap-1 rounded-full bg-purple-500/15 px-2 py-0.5 text-[10px] font-medium text-purple-400 border border-purple-500/30"
+            title={`Transferred call (leg ${row.original.callLegOrder} of ${row.original.groupSize})`}
+          >
+            <ArrowRightLeft className="h-3 w-3" />
+            {row.original.groupSize}
+          </span>
+        )
+      },
     },
     {
       accessorKey: 'companyName',

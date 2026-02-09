@@ -11,6 +11,7 @@ import {
   UserCircle2,
   AlertCircle,
   Ticket,
+  ArrowRightLeft,
 } from 'lucide-react'
 
 import {
@@ -53,6 +54,10 @@ interface TransformedCallLog {
   mood: string
   aiConfidence: string
   summary: string // For pushing to CW tickets
+  // Transfer fields
+  isTransferred: boolean
+  callLegOrder?: number
+  groupSize?: number
 }
 
 interface MyCallsResponse {
@@ -231,6 +236,10 @@ const MyCallsPage = () => {
             ? `${analysisData.confidence_level}`
             : 'N/A',
           summary: (analysisData.summary as string) || '',
+          // Transfer fields
+          isTransferred: !!(call as any).isTransferred,
+          callLegOrder: (call as any).callLegOrder,
+          groupSize: (call as any).groupSize,
         }
       })
       setCallLogs(logs)
@@ -270,6 +279,22 @@ const MyCallsPage = () => {
   const columns: ColumnDef<TransformedCallLog>[] = [
     { accessorKey: 'date', header: 'Date' },
     { accessorKey: 'time', header: 'Time' },
+    {
+      id: 'transfer',
+      header: '',
+      cell: ({ row }) => {
+        if (!row.original.isTransferred) return null
+        return (
+          <span
+            className="inline-flex items-center gap-1 rounded-full bg-purple-500/15 px-2 py-0.5 text-[10px] font-medium text-purple-400 border border-purple-500/30"
+            title={`Transferred call (leg ${row.original.callLegOrder} of ${row.original.groupSize})`}
+          >
+            <ArrowRightLeft className="h-3 w-3" />
+            {row.original.groupSize}
+          </span>
+        )
+      },
+    },
     { accessorKey: 'companyName', header: 'Company' },
     {
       accessorKey: 'sentiment',
