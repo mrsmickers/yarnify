@@ -437,16 +437,29 @@ export function AppShell({ children }: AppShellProps) {
                   {userDepartment}
                 </p>
               ) : null}
-              <NavLink
-                to="/settings"
-                className={cn(
-                  'mt-1 text-xs font-medium text-[#DEDC00] transition-colors hover:text-[#F8AB08]',
-                  theme === 'light' && 'text-[#824192] hover:text-[#9C4BB3]'
-                )}
-                onClick={closeMobileSidebar}
-              >
-                View preferences
-              </NavLink>
+              <div className="mt-1 flex items-center gap-2">
+                <NavLink
+                  to="/settings"
+                  className={cn(
+                    'text-xs font-medium text-[#DEDC00] transition-colors hover:text-[#F8AB08]',
+                    theme === 'light' && 'text-[#824192] hover:text-[#9C4BB3]'
+                  )}
+                  onClick={closeMobileSidebar}
+                >
+                  Preferences
+                </NavLink>
+                <span className="text-white/30">·</span>
+                <NavLink
+                  to="/logout"
+                  className={cn(
+                    'text-xs font-medium text-white/50 transition-colors hover:text-red-400',
+                    theme === 'light' && 'text-gray-500 hover:text-red-500'
+                  )}
+                  onClick={closeMobileSidebar}
+                >
+                  Logout
+                </NavLink>
+              </div>
             </div>
           )}
         </div>
