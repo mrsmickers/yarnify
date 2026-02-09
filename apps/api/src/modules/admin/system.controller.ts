@@ -1,4 +1,5 @@
 import { Controller, Get, UseGuards, Logger } from '@nestjs/common';
+import { JwtOrStagingGuard } from '../../common/guards/jwt-or-staging.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
@@ -9,7 +10,7 @@ import { AdminService } from './admin.service';
 @ApiTags('System')
 @ApiBearerAuth()
 @Controller('system')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(JwtOrStagingGuard)
 export class SystemController {
   private readonly logger = new Logger(SystemController.name);
 

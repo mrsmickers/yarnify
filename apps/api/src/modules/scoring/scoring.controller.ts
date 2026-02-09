@@ -11,6 +11,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtOrStagingGuard } from '../../common/guards/jwt-or-staging.guard';
 import {
   ApiTags,
   ApiOperation,
@@ -33,7 +34,7 @@ import {
 @ApiTags('Scoring')
 @ApiBearerAuth()
 @Controller()
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(JwtOrStagingGuard, RolesGuard)
 export class ScoringController {
   private readonly logger = new Logger(ScoringController.name);
 

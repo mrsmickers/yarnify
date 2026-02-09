@@ -9,6 +9,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { JwtOrStagingGuard } from '../../common/guards/jwt-or-staging.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -19,7 +20,7 @@ import { ZodValidationPipe } from 'nestjs-zod';
 
 @ApiTags('admin-agents')
 @Controller('admin/agents')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(JwtOrStagingGuard, RolesGuard)
 @Roles('admin')
 export class AdminAgentsController {
   private readonly logger = new Logger(AdminAgentsController.name);

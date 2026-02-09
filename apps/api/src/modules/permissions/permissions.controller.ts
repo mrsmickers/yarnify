@@ -9,6 +9,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtOrStagingGuard } from '../../common/guards/jwt-or-staging.guard';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -20,7 +21,7 @@ import { SetUserOverridesDto, SetUserOverridesSchema } from './dto/set-user-over
 @ApiTags('Permissions')
 @ApiBearerAuth()
 @Controller()
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(JwtOrStagingGuard)
 export class PermissionsController {
   private readonly logger = new Logger(PermissionsController.name);
 

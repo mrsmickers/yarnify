@@ -10,6 +10,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtOrStagingGuard } from '../../common/guards/jwt-or-staging.guard';
 import { AgentAccessService } from './agent-access.service';
 import { PermissionsService } from '../permissions/permissions.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -20,7 +21,7 @@ import {
 } from './dto/agent-access.dto';
 
 @Controller('api/v1/admin/agent-access')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(JwtOrStagingGuard)
 export class AgentAccessController {
   private readonly logger = new Logger(AgentAccessController.name);
 

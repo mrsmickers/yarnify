@@ -13,6 +13,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtOrStagingGuard } from '../../common/guards/jwt-or-staging.guard';
 import {
   ApiTags,
   ApiOperation,
@@ -41,7 +42,7 @@ import {
 @ApiTags('Admin - Sentiment Alerts')
 @ApiBearerAuth()
 @Controller('admin/sentiment-alerts')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(JwtOrStagingGuard, RolesGuard)
 @Roles('admin')
 export class SentimentAlertsController {
   private readonly logger = new Logger(SentimentAlertsController.name);

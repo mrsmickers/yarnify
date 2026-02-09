@@ -11,6 +11,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtOrStagingGuard } from '../../common/guards/jwt-or-staging.guard';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { ConnectwiseManageService } from './connectwise-manage.service';
@@ -28,7 +29,7 @@ import { AuditService } from '../audit/audit.service';
 @ApiTags('ConnectWise')
 @ApiBearerAuth()
 @Controller('connectwise')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(JwtOrStagingGuard)
 export class ConnectwiseManageController {
   private readonly logger = new Logger(ConnectwiseManageController.name);
 

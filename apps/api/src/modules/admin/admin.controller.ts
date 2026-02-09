@@ -13,6 +13,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtOrStagingGuard } from '../../common/guards/jwt-or-staging.guard';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Request } from 'express';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -46,7 +47,7 @@ import { JwtPayload } from '../../common/interfaces/cls-store.interface';
 @ApiTags('Admin')
 @ApiBearerAuth()
 @Controller('admin')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(JwtOrStagingGuard, RolesGuard)
 @Roles('admin')
 export class AdminController {
   private readonly logger = new Logger(AdminController.name);

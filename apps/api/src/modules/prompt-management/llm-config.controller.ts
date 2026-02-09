@@ -12,6 +12,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtOrStagingGuard } from '../../common/guards/jwt-or-staging.guard';
 import {
   ApiTags,
   ApiOperation,
@@ -34,7 +35,7 @@ import {
 @ApiTags('Admin - LLM Configuration')
 @ApiBearerAuth()
 @Controller('admin/llm-configs')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(JwtOrStagingGuard, RolesGuard)
 @Roles('admin')
 export class LLMConfigController {
   private readonly logger = new Logger(LLMConfigController.name);

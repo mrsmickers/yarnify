@@ -7,6 +7,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtOrStagingGuard } from '../../common/guards/jwt-or-staging.guard';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { AiRewriteService } from './ai-rewrite.service';
@@ -19,7 +20,7 @@ import {
 @ApiTags('AI')
 @ApiBearerAuth()
 @Controller('ai')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(JwtOrStagingGuard)
 export class AiRewriteController {
   private readonly logger = new Logger(AiRewriteController.name);
 

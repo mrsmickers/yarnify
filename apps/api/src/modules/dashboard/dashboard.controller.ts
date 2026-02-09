@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtOrStagingGuard } from '../../common/guards/jwt-or-staging.guard';
 import { ApiTags, ApiOperation, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { DashboardService } from './dashboard.service';
 import { Request } from 'express';
@@ -15,7 +16,7 @@ import { JwtPayload } from '../../common/interfaces/cls-store.interface';
 @ApiTags('Dashboard')
 @ApiBearerAuth()
 @Controller('dashboard')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(JwtOrStagingGuard)
 export class DashboardController {
   private readonly logger = new Logger(DashboardController.name);
 

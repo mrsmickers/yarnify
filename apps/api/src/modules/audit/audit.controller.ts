@@ -7,6 +7,7 @@ import {
   Param,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtOrStagingGuard } from '../../common/guards/jwt-or-staging.guard';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -15,7 +16,7 @@ import { AuditService } from './audit.service';
 @ApiTags('Audit')
 @ApiBearerAuth()
 @Controller('admin/audit')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(JwtOrStagingGuard, RolesGuard)
 @Roles('admin')
 export class AuditController {
   private readonly logger = new Logger(AuditController.name);

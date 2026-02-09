@@ -13,6 +13,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtOrStagingGuard } from '../../common/guards/jwt-or-staging.guard';
 import {
   ApiTags,
   ApiOperation,
@@ -35,7 +36,7 @@ import {
 @ApiTags('Admin - Training Rules')
 @ApiBearerAuth()
 @Controller('admin/training-rules')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(JwtOrStagingGuard, RolesGuard)
 @Roles('admin')
 export class TrainingRulesController {
   private readonly logger = new Logger(TrainingRulesController.name);

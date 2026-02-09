@@ -9,6 +9,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtOrStagingGuard } from '../../common/guards/jwt-or-staging.guard';
 import {
   ApiTags,
   ApiOperation,
@@ -27,7 +28,7 @@ import {
 @ApiTags('Admin - Company Info')
 @ApiBearerAuth()
 @Controller('admin/company-info')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(JwtOrStagingGuard, RolesGuard)
 @Roles('admin')
 export class CompanyInfoController {
   private readonly logger = new Logger(CompanyInfoController.name);

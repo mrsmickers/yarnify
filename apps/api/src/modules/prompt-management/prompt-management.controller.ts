@@ -12,6 +12,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtOrStagingGuard } from '../../common/guards/jwt-or-staging.guard';
 import {
   ApiTags,
   ApiOperation,
@@ -35,7 +36,7 @@ import {
 @ApiTags('Admin - Prompt Management')
 @ApiBearerAuth()
 @Controller('admin/prompts')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(JwtOrStagingGuard, RolesGuard)
 @Roles('admin')
 export class PromptManagementController {
   private readonly logger = new Logger(PromptManagementController.name);

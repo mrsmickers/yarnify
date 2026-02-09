@@ -12,6 +12,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { JwtOrStagingGuard } from '../../common/guards/jwt-or-staging.guard';
 import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from '@nestjs/passport';
@@ -95,7 +96,7 @@ export class AuthController {
     }
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtOrStagingGuard)
   @Get('profile')
   async getProfile(@Req() req: Request) {
     const payload = req.user as JwtPayload | undefined;
@@ -146,7 +147,7 @@ export class AuthController {
     };
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtOrStagingGuard)
   @Patch('me/context-box')
   @ApiOperation({ summary: 'Update own context box' })
   @ApiResponse({ status: 200, description: 'Context box updated.' })
@@ -191,7 +192,7 @@ export class AuthController {
     };
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtOrStagingGuard)
   @Post('logout')
   async logout(@Req() req: Request, @Res() res: Response) {
     const payload = req.user as JwtPayload | undefined;

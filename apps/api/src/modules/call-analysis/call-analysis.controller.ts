@@ -12,6 +12,7 @@ import {
   HttpCode, // Added HttpCode
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { JwtOrStagingGuard } from '../../common/guards/jwt-or-staging.guard';
 import { CallAnalysisService } from './call-analysis.service';
 import { AuditService } from '../audit/audit.service';
 import {
@@ -25,7 +26,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { JwtPayload } from '../../common/interfaces/cls-store.interface';
 
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(JwtOrStagingGuard)
 @ApiTags('Call Analysis')
 @Controller('call-analysis')
 export class CallAnalysisController {
