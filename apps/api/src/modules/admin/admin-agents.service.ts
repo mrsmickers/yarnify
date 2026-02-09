@@ -356,6 +356,93 @@ export class AdminAgentsService {
   }
 
   /**
+   * Propagate agent attribution from queue legs to primary (external) calls within groups.
+   * For grouped calls where the primary leg doesn't have an agent but the queue leg does,
+   * copy the agent from the queue→phone leg to the external→number leg.
+   */
+  async propagateAgentsFromQueueLegs(): Promise<{
+    propagated: number;
+    skipped: number;
+  }> {
+    this.logger.log('Starting agent propagation from queue legs...');
+
+    let propagated = 0;
+    let skipped = 0;
+
+    // Find all grouped calls where primary (sourceType=external) has no agent
+    const primaryCallsWithoutAgent = await this.prisma.call.findMany({
+      where: {
+        callGroupId: { not: null },
+        sourceType: 'external',
+        agentsId: null,
+      },
+      select: {
+        id: true,
+        callGroupId: true,
+        callSid: true,
+      },
+    });
+
+    this.logger.log(`Found ${primaryCallsWithoutAgent.length} grouped primary calls without agents`);
+
+    for (const primaryCall of primaryCallsWithoutAgent) {
+      // Find the queue→phone leg in the same group that has an agent or destination extension
+      const queueLeg = await this.prisma.call.findFirst({
+        where: {
+          callGroupId: primaryCall.callGroupId,
+          sourceType: 'queue',
+          destinationType: 'phone',
+        },
+        select: {
+          id: true,
+          destinationNumber: true,
+          agentsId: true,
+        },
+      });
+
+      if (!queueLeg) {
+        this.logger.debug(`No queue leg found for group ${primaryCall.callGroupId}`);
+        skipped++;
+        continue;
+      }
+
+      let agentId = queueLeg.agentsId;
+
+      // If queue leg doesn't have agent, try to find by destination extension
+      if (!agentId && queueLeg.destinationNumber) {
+        const agent = await this.agentRepository.findByExtension(queueLeg.destinationNumber);
+        if (agent) {
+          agentId = agent.id;
+          // Also update the queue leg with the agent
+          await this.prisma.call.update({
+            where: { id: queueLeg.id },
+            data: { agentsId: agent.id },
+          });
+          this.logger.log(`Linked queue leg ${queueLeg.id} to agent ${agent.name}`);
+        }
+      }
+
+      if (!agentId) {
+        this.logger.debug(`Could not determine agent for group ${primaryCall.callGroupId} (dest=${queueLeg.destinationNumber})`);
+        skipped++;
+        continue;
+      }
+
+      // Update primary call with agent
+      await this.prisma.call.update({
+        where: { id: primaryCall.id },
+        data: { agentsId: agentId },
+      });
+
+      propagated++;
+      this.logger.log(`Propagated agent to primary call ${primaryCall.callSid} from queue leg`);
+    }
+
+    this.logger.log(`Agent propagation complete: ${propagated} propagated, ${skipped} skipped`);
+    return { propagated, skipped };
+  }
+
+  /**
    * Get agent statistics including detailed call counts
    */
   async getAgentStats(): Promise<{

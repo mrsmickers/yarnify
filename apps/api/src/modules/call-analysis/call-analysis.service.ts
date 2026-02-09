@@ -496,7 +496,7 @@ Rules:
 
     const total = await this.callRepository.count({ where });
 
-    // Get group sizes for transferred calls
+    // Get group sizes for transferred calls (excluding queue legs - those are internal routing, not real transfers)
     const groupIds = calls
       .map((c: any) => c.callGroupId)
       .filter((id): id is string => !!id);
@@ -505,7 +505,10 @@ Rules:
     const groupCounts: Array<{ callGroupId: string; _count: number }> = groupIds.length > 0
       ? await (this.db.call.groupBy as any)({
           by: ['callGroupId'],
-          where: { callGroupId: { in: groupIds } },
+          where: { 
+            callGroupId: { in: groupIds },
+            sourceType: { not: 'queue' }, // Don't count queue legs as transfers
+          },
           _count: true,
         })
       : [];
@@ -638,10 +641,10 @@ Rules:
       }));
     }
 
-    // Count group size
+    // Count group size (excluding queue legs - those are internal routing, not real transfers)
     const groupSize = (call as any).callGroupId
       // @ts-ignore - new fields not in Prisma types yet
-      ? await this.db.call.count({ where: { callGroupId: (call as any).callGroupId } as any })
+      ? await this.db.call.count({ where: { callGroupId: (call as any).callGroupId, sourceType: { not: 'queue' } } as any })
       : 1;
 
     // Map to CallResponseDto, similar to getCalls
@@ -884,11 +887,14 @@ Rules:
       this.db.call.count({ where }),
     ]);
 
-    // Get group sizes for transferred calls
+    // Get group sizes for transferred calls (excluding queue legs - those are internal routing, not real transfers)
     // @ts-ignore - new fields not in Prisma types yet
     const groupCounts: Array<{ callGroupId: string; _count: number }> = await (this.db.call.groupBy as any)({
       by: ['callGroupId'],
-      where: { callGroupId: { in: calls.map((c: any) => c.callGroupId).filter((id: any): id is string => !!id) } },
+      where: { 
+        callGroupId: { in: calls.map((c: any) => c.callGroupId).filter((id: any): id is string => !!id) },
+        sourceType: { not: 'queue' }, // Don't count queue legs as transfers
+      },
       _count: true,
     });
     const groupSizeMap = new Map(groupCounts.map((g: any) => [g.callGroupId, g._count]));

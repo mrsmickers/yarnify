@@ -73,6 +73,17 @@ export class AdminAgentsController {
     return this.adminAgentsService.linkCallsToAgents();
   }
 
+  @Get('propagate-agents')
+  @ApiOperation({ summary: 'Propagate agent attribution from queue legs to primary calls (admin only)' })
+  @ApiResponse({
+    status: 200,
+    description: 'For grouped calls, copies agent from queue→phone leg to external→number leg',
+  })
+  async propagateAgentsFromQueueLegs() {
+    this.logger.log('Triggering agent propagation from queue legs');
+    return this.adminAgentsService.propagateAgentsFromQueueLegs();
+  }
+
   @Get('stats')
   @ApiOperation({ summary: 'Get agent statistics including call counts (admin only)' })
   @ApiResponse({
