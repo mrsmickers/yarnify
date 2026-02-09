@@ -467,6 +467,11 @@ Rules:
         notIn: ['INTERNAL_CALL_SKIPPED'], // Default statuses to include
       };
     }
+    
+    // Exclude queue legs from main list - these are internal routing steps, not primary calls
+    // Queue legs are shown in the call detail timeline view for grouped/transferred calls
+    where.sourceType = { not: 'queue' };
+    
     if (searchTerm) {
       where.OR = [
         { callSid: { contains: searchTerm, mode: 'insensitive' } },

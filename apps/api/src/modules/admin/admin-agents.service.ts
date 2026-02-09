@@ -126,7 +126,15 @@ export class AdminAgentsService {
 
       for (const ext of extensions) {
         const extension = ext.name;
-        const name = ext.callername_internal || ext.display || ext.name;
+        // Extract name: prefer callername_internal, then parse display (which may include extension prefix)
+        let name = ext.callername_internal;
+        if (!name && ext.display) {
+          // display format is often "563601015 Louise Maskell" - strip the extension prefix
+          name = ext.display.replace(/^\d+\s*/, '').trim() || ext.display;
+        }
+        if (!name) {
+          name = ext.name;
+        }
         const email = ext.missedemail || null;
 
         this.logger.debug(
