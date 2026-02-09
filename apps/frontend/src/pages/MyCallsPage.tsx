@@ -58,6 +58,11 @@ interface TransformedCallLog {
   isTransferred: boolean
   callLegOrder?: number
   groupSize?: number
+  // Transfer detection fields (from LLM)
+  transferredToAgentName?: string | null
+  transferNote?: string | null
+  wasTransferRecipient?: boolean // True if this call was transferred TO the current user
+  agentName?: string | null // The primary agent on the call
 }
 
 interface MyCallsResponse {
@@ -240,6 +245,15 @@ const MyCallsPage = () => {
           isTransferred: !!(call as any).isTransferred,
           callLegOrder: (call as any).callLegOrder,
           groupSize: (call as any).groupSize,
+          // Transfer detection fields
+          transferredToAgentName: (call as any).transferredToAgentName,
+          transferNote: (call as any).transferNote,
+          // If we're seeing this call and we're the transferredToAgent (not the primary agent),
+          // then this call was transferred TO us
+          wasTransferRecipient: !!(call as any).transferredToAgentName && 
+            myCallsData.agentName && 
+            (call as any).transferredToAgentName?.toLowerCase() === myCallsData.agentName?.toLowerCase(),
+          agentName: (call as any).agentName,
         }
       })
       setCallLogs(logs)
@@ -283,14 +297,43 @@ const MyCallsPage = () => {
       id: 'transfer',
       header: '',
       cell: ({ row }) => {
-        if (!row.original.isTransferred) return null
+        const { isTransferred, wasTransferRecipient, transferredToAgentName, transferNote, groupSize, callLegOrder, agentName } = row.original
+        
+        // Show "Received" badge if this call was transferred TO the current user (LLM-detected)
+        if (wasTransferRecipient) {
+          return (
+            <span
+              className="inline-flex items-center gap-1 rounded-full bg-blue-500/15 px-2 py-0.5 text-[10px] font-medium text-blue-400 border border-blue-500/30"
+              title={transferNote || `Transferred from ${agentName || 'another agent'}`}
+            >
+              <ArrowRightLeft className="h-3 w-3" />
+              Received
+            </span>
+          )
+        }
+        
+        // Show "Transferred" badge with target agent if call was transferred OUT
+        if (transferredToAgentName) {
+          return (
+            <span
+              className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-medium text-amber-400 border border-amber-500/30"
+              title={transferNote || `Transferred to ${transferredToAgentName}`}
+            >
+              <ArrowRightLeft className="h-3 w-3" />
+              → {transferredToAgentName}
+            </span>
+          )
+        }
+        
+        // Show generic transfer badge for grouped calls without LLM detection
+        if (!isTransferred) return null
         return (
           <span
             className="inline-flex items-center gap-1 rounded-full bg-purple-500/15 px-2 py-0.5 text-[10px] font-medium text-purple-400 border border-purple-500/30"
-            title={`Transferred call (leg ${row.original.callLegOrder} of ${row.original.groupSize})`}
+            title={`Transferred call (leg ${callLegOrder} of ${groupSize})`}
           >
             <ArrowRightLeft className="h-3 w-3" />
-            {row.original.groupSize}
+            {groupSize}
           </span>
         )
       },

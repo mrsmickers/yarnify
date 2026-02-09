@@ -11,4 +11,9 @@ export interface ExtendedCallResponseDto extends BaseCallResponseDto {
   relatedCalls?: ExtendedCallResponseDto[]
   sourceType?: string
   destinationType?: string
+  // Transfer detection fields (LLM-detected from transcript)
+  transferredToAgentName?: string | null
+  transferredToAgentId?: string | null
+  transferNote?: string | null
+  transferDetectedAt?: string | null
 }

@@ -393,6 +393,9 @@ const CallDetailPage = () => {
                 {
                   label: 'Agent',
                   value: callDetails.agentName || 'N/A',
+                  sublabel: (callDetails as any).transferredToAgentName 
+                    ? `➜ Transferred to ${(callDetails as any).transferredToAgentName}${(callDetails as any).transferNote ? ` (${(callDetails as any).transferNote})` : ''}`
+                    : undefined,
                 },
                 {
                   label: 'Client',
