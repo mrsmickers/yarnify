@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { AgentAccessService } from '../agent-access/agent-access.service';
 import { Prisma } from '@db';
 
 interface DateRange {
@@ -10,6 +11,7 @@ interface DateRange {
 interface UserContext {
   role: string;
   userId: string;
+  entraUserId?: string;
   department?: string | null;
 }
 
@@ -17,28 +19,31 @@ interface UserContext {
 export class DashboardService {
   private readonly logger = new Logger(DashboardService.name);
 
-  constructor(private readonly db: PrismaService) {}
+  constructor(
+    private readonly db: PrismaService,
+    private readonly agentAccessService: AgentAccessService,
+  ) {}
 
   /**
-   * Look up the user's role and department from EntraUser table
+   * Look up the user's role, department, and ID from EntraUser table
    */
   async getUserContext(
     oid: string,
-  ): Promise<{ role: string; department: string | null } | null> {
+  ): Promise<{ id: string; role: string; department: string | null; entraUserId: string } | null> {
     const user = await this.db.entraUser.findUnique({
       where: { oid },
-      select: { role: true, department: true },
+      select: { id: true, role: true, department: true },
     });
-    return user ? { role: user.role, department: user.department } : null;
+    return user ? { id: user.id, role: user.role, department: user.department, entraUserId: user.id } : null;
   }
 
   /**
-   * Build the role-based where clause for scoping calls by user
+   * Build the agent-based where clause for scoping calls by user access
    */
-  private buildScopedWhere(
+  private async buildScopedWhere(
     dateRange: DateRange,
     userContext?: UserContext,
-  ): Prisma.CallWhereInput {
+  ): Promise<Prisma.CallWhereInput> {
     const where: Prisma.CallWhereInput = {
       callStatus: { notIn: ['INTERNAL_CALL_SKIPPED'] },
     };
@@ -58,27 +63,21 @@ export class DashboardService {
       }
     }
 
-    // Role-based scoping
+    // Agent-based access control
     if (userContext && userContext.role !== 'admin') {
-      if (
-        userContext.role === 'manager' ||
-        userContext.role === 'team_lead'
-      ) {
-        if (userContext.department) {
-          where.Agents = {
-            entraUser: {
-              department: {
-                equals: userContext.department,
-                mode: 'insensitive',
-              },
-            },
-          };
+      const entraUserId = userContext.entraUserId;
+      if (entraUserId) {
+        const accessibleAgentIds = await this.agentAccessService.getAccessibleAgentIds(entraUserId);
+        
+        if (accessibleAgentIds.length === 0) {
+          // User has no agent access — return impossible condition
+          where.id = { equals: 'NO_ACCESS' };
         } else {
-          where.Agents = {
-            entraUser: { oid: userContext.userId },
-          };
+          // Filter to only accessible agents
+          where.agentsId = { in: accessibleAgentIds };
         }
       } else {
+        // Fallback to OID-based lookup for backward compatibility
         where.Agents = {
           entraUser: { oid: userContext.userId },
         };
@@ -92,7 +91,7 @@ export class DashboardService {
    * Overview stats: total calls, avg sentiment, avg confidence, calls by direction, top agents
    */
   async getOverviewStats(dateRange: DateRange, userContext?: UserContext) {
-    const where = this.buildScopedWhere(dateRange, userContext);
+    const where = await this.buildScopedWhere(dateRange, userContext);
 
     // Total calls & duration
     const callAgg = await this.db.call.aggregate({
@@ -196,7 +195,7 @@ export class DashboardService {
    * Sentiment breakdown: count by sentiment value
    */
   async getSentimentBreakdown(dateRange: DateRange, userContext?: UserContext) {
-    const where = this.buildScopedWhere(dateRange, userContext);
+    const where = await this.buildScopedWhere(dateRange, userContext);
 
     const callsWithAnalysis = await this.db.call.findMany({
       where: {
@@ -238,7 +237,7 @@ export class DashboardService {
     granularity: 'day' | 'week' = 'day',
     userContext?: UserContext,
   ) {
-    const where = this.buildScopedWhere(dateRange, userContext);
+    const where = await this.buildScopedWhere(dateRange, userContext);
 
     const calls = await this.db.call.findMany({
       where,
@@ -275,7 +274,7 @@ export class DashboardService {
    * Agent performance: calls per agent, avg sentiment per agent
    */
   async getAgentPerformance(dateRange: DateRange, userContext?: UserContext) {
-    const where = this.buildScopedWhere(dateRange, userContext);
+    const where = await this.buildScopedWhere(dateRange, userContext);
 
     const calls = await this.db.call.findMany({
       where: {
@@ -352,7 +351,7 @@ export class DashboardService {
     limit = 10,
     userContext?: UserContext,
   ) {
-    const where = this.buildScopedWhere(dateRange, userContext);
+    const where = await this.buildScopedWhere(dateRange, userContext);
 
     const companyGroups = await this.db.call.groupBy({
       by: ['companyId'],

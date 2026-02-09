@@ -100,6 +100,9 @@ export class CallResponseDto {
   @ApiPropertyOptional()
   companyId?: string;
 
+  @ApiPropertyOptional({ description: 'Company name if available' })
+  companyName?: string;
+
   @ApiPropertyOptional({ description: 'Call direction: INBOUND, OUTBOUND, INTERNAL, or UNKNOWN' })
   callDirection?: string;
 

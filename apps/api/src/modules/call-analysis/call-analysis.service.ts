@@ -21,6 +21,7 @@ import { PromptManagementService } from '../prompt-management/prompt-management.
 import { PromptVariableResolverService } from '../prompt-management/prompt-variable-resolver.service';
 import { LLMConfigService } from '../prompt-management/llm-config.service';
 import { CompanyInfoService } from '../company-info/company-info.service';
+import { AgentAccessService } from '../agent-access/agent-access.service';
 // Removed: import { Prisma } from '../../../../generated/prisma';
 
 @Injectable()
@@ -36,6 +37,7 @@ export class CallAnalysisService {
     private readonly llmConfigService: LLMConfigService,
     private readonly variableResolver: PromptVariableResolverService,
     private readonly companyInfoService: CompanyInfoService,
+    private readonly agentAccessService: AgentAccessService, // For per-agent access control
   ) {}
   
   /**
@@ -363,15 +365,13 @@ Rules:
   }
 
   /**
-   * User context for role-based call scoping.
+   * User context for agent-based call scoping.
    * - admin: sees all calls
-   * - manager: sees calls for agents in the same department
-   * - team_lead: same as manager for now (can be refined later)
-   * - user: sees only their own calls (via linked agent)
+   * - others: see calls for agents they have access to (own + granted)
    */
   async getCalls(
     query: GetCallsQueryDto,
-    userContext?: { role: string; userId: string; department?: string | null },
+    userContext?: { role: string; userId: string; entraUserId?: string; department?: string | null },
   ): Promise<PaginatedCallsResponseDto> {
     const {
       page = 1,
@@ -389,26 +389,34 @@ Rules:
 
     const where: Prisma.CallWhereInput = {}; // Use Prisma.CallWhereInput
 
-    // Apply role-based scoping if userContext is provided
+    // Apply agent-based access control if userContext is provided
     if (userContext && userContext.role !== 'admin') {
-      if (userContext.role === 'manager' || userContext.role === 'team_lead') {
-        // Manager/Team Lead: see calls for agents in their department
-        if (userContext.department) {
-          where.Agents = {
-            entraUser: {
-              department: { equals: userContext.department, mode: 'insensitive' },
-            },
-          };
-        } else {
-          // No department set — fall back to own calls only
-          where.Agents = {
-            entraUser: {
-              oid: userContext.userId,
+      // Get all agent IDs this user has access to
+      const entraUserId = userContext.entraUserId;
+      if (entraUserId) {
+        const accessibleAgentIds = await this.agentAccessService.getAccessibleAgentIds(entraUserId);
+        
+        if (accessibleAgentIds.length === 0) {
+          // User has no agent access — return empty result
+          return {
+            data: [],
+            total: 0,
+            page,
+            limit,
+            totalPages: 0,
+            metrics: {
+              totalPositiveSentiment: 0,
+              totalNegativeSentiment: 0,
+              totalNeutralSentiment: 0,
+              averageConfidence: 0,
             },
           };
         }
+        
+        // Filter to only accessible agents
+        where.agentsId = { in: accessibleAgentIds };
       } else {
-        // Default 'user' role: see only their own calls (via linked agent)
+        // Fallback to OID-based lookup for backward compatibility
         where.Agents = {
           entraUser: {
             oid: userContext.userId,
@@ -714,15 +722,15 @@ Rules:
   }
 
   /**
-   * Look up a user's role and department by their Entra OID.
-   * Used by the controller to build user context for role-based call scoping.
+   * Look up a user's role, department, and ID by their Entra OID.
+   * Used by the controller to build user context for agent-based call scoping.
    */
-  async getUserContext(oid: string): Promise<{ role: string; department: string | null } | null> {
+  async getUserContext(oid: string): Promise<{ id: string; role: string; department: string | null; entraUserId: string } | null> {
     const user = await this.db.entraUser.findUnique({
       where: { oid },
-      select: { role: true, department: true },
+      select: { id: true, role: true, department: true },
     });
-    return user ? { role: user.role, department: user.department } : null;
+    return user ? { id: user.id, role: user.role, department: user.department, entraUserId: user.id } : null;
   }
 
   async getCompanyList(): Promise<CompanyListItemDto[]> {

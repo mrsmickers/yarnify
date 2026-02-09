@@ -44,6 +44,7 @@ model Agent {
   updatedAt     DateTime       @updatedAt
   calls         Call[]
   keywordAlerts KeywordAlert[]
+  userAccess    UserAgentAccess[]
 
   @@index([entraUserId])
 }
@@ -146,11 +147,34 @@ model EntraUser {
   agent        Agent?    // Reverse relation for agent mapping
 
   permissionOverrides UserPermissionOverride[]
+  agentAccess         UserAgentAccess[]
+  auditLogs           AuditLog[]
 
   @@index([email])
   @@index([oid])
   @@index([role])
   @@map("entra_users")
+}
+
+// Audit trail for compliance and security
+model AuditLog {
+  id         String   @id @default(cuid())
+  timestamp  DateTime @default(now())
+  actorId    String?                      // User who performed action (null for system)
+  actorEmail String?                      // Denormalized for quick display
+  action     String                       // e.g., "auth.login", "call.view", "permission.grant"
+  targetType String?                      // e.g., "call", "user", "permission", "config"
+  targetId   String?                      // ID of affected entity
+  targetName String?                      // Denormalized name for display
+  metadata   Json?                        // Additional context (IP, old/new values, etc.)
+
+  actor      EntraUser? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([timestamp])
+  @@index([actorId])
+  @@index([action])
+  @@index([targetType, targetId])
+  @@map("audit_logs")
 }
 
 // Granular permission definitions
@@ -390,4 +414,21 @@ model SentimentAlert {
   @@index([reviewedAt])
   @@index([dismissedAt])
   @@map("sentiment_alerts")
+}
+
+// Per-user access to specific agents' calls (granular call visibility)
+model UserAgentAccess {
+  id        String    @id @default(cuid())
+  userId    String
+  agentId   String
+  grantedAt DateTime  @default(now())
+  grantedBy String?   // Admin who granted access
+
+  user      EntraUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agent     Agent     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, agentId])
+  @@index([userId])
+  @@index([agentId])
+  @@map("user_agent_access")
 }

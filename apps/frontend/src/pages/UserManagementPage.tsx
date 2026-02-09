@@ -4,7 +4,8 @@ import type { ColumnDef } from '@tanstack/react-table'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { toast } from 'sonner'
-import { Loader2, X, Eye } from 'lucide-react'
+import { Loader2, X, Eye, Users2 } from 'lucide-react'
+import AgentAccessModal from '@/components/AgentAccessModal'
 
 import { PageHeader } from '@/components/layout/PageHeader'
 import {
@@ -178,6 +179,7 @@ const UserManagementPage = () => {
   const [impersonatingId, setImpersonatingId] = useState<string | null>(null)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null)
+  const [agentAccessUser, setAgentAccessUser] = useState<AdminUser | null>(null)
 
   const {
     data: users = [],
@@ -540,6 +542,15 @@ const UserManagementPage = () => {
           const canImpersonate = user.role !== 'admin' && user.enabled
           return (
             <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setAgentAccessUser(user)}
+                title="Manage agent access"
+                className="h-8 px-2"
+              >
+                <Users2 className="h-4 w-4" />
+              </Button>
               {canImpersonate && (
                 <Button
                   size="sm"
@@ -757,6 +768,16 @@ const statsCards = [
           onClose={() => setEditingUser(null)}
           onSubmit={(payload) => handleUpdateUser(payload, editingUser.id)}
           isSubmitting={updateUserMutation.isPending}
+        />
+      )}
+
+      {agentAccessUser && (
+        <AgentAccessModal
+          open={!!agentAccessUser}
+          userId={agentAccessUser.id}
+          userName={agentAccessUser.displayName || agentAccessUser.email}
+          userRole={agentAccessUser.role}
+          onClose={() => setAgentAccessUser(null)}
         />
       )}
     </>

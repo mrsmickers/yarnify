@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CallAnalysisService } from './call-analysis.service';
+import { AuditService } from '../audit/audit.service';
 import {
   GetCallsQueryDto,
   PaginatedCallsResponseDto,
@@ -28,7 +29,10 @@ import { JwtPayload } from '../../common/interfaces/cls-store.interface';
 @ApiTags('Call Analysis')
 @Controller('call-analysis')
 export class CallAnalysisController {
-  constructor(private readonly callAnalysisService: CallAnalysisService) {}
+  constructor(
+    private readonly callAnalysisService: CallAnalysisService,
+    private readonly auditService: AuditService,
+  ) {}
 
   @Get('calls')
   @ApiOperation({
@@ -111,11 +115,40 @@ export class CallAnalysisController {
     type: CallResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Call not found.' })
-  async getCallById(@Param('id') id: string): Promise<CallResponseDto> {
+  async getCallById(
+    @Param('id') id: string,
+    @Req() req: Request,
+  ): Promise<CallResponseDto> {
     const call = await this.callAnalysisService.getCallById(id);
     if (!call) {
       throw new NotFoundException(`Call with ID ${id} not found`);
     }
+
+    // Audit log: call viewed
+    const payload = req.user as JwtPayload | undefined;
+    if (payload) {
+      // Look up user ID from OID
+      const userContext = payload.oid
+        ? await this.callAnalysisService.getUserContext(payload.oid)
+        : null;
+
+      this.auditService.log({
+        actorId: userContext?.entraUserId || undefined,
+        actorEmail: payload.email,
+        action: 'call.view',
+        targetType: 'call',
+        targetId: id,
+        targetName: call.externalPhoneNumber || call.callSid,
+        metadata: {
+          callSid: call.callSid,
+          direction: call.callDirection,
+          externalPhoneNumber: call.externalPhoneNumber,
+          agentName: call.agentName,
+          companyId: call.companyId,
+        },
+      }).catch(() => {}); // Fire-and-forget
+    }
+
     return call;
   }
 

@@ -22,6 +22,7 @@ import { PromptManagementModule } from '../prompt-management/prompt-management.m
 import { CompanyInfoModule } from '../company-info/company-info.module';
 import { TrainingRulesModule } from '../training-rules/training-rules.module';
 import { SentimentAlertsModule } from '../sentiment-alerts/sentiment-alerts.module';
+import { AgentAccessModule } from '../agent-access/agent-access.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { SentimentAlertsModule } from '../sentiment-alerts/sentiment-alerts.modu
     CompanyInfoModule, // For CompanyInfoService (prompt injection)
     TrainingRulesModule, // For TrainingRulesService (training rules prompt injection)
     SentimentAlertsModule, // For SentimentAlertsService (post-analysis sentiment alerting)
+    AgentAccessModule, // For per-agent access control
   ],
   controllers: [CallAnalysisController], // Added controller
   providers: [
