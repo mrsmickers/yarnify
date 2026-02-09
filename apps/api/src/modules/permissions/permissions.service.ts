@@ -38,6 +38,27 @@ export class PermissionsService {
   }
 
   /**
+   * Resolve user by ID or OID (JWT sub is typically the Entra OID)
+   */
+  private async resolveUser(userIdOrOid: string) {
+    // Try by internal ID first
+    let user = await this.prisma.entraUser.findUnique({
+      where: { id: userIdOrOid },
+      select: { id: true, role: true },
+    });
+
+    if (!user) {
+      // Fall back to OID lookup (JWT sub is typically the Entra OID)
+      user = await this.prisma.entraUser.findUnique({
+        where: { oid: userIdOrOid },
+        select: { id: true, role: true },
+      });
+    }
+
+    return user;
+  }
+
+  /**
    * Check if a user has a specific permission
    * Logic: Start with role permissions, then apply user overrides
    */
@@ -48,20 +69,17 @@ export class PermissionsService {
     }
 
     // Get user's role
-    const user = await this.prisma.entraUser.findUnique({
-      where: { id: userId },
-      select: { role: true },
-    });
+    const user = await this.resolveUser(userId);
 
     if (!user) {
       this.logger.warn(`User ${userId} not found for permission check`);
       return false;
     }
 
-    // Check for user-specific override first
+    // Check for user-specific override first (use internal ID)
     const override = await this.prisma.userPermissionOverride.findUnique({
       where: {
-        userId_permissionCode: { userId, permissionCode: code },
+        userId_permissionCode: { userId: user.id, permissionCode: code },
       },
     });
 
@@ -94,11 +112,8 @@ export class PermissionsService {
       return adminPerms.map((p) => p.permissionCode);
     }
 
-    // Get user's role
-    const user = await this.prisma.entraUser.findUnique({
-      where: { id: userId },
-      select: { role: true },
-    });
+    // Get user's role (resolve by ID or OID)
+    const user = await this.resolveUser(userId);
 
     if (!user) {
       this.logger.warn(`User ${userId} not found for permission check`);
@@ -113,9 +128,9 @@ export class PermissionsService {
 
     const permissionSet = new Set(rolePermissions.map((rp) => rp.permissionCode));
 
-    // Get user overrides
+    // Get user overrides (use internal ID)
     const overrides = await this.prisma.userPermissionOverride.findMany({
-      where: { userId },
+      where: { userId: user.id },
     });
 
     // Apply overrides
