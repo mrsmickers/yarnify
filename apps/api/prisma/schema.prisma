@@ -136,7 +136,7 @@ model EntraUser {
   email        String    @unique
   displayName  String?
   department   String?
-  role         String    @default("user") // 'admin' or 'user'
+  role         String    @default("user") // 'admin', 'manager', 'team_lead', 'user'
   contextBox   String?   @db.Text // Free text: role, purpose, skills, extension info
   enabled      Boolean   @default(true) // Can be disabled by admin
   lastLoginAt  DateTime?
@@ -145,10 +145,56 @@ model EntraUser {
   updatedAt    DateTime  @updatedAt
   agent        Agent?    // Reverse relation for agent mapping
 
+  permissionOverrides UserPermissionOverride[]
+
   @@index([email])
   @@index([oid])
   @@index([role])
   @@map("entra_users")
+}
+
+// Granular permission definitions
+model Permission {
+  code        String   @id              // "admin.users", "calls.view", etc.
+  name        String                    // "User Management", "View Calls"
+  category    String                    // "admin", "calls", "training", "dashboard"
+  description String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  rolePermissions RolePermission[]
+  userOverrides   UserPermissionOverride[]
+
+  @@index([category])
+  @@map("permissions")
+}
+
+// Permissions assigned to roles
+model RolePermission {
+  id             String     @id @default(cuid())
+  role           String                    // "admin", "manager", "team_lead", "user"
+  permissionCode String
+  permission     Permission @relation(fields: [permissionCode], references: [code], onDelete: Cascade)
+  createdAt      DateTime   @default(now())
+
+  @@unique([role, permissionCode])
+  @@index([role])
+  @@map("role_permissions")
+}
+
+// Per-user permission overrides (grant or revoke)
+model UserPermissionOverride {
+  id             String     @id @default(cuid())
+  userId         String
+  permissionCode String
+  granted        Boolean                   // true = grant, false = revoke
+  user           EntraUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission     Permission @relation(fields: [permissionCode], references: [code], onDelete: Cascade)
+  createdAt      DateTime   @default(now())
+
+  @@unique([userId, permissionCode])
+  @@index([userId])
+  @@map("user_permission_overrides")
 }
 
 // Prompt templates for AI operations

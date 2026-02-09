@@ -22,6 +22,7 @@ import { TrainingRulesModule } from './modules/training-rules/training-rules.mod
 import { ScoringModule } from './modules/scoring/scoring.module';
 import { SentimentAlertsModule } from './modules/sentiment-alerts/sentiment-alerts.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { PermissionsModule } from './modules/permissions/permissions.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -65,6 +66,7 @@ import { join } from 'path';
     ScoringModule,
     SentimentAlertsModule,
     DashboardModule,
+    PermissionsModule,
     // Serve frontend static files in production (SPA with client-side routing)
     // __dirname in dist is /app/apps/api/dist/src, client is at /app/apps/api/client
     ServeStaticModule.forRoot({

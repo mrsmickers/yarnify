@@ -15,6 +15,7 @@ import CompanyInfoPage from '../pages/CompanyInfoPage'
 import TrainingRulesPage from '../pages/TrainingRulesPage'
 import ScoringCategoriesPage from '../pages/ScoringCategoriesPage'
 import SentimentAlertsPage from '../pages/SentimentAlertsPage'
+import PermissionsPage from '../pages/PermissionsPage'
 
 // Route configuration
 export const routes = [
@@ -85,6 +86,10 @@ export const routes = [
   {
     path: '/admin/sentiment-alerts',
     element: <SentimentAlertsPage />,
+  },
+  {
+    path: '/admin/permissions',
+    element: <PermissionsPage />,
   },
   {
     path: '*',
