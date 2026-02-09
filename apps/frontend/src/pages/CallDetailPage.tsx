@@ -544,8 +544,8 @@ const CallDetailPage = () => {
         </CardContent>
       </Card>
 
-      {/* Related Calls (Transfer Chain) */}
-      {((callDetails as any).isTransferred || (callDetails as any).relatedCalls?.length > 0) && (
+      {/* Related Calls (Transfer Chain) - only show for actual transfers, not queue routing */}
+      {(callDetails as any).isTransferred && (
         <Card className="border border-purple-500/30 bg-card/70 backdrop-blur-sm dark:border-purple-500/30">
           <CardHeader>
             <div className="flex items-center gap-2">
