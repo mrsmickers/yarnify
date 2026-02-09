@@ -32,6 +32,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       secretOrKey: secret,
       algorithms: ['HS256'],
       jwtFromRequest: ExtractJwt.fromExtractors([
+        // First, try to extract from Authorization header (for impersonation tokens)
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        // Then, try to extract from cookies (for normal auth)
         (req: Request) => {
           const token = req.cookies?.['access_token'];
           if (!token) {

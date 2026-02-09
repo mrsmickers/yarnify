@@ -520,4 +520,40 @@ export class AuthService {
     this.logger.log(`User authenticated: ${updatedUser.email}`);
     return updatedUser;
   }
+
+  /**
+   * Generate a short-lived impersonation token for admin user impersonation.
+   * @param targetUser - The user being impersonated
+   * @param adminOid - The OID of the admin initiating impersonation
+   * @param tenantId - The tenant ID for the token
+   * @returns JWT token string
+   */
+  generateImpersonationToken(
+    targetUser: EntraUser,
+    adminOid: string,
+    tenantId: string,
+  ): string {
+    const payload: SessionTokenPayload & { impersonatedBy: string; department?: string } = {
+      sub: targetUser.oid || targetUser.id,
+      oid: targetUser.oid || undefined,
+      tid: tenantId,
+      email: targetUser.email,
+      name: targetUser.displayName || undefined,
+      roles: this.mapRoleToClaims(targetUser.role),
+      department: targetUser.department || undefined,
+      impersonatedBy: adminOid,
+      // No sessionStart/refreshCount — impersonation tokens cannot be refreshed
+    };
+
+    // Impersonation tokens have a shorter expiry (30 minutes)
+    const impersonationTtlSeconds = 30 * 60;
+
+    this.logger.log(
+      `Generating impersonation token for ${targetUser.email} (initiated by admin ${adminOid})`,
+    );
+
+    return jwt.sign(payload, this.jwtSecret, {
+      expiresIn: impersonationTtlSeconds,
+    });
+  }
 }

@@ -1,5 +1,5 @@
 import { useQuery, type UseQueryOptions, type UseQueryResult } from '@tanstack/react-query'
-import { axiosInstance, handleApiError } from '@/api/axios-instance'
+import { axiosInstance, handleApiError, isImpersonating, exitImpersonation } from '@/api/axios-instance'
 
 export type CurrentUser = {
   userId: string
@@ -10,6 +10,7 @@ export type CurrentUser = {
   role: string | null
   department: string | null
   contextBox: string | null
+  impersonatedBy: string | null
 }
 
 const CURRENT_USER_QUERY_KEY = ['current-user'] as const
@@ -27,10 +28,20 @@ const fetchCurrentUser = async (): Promise<CurrentUser> => {
 
 export const useCurrentUser = (
   options?: Partial<UseQueryOptions<CurrentUser, Error>>,
-): UseQueryResult<CurrentUser, Error> =>
-  useQuery<CurrentUser, Error>({
+): UseQueryResult<CurrentUser, Error> & {
+  isImpersonating: boolean
+  exitImpersonation: () => void
+} => {
+  const query = useQuery<CurrentUser, Error>({
     queryKey: CURRENT_USER_QUERY_KEY,
     queryFn: fetchCurrentUser,
     staleTime: 60_000,
     ...options,
   })
+
+  return {
+    ...query,
+    isImpersonating: isImpersonating(),
+    exitImpersonation,
+  }
+}

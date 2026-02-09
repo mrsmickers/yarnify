@@ -140,6 +140,7 @@ export class AuthController {
       department,
       role,
       contextBox,
+      impersonatedBy: payload.impersonatedBy || null,
     };
   }
 

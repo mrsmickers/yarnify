@@ -14,6 +14,7 @@ import {
   Menu,
   PhoneCall,
   Settings2,
+  Shield,
   Target,
   Users,
   UserCircle2,
@@ -24,6 +25,8 @@ import { cn } from '@/lib/utils'
 import { useTheme } from '@/theme/theme-provider'
 import { Button } from '@/components/ui/button'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
+import { usePermissions } from '@/contexts/PermissionContext'
+import { ImpersonationBanner } from './ImpersonationBanner'
 
 type AppShellProps = {
   children: ReactNode
@@ -35,6 +38,7 @@ type NavItem = {
   icon: LucideIcon
   end?: boolean
   children?: NavItem[]
+  permission?: string // Permission code required to see this item
 }
 
 type NavSection = {
@@ -50,16 +54,19 @@ const workspaceNav: NavSection = {
       path: '/',
       icon: BarChart3,
       end: true,
+      permission: 'dashboard.view',
     },
     {
       label: 'All Calls',
       path: '/calls',
       icon: PhoneCall,
+      permission: 'calls.list',
     },
     {
       label: 'My Calls',
       path: '/calls/mine',
       icon: UserCircle2,
+      permission: 'calls.mine',
     },
   ],
 }
@@ -71,46 +78,61 @@ const adminNav: NavSection = {
       label: 'Company Info',
       path: '/admin/company-info',
       icon: Building2,
+      permission: 'admin.company',
     },
     {
       label: 'User Management',
       path: '/admin/users',
       icon: Users,
+      permission: 'admin.users',
     },
     {
       label: 'Agent Management',
       path: '/admin/agents',
       icon: Headphones,
+      permission: 'admin.agents',
     },
     {
       label: 'Training Rules',
       path: '/admin/training-rules',
       icon: GraduationCap,
+      permission: 'admin.training',
     },
     {
       label: 'Scoring',
       path: '/admin/scoring',
       icon: Target,
+      permission: 'admin.scoring',
     },
     {
       label: 'Sentiment Alerts',
       path: '/admin/sentiment-alerts',
       icon: AlertTriangle,
+      permission: 'admin.alerts',
     },
     {
       label: 'Prompt Management',
       path: '/admin/prompts',
       icon: FileText,
+      permission: 'admin.prompts',
     },
     {
       label: 'LLM Management',
       path: '/admin/llms',
       icon: Settings2,
+      permission: 'admin.prompts', // Same permission as prompts
     },
     {
       label: 'API Credentials',
       path: '/admin/api-credentials',
       icon: KeyRound,
+      permission: 'admin.users', // Grouped with user management
+    },
+    {
+      label: 'Permissions',
+      path: '/admin/permissions',
+      icon: Shield,
+      permission: 'admin.permissions',
     },
   ],
 }
@@ -121,7 +143,8 @@ export function AppShell({ children }: AppShellProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
-  const { data: currentUser } = useCurrentUser()
+  const { data: currentUser, isImpersonating, exitImpersonation } = useCurrentUser()
+  const { hasPermission } = usePermissions()
 
   const userDisplayName =
     currentUser?.name?.trim() ||
@@ -169,23 +192,33 @@ export function AppShell({ children }: AppShellProps) {
     })
   }
 
-  const renderNavSection = (section: NavSection) => (
-    <div key={section.title} className="space-y-2">
-      <p
-        className={cn(
-          'text-xs font-semibold uppercase tracking-[0.18em] text-white/60 transition-opacity',
-          theme === 'light' && 'text-sidebar-foreground opacity-70',
-          isCollapsed && 'opacity-0'
-        )}
-        aria-hidden={isCollapsed}
-      >
-        {section.title}
-      </p>
-      <div className="space-y-1">
-        {section.items.map((item) => renderNavItem(item))}
+  const renderNavSection = (section: NavSection) => {
+    // Filter items based on permissions
+    const visibleItems = section.items.filter(
+      (item) => !item.permission || hasPermission(item.permission)
+    )
+    
+    // Don't render section if no items are visible
+    if (visibleItems.length === 0) return null
+    
+    return (
+      <div key={section.title} className="space-y-2">
+        <p
+          className={cn(
+            'text-xs font-semibold uppercase tracking-[0.18em] text-white/60 transition-opacity',
+            theme === 'light' && 'text-sidebar-foreground opacity-70',
+            isCollapsed && 'opacity-0'
+          )}
+          aria-hidden={isCollapsed}
+        >
+          {section.title}
+        </p>
+        <div className="space-y-1">
+          {visibleItems.map((item) => renderNavItem(item))}
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   const renderNavItem = (item: NavItem, isSubItem = false) => {
     const hasChildren = item.children && item.children.length > 0
@@ -244,7 +277,9 @@ export function AppShell({ children }: AppShellProps) {
           </button>
           {!isCollapsed && isExpanded && item.children && (
             <div className="ml-4 mt-1 space-y-1 border-l-2 border-white/10 pl-2 dark:border-white/10">
-              {item.children.map((child) => renderNavItem(child, true))}
+              {item.children
+                .filter((child) => !child.permission || hasPermission(child.permission))
+                .map((child) => renderNavItem(child, true))}
             </div>
           )}
         </div>
@@ -361,7 +396,7 @@ export function AppShell({ children }: AppShellProps) {
         aria-label="Primary"
       >
         {renderNavSection(workspaceNav)}
-        {currentUser?.roles?.includes('admin') && renderNavSection(adminNav)}
+        {renderNavSection(adminNav)}
       </nav>
 
       <div
@@ -462,6 +497,13 @@ export function AppShell({ children }: AppShellProps) {
           {sidebarContent}
         </aside>
         <div className="flex min-h-screen flex-1 flex-col">
+          {isImpersonating && (
+            <ImpersonationBanner
+              displayName={currentUser?.name ?? null}
+              role={currentUser?.role ?? null}
+              onExit={exitImpersonation}
+            />
+          )}
           {window.location.hostname.includes('staging') && (
             <div className="bg-amber-500 px-4 py-1.5 text-center text-xs font-bold uppercase tracking-wider text-black">
               ⚠️ Staging Environment — Changes here do not affect production

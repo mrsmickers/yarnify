@@ -31,6 +31,15 @@ export class AdminService {
   ) {}
 
   /**
+   * Get a user by their ID.
+   */
+  async getUserById(id: string) {
+    return this.prisma.entraUser.findUnique({
+      where: { id },
+    });
+  }
+
+  /**
    * List all users in the system with their basic info and status.
    */
   async listUsers() {

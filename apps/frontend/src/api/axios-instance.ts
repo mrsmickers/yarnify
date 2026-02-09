@@ -5,6 +5,63 @@ import Axios, {
   type AxiosResponse,
 } from 'axios'
 
+// ===========================
+// IMPERSONATION TOKEN HANDLING
+// ===========================
+const IMPERSONATION_TOKEN_KEY = 'impersonation_token'
+
+/**
+ * Check for impersonation token in URL hash on page load.
+ * Format: /#impersonate=TOKEN
+ */
+const checkForImpersonationToken = () => {
+  if (typeof window === 'undefined') return
+
+  const hash = window.location.hash
+  if (hash.startsWith('#impersonate=')) {
+    const token = hash.slice('#impersonate='.length)
+    if (token) {
+      console.log('[Impersonation] Token detected in URL hash')
+      localStorage.setItem(IMPERSONATION_TOKEN_KEY, token)
+      // Clean up the URL hash
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    }
+  }
+}
+
+/**
+ * Get the current impersonation token (if any).
+ */
+export const getImpersonationToken = (): string | null => {
+  if (typeof window === 'undefined') return null
+  return localStorage.getItem(IMPERSONATION_TOKEN_KEY)
+}
+
+/**
+ * Check if we're currently impersonating a user.
+ */
+export const isImpersonating = (): boolean => {
+  return getImpersonationToken() !== null
+}
+
+/**
+ * Clear the impersonation token and close the window.
+ */
+export const exitImpersonation = () => {
+  console.log('[Impersonation] Exiting impersonation mode')
+  localStorage.removeItem(IMPERSONATION_TOKEN_KEY)
+  // Close the window - if it was opened by impersonation
+  if (window.opener) {
+    window.close()
+  } else {
+    // If we can't close (not opened as popup), redirect to home
+    window.location.href = '/'
+  }
+}
+
+// Check for impersonation token on module load
+checkForImpersonationToken()
+
 const AXIOS_INSTANCE = Axios.create({
   withCredentials: true, // Crucial for sending cookies
 })
@@ -239,8 +296,17 @@ const scheduleTokenRefresh = () => {
 /**
  * Initialize session management.
  * Starts timers and activity tracking.
+ * Disabled when impersonating (impersonation tokens have their own 30-min expiry).
  */
 const initializeSessionManagement = () => {
+  // Skip session management when impersonating
+  // Impersonation tokens have their own 30-minute expiry and can't be refreshed
+  if (isImpersonating()) {
+    console.log('[Session] Skipping session management - impersonation mode active')
+    console.log('[Session] Impersonation token will expire in 30 minutes')
+    return
+  }
+
   // Set session start time (approximate - actual start is on backend)
   if (!sessionStartTime) {
     sessionStartTime = Date.now()
@@ -291,24 +357,27 @@ const initializeSessionManagement = () => {
 // Initialize session management when module loads
 initializeSessionManagement()
 
-// Optional: Request interceptor (e.g., for logging)
+// Request interceptor - add impersonation token if present
 AXIOS_INSTANCE.interceptors.request.use(
   (config) => {
-    // console.log('Starting Request:', config);
+    // If we have an impersonation token, use it instead of cookies
+    const impersonationToken = getImpersonationToken()
+    if (impersonationToken) {
+      config.headers = config.headers || new AxiosHeaders()
+      config.headers.set('Authorization', `Bearer ${impersonationToken}`)
+      // Don't send cookies when impersonating - use token auth only
+      config.withCredentials = false
+    }
     return config
   },
   (error: AxiosError) => {
-    // Use AxiosError for better type safety
-    // console.error('Request Error:', error);
     return Promise.reject(error)
   }
 )
 
-// Optional: Response interceptor (e.g., for global error handling like 401)
+// Response interceptor - handle 401 errors (with special handling for impersonation)
 AXIOS_INSTANCE.interceptors.response.use(
   (response: AxiosResponse) => {
-    // Use AxiosResponse
-    // console.log('Response:', response);
     return response
   },
   async (error: AxiosError) => {
@@ -317,6 +386,14 @@ AXIOS_INSTANCE.interceptors.response.use(
     }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
+      // If we're impersonating and get a 401, the impersonation token expired
+      // Exit impersonation mode - don't try to refresh
+      if (isImpersonating()) {
+        console.log('[Impersonation] Token expired, exiting impersonation mode')
+        exitImpersonation()
+        return Promise.reject(error)
+      }
+
       if (isRefreshing) {
         // If a refresh is already in progress, queue this request
         return new Promise((resolve, reject) => {

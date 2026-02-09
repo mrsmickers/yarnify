@@ -15,6 +15,8 @@ export interface JwtPayload {
   tid?: string; // Tenant ID
   oid?: string; // Object ID from Entra
   roles?: string[];
+  department?: string; // User's department
+  impersonatedBy?: string; // OID of admin who initiated impersonation (if impersonating)
 }
 
 export interface ClsStore {

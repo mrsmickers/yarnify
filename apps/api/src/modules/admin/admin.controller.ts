@@ -8,12 +8,17 @@ import {
   Logger,
   UsePipes,
   Post,
+  Req,
+  ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Request } from 'express';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AdminService } from './admin.service';
+import { AuthService } from '../auth/auth.service';
 import { ZodValidationPipe } from 'nestjs-zod';
 import {
   UpdateUserRoleDto,
@@ -31,6 +36,7 @@ import {
   UpdateUserDto,
   UpdateUserSchema,
 } from './dto/update-user.dto';
+import { JwtPayload } from '../../common/interfaces/cls-store.interface';
 
 /**
  * Admin-only endpoints for user management.
@@ -44,7 +50,10 @@ import {
 export class AdminController {
   private readonly logger = new Logger(AdminController.name);
 
-  constructor(private readonly adminService: AdminService) {}
+  constructor(
+    private readonly adminService: AdminService,
+    private readonly authService: AuthService,
+  ) {}
 
   @Get('users')
   @ApiOperation({ summary: 'List all users (admin only)' })
@@ -152,5 +161,80 @@ export class AdminController {
   async getStats() {
     this.logger.log('Admin requested system statistics');
     return this.adminService.getStats();
+  }
+
+  @Post('impersonate/:userId')
+  @ApiOperation({ summary: 'Impersonate a user (admin only)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns impersonation token and user details',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Cannot impersonate admin users',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  async impersonateUser(
+    @Param('userId') userId: string,
+    @Req() req: Request,
+  ) {
+    const adminPayload = req.user as JwtPayload | undefined;
+    if (!adminPayload?.oid) {
+      throw new ForbiddenException('Admin OID not found in token');
+    }
+
+    this.logger.log(
+      `Admin ${adminPayload.email} attempting to impersonate user ${userId}`,
+    );
+
+    // Get target user from database
+    const targetUser = await this.adminService.getUserById(userId);
+    if (!targetUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Cannot impersonate another admin
+    if (targetUser.role === 'admin') {
+      this.logger.warn(
+        `Admin ${adminPayload.email} attempted to impersonate admin user ${targetUser.email}`,
+      );
+      throw new ForbiddenException('Cannot impersonate admin users');
+    }
+
+    // Cannot impersonate disabled users
+    if (!targetUser.enabled) {
+      throw new ForbiddenException('Cannot impersonate disabled users');
+    }
+
+    // Get tenant ID from the admin's token
+    const tenantId = adminPayload.tid;
+    if (!tenantId) {
+      throw new ForbiddenException('Tenant ID not found in admin token');
+    }
+
+    // Generate impersonation token
+    const token = this.authService.generateImpersonationToken(
+      targetUser,
+      adminPayload.oid,
+      tenantId,
+    );
+
+    this.logger.log(
+      `Admin ${adminPayload.email} is now impersonating ${targetUser.email}`,
+    );
+
+    return {
+      token,
+      user: {
+        id: targetUser.id,
+        email: targetUser.email,
+        displayName: targetUser.displayName,
+        role: targetUser.role,
+        department: targetUser.department,
+      },
+    };
   }
 }

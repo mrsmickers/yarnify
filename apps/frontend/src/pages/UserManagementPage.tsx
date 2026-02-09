@@ -4,7 +4,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { toast } from 'sonner'
-import { Loader2, X } from 'lucide-react'
+import { Loader2, X, Eye } from 'lucide-react'
 
 import { PageHeader } from '@/components/layout/PageHeader'
 import {
@@ -135,6 +135,17 @@ type UpdateUserResponse = {
   user: AdminUser
 }
 
+type ImpersonateResponse = {
+  token: string
+  user: {
+    id: string
+    email: string
+    displayName: string | null
+    role: UserRole
+    department: string | null
+  }
+}
+
 const usersQueryKey = ['admin-users'] as const
 const statsQueryKey = ['admin-stats'] as const
 
@@ -164,6 +175,7 @@ const UserManagementPage = () => {
   const queryClient = useQueryClient()
   const [roleUpdatingId, setRoleUpdatingId] = useState<string | null>(null)
   const [statusUpdatingId, setStatusUpdatingId] = useState<string | null>(null)
+  const [impersonatingId, setImpersonatingId] = useState<string | null>(null)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null)
 
@@ -285,6 +297,14 @@ const UserManagementPage = () => {
     },
   })
 
+  const impersonateMutation = useMutation<ImpersonateResponse, Error, string>({
+    mutationFn: (userId) =>
+      axiosInstance<ImpersonateResponse>({
+        url: `/api/v1/admin/impersonate/${userId}`,
+        method: 'POST',
+      }),
+  })
+
   const handleRoleChange = async (user: AdminUser, role: UserRole) => {
     if (role === user.role) return
     setRoleUpdatingId(user.id)
@@ -400,6 +420,27 @@ const UserManagementPage = () => {
     return mutationPromise
   }
 
+  const handleImpersonate = async (user: AdminUser) => {
+    setImpersonatingId(user.id)
+    
+    try {
+      const response = await impersonateMutation.mutateAsync(user.id)
+      
+      // Open a new window with the impersonation token in the URL hash
+      const appUrl = window.location.origin
+      const impersonationUrl = `${appUrl}/#impersonate=${response.token}`
+      
+      toast.success(`Opening view as ${response.user.displayName || response.user.email}...`)
+      
+      // Open in a new window
+      window.open(impersonationUrl, '_blank', 'noopener')
+    } catch (error) {
+      toast.error(handleApiError(error))
+    } finally {
+      setImpersonatingId(null)
+    }
+  }
+
   const columns = useMemo<ColumnDef<AdminUser>[]>(
     () => [
       {
@@ -495,8 +536,28 @@ const UserManagementPage = () => {
         cell: ({ row }) => {
           const user = row.original
           const isUpdating = statusUpdatingId === user.id
+          const isImpersonating = impersonatingId === user.id
+          const canImpersonate = user.role !== 'admin' && user.enabled
           return (
-            <div onClick={(e) => e.stopPropagation()}>
+            <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-2">
+              {canImpersonate && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    void handleImpersonate(user)
+                  }}
+                  disabled={isImpersonating || impersonateMutation.isPending}
+                  title={`View as ${user.displayName || user.email}`}
+                  className="h-8 px-2"
+                >
+                  {isImpersonating ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              )}
               <Button
                 size="sm"
                 variant={user.enabled ? 'outline' : 'default'}
@@ -518,10 +579,13 @@ const UserManagementPage = () => {
     [
       handleRoleChange,
       handleToggleStatus,
+      handleImpersonate,
       roleUpdatingId,
       statusUpdatingId,
+      impersonatingId,
       toggleStatusMutation.isPending,
       updateRoleMutation.isPending,
+      impersonateMutation.isPending,
     ]
   )
 
