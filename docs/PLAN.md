@@ -443,30 +443,109 @@ Agent.entraUserId (String?, @unique) → EntraUser.id
 
 ---
 
+## Feature #19: User Impersonation
+
+**Goal:** Allow admins to see the system as another user would, for testing permissions and troubleshooting.
+
+**Details:**
+- Admin clicks "Impersonate" button on a user in User Management
+- Opens new browser window with short-lived JWT (30 min) containing target user's claims
+- Amber banner at top: "Viewing as {name} ({role}) — [Exit]"
+- Cannot impersonate other admins
+- JWT contains `impersonatedBy` field for audit trail
+
+**Status:** ✅ Complete (2026-02-09)
+
+---
+
+## Feature #20: Granular Permission System
+
+**Goal:** Feature-level permissions configurable per role, with per-user overrides.
+
+**Details:**
+- Permission codes: `dashboard.view`, `calls.list`, `calls.mine`, `admin.users`, etc.
+- Roles have default permission sets (admin = all, user = minimal)
+- Per-user overrides: grant or revoke specific permissions beyond role default
+- Frontend checks permissions before rendering nav items/pages
+- Admin UI: Permission Management page with role matrix + user override editor
+
+**Default Role Permissions:**
+- `admin`: ALL
+- `manager`: dashboard.view, calls.list, calls.mine, calls.detail, admin.training, admin.alerts
+- `team_lead`: dashboard.view, calls.list, calls.mine, calls.detail
+- `user`: dashboard.view, calls.mine, calls.detail
+
+**Status:** 🔄 In Progress
+
+---
+
+## Feature #21: Audit Trail
+
+**Goal:** Log all significant actions for compliance and troubleshooting.
+
+**Details:**
+- `AuditLog` table: actor, action, target, targetType, metadata (JSON), timestamp
+- Actions logged:
+  - Authentication: login, logout, impersonation start/end
+  - Permission changes: role permission updates, user override changes
+  - Config changes: prompts, training rules, scoring categories, alert configs
+  - Data access: call views (who viewed which call)
+  - User management: role changes, user creation/deletion
+- Admin UI: Audit Log page with filtering (date range, actor, action type)
+- Read-only — no editing or deletion
+
+**Location:** Admin → Audit Log
+
+---
+
+## Feature #22: Per-Agent Access Control
+
+**Goal:** Granular call visibility based on specific agent grants, not just roles.
+
+**Details:**
+- New model: `UserAgentAccess` (userId, agentId)
+- User can be granted access to see calls from specific agents
+- Call visibility logic:
+  1. Always see own linked agent's calls
+  2. See calls from agents in your access list
+  3. Admins see all
+- Admin UI: User Management → Agent Access tab → checkbox list of agents
+- Replaces/augments department-based scoping with explicit grants
+
+**Use case:** Team lead sees their team's calls. Coordinator sees 1st/2nd line but not sales. Finance manager's calls restricted to specific people.
+
+**Ties to:** Permission System (#20), Audit Trail (#21)
+
+---
+
 ## Implementation Priority
 
 *To be determined based on business value and dependencies*
 
-| # | Feature | Dependencies |
-|---|---------|--------------|
-| 1 | User Profiles | - |
-| 2 | Company Match | CRM integration |
-| 3 | Our Company Info | - |
-| 4 | Permission System | - |
-| 5 | Sales Trainer | Product Catalogue |
-| 6 | Prompt Editor | - |
-| 7 | Default Visibility | Permission System |
-| 8 | CW Integration | ConnectWise API |
-| 9 | Training Filters | Prompt Editor |
-| 10 | Training Box | Training Filters, Scoring |
-| 11 | Report Builder | Dashboards |
-| 12 | Dashboards | Scoring System |
-| 13 | Scoring System | Training Filters |
-| 14 | Sentiment Alerting | - |
-| 15 | Dispatch Central | ConnectWise API, Permission System |
-| 16 | Semantic Call Search | Embeddings (re-enable SKIP_EMBEDDINGS) |
-| 17 | Agent-User Identity Linking | User Profiles, Entra SSO |
-| 18 | Frontend State Management | - |
+| # | Feature | Status | Dependencies |
+|---|---------|--------|--------------|
+| 1 | User Profiles | ✅ | - |
+| 2 | Company Match | ✅ | CRM integration |
+| 3 | Our Company Info | ✅ | - |
+| 4 | Permission System | ✅ (basic) | - |
+| 5 | Sales Trainer | 📋 | Product Catalogue |
+| 6 | Prompt Editor | ✅ | - |
+| 7 | Default Visibility | ✅ | Permission System |
+| 8 | CW Integration | 📋 | ConnectWise API |
+| 9 | Training Rules | ✅ | Prompt Editor |
+| 10 | Training Box | 📋 | Training Rules, Scoring |
+| 11 | Report Builder | 📋 | Dashboards |
+| 12 | Dashboards | ✅ | Scoring System |
+| 13 | Scoring System | ✅ | Training Rules |
+| 14 | Sentiment Alerting | ✅ | - |
+| 15 | Dispatch Central | 📋 | ConnectWise API, Permission System |
+| 16 | Semantic Call Search | 📋 | Embeddings (re-enable) |
+| 17 | Agent-User Identity Linking | ✅ | User Profiles, Entra SSO |
+| 18 | Frontend State Management | ✅ | - |
+| 19 | User Impersonation | ✅ | - |
+| 20 | Granular Permission System | 🔄 | Permission System |
+| 21 | Audit Trail | 📋 | - |
+| 22 | Per-Agent Access Control | 📋 | Granular Permissions |
 
 ---
 
