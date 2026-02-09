@@ -140,6 +140,28 @@ export class CallResponseDto {
 
   @ApiPropertyOptional({ description: 'LLM pipeline metadata (providers, models used for each step)' })
   processingMetadata?: any;
+
+  // Transfer/grouping fields
+  @ApiPropertyOptional({ description: 'Group ID for related calls (transfers)' })
+  callGroupId?: string;
+
+  @ApiPropertyOptional({ description: 'Position in transfer chain (1=first leg)' })
+  callLegOrder?: number;
+
+  @ApiPropertyOptional({ description: 'Number of calls in this group' })
+  groupSize?: number;
+
+  @ApiPropertyOptional({ description: 'Whether this call is part of a transfer group' })
+  isTransferred?: boolean;
+
+  @ApiPropertyOptional({ description: 'Other calls in the same group (for detail view)' })
+  relatedCalls?: CallResponseDto[];
+
+  @ApiPropertyOptional({ description: 'VoIP source type (external, queue, phone, api)' })
+  sourceType?: string;
+
+  @ApiPropertyOptional({ description: 'VoIP destination type (phone, external, number)' })
+  destinationType?: string;
 }
 
 export class CallMetricsDto {

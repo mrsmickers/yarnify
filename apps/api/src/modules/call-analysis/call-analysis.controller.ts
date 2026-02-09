@@ -10,10 +10,12 @@ import {
   UseGuards,
   Post, // Added Post
   HttpCode, // Added HttpCode
+  Body, // Added Body
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags, ApiBody } from '@nestjs/swagger';
 import { JwtOrStagingGuard } from '../../common/guards/jwt-or-staging.guard';
 import { CallAnalysisService } from './call-analysis.service';
+import { CallGroupingService } from './call-grouping.service';
 import { AuditService } from '../audit/audit.service';
 import {
   GetCallsQueryDto,
@@ -32,6 +34,7 @@ import { JwtPayload } from '../../common/interfaces/cls-store.interface';
 export class CallAnalysisController {
   constructor(
     private readonly callAnalysisService: CallAnalysisService,
+    private readonly callGroupingService: CallGroupingService,
     private readonly auditService: AuditService,
   ) {}
 
@@ -190,5 +193,85 @@ export class CallAnalysisController {
   })
   async getAgentList(): Promise<AgentListItemDto[]> {
     return this.callAnalysisService.getAgentList();
+  }
+
+  @Get('calls/group/:groupId')
+  @ApiOperation({ summary: 'Get all calls in a transfer group' })
+  @ApiParam({
+    name: 'groupId',
+    description: 'The group ID to retrieve calls for',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved call group.',
+    type: [CallResponseDto],
+  })
+  async getCallGroup(@Param('groupId') groupId: string): Promise<CallResponseDto[]> {
+    const calls = await this.callGroupingService.getCallGroup(groupId);
+    return calls.map((call: any) => ({
+      id: call.id,
+      callSid: call.callSid,
+      companyId: call.companyId,
+      companyName: call.company?.name,
+      callDirection: call.callDirection,
+      externalPhoneNumber: call.externalPhoneNumber,
+      startTime: call.startTime,
+      endTime: call.endTime,
+      duration: call.duration,
+      transcriptUrl: call.transcriptUrl,
+      callStatus: call.callStatus,
+      analysis: call.analysis?.data,
+      agentName: call.Agents?.name || null,
+      callGroupId: call.callGroupId,
+      callLegOrder: call.callLegOrder,
+      groupSize: calls.length,
+      isTransferred: true,
+      sourceType: call.sourceType,
+      destinationType: call.destinationType,
+      createdAt: call.createdAt,
+      updatedAt: call.updatedAt,
+    }));
+  }
+
+  @Post('calls/link')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Manually link two calls into the same group' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        callId1: { type: 'string', description: 'First call ID' },
+        callId2: { type: 'string', description: 'Second call ID' },
+      },
+      required: ['callId1', 'callId2'],
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Calls linked successfully.',
+  })
+  async linkCalls(
+    @Body() body: { callId1: string; callId2: string },
+  ): Promise<{ groupId: string; message: string }> {
+    const groupId = await this.callGroupingService.linkCalls(body.callId1, body.callId2);
+    return { groupId, message: 'Calls linked successfully' };
+  }
+
+  @Post('calls/:id/unlink')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Remove a call from its transfer group' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the call to unlink',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Call unlinked successfully.',
+  })
+  async unlinkCall(@Param('id') id: string): Promise<{ message: string }> {
+    await this.callGroupingService.unlinkCall(id);
+    return { message: 'Call unlinked from group' };
   }
 }

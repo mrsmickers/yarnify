@@ -24,6 +24,7 @@ import { ConfigService } from '@nestjs/config';
 import { CompanyInfoService } from '../company-info/company-info.service';
 import { TrainingRulesService } from '../training-rules/training-rules.service';
 import { SentimentAlertsService } from '../sentiment-alerts/sentiment-alerts.service';
+import { CallGroupingService } from './call-grouping.service';
 @Injectable()
 @Processor(CALL_PROCESSING_QUEUE, { concurrency: 5 })
 export class CallProcessingConsumer extends WorkerHost {
@@ -48,6 +49,7 @@ export class CallProcessingConsumer extends WorkerHost {
     private readonly companyInfoService: CompanyInfoService,
     private readonly trainingRulesService: TrainingRulesService,
     private readonly sentimentAlertsService: SentimentAlertsService,
+    private readonly callGroupingService: CallGroupingService,
   ) {
     super();
   }
@@ -168,20 +170,39 @@ export class CallProcessingConsumer extends WorkerHost {
         return { jobId: job.id, message: 'Skipped, already COMPLETED.' };
       }
 
+      // Extract transfer/grouping fields from VoIP data
+      const callerIdInternal = recordingData.callerid_internal || null;
+      const sourceType = recordingData.stype || null;
+      const destinationType = recordingData.dtype || null;
+      const sourceNumber = recordingData.snumber || null;
+      const destinationNumber = recordingData.dnumber || null;
+
+      this.logger.log(
+        `[TransferFields] callerIdInternal=${callerIdInternal}, stype=${sourceType}, dtype=${destinationType}`,
+      );
+
       if (existingCall) {
         callEntity = existingCall;
         this.logger.log(
           `Resuming processing for existing Call ID ${callEntity.id} (SID: ${callRecordingId})`,
         );
+        // @ts-ignore - new fields not in Prisma types yet
         callEntity = await this.callRepository.update(callEntity.id, {
           callStatus: 'PROCESSING',
           ...(agentEntity &&
-            !callEntity.agentsId && { agentsId: agentEntity.id }),
+            !(callEntity as any).agentsId && { agentsId: agentEntity.id }),
           ...(!callEntity.callDirection && { callDirection }),
           ...(!callEntity.externalPhoneNumber && externalPhoneNumber && { externalPhoneNumber }),
-        });
+          // Update transfer fields if not already set
+          ...(!(callEntity as any).callerIdInternal && callerIdInternal && { callerIdInternal }),
+          ...(!(callEntity as any).sourceType && sourceType && { sourceType }),
+          ...(!(callEntity as any).destinationType && destinationType && { destinationType }),
+          ...(!(callEntity as any).sourceNumber && sourceNumber && { sourceNumber }),
+          ...(!(callEntity as any).destinationNumber && destinationNumber && { destinationNumber }),
+        } as any);
       } else {
         // Create a new Call record if it doesn't exist
+        // @ts-ignore - new fields not in Prisma types yet
         callEntity = await this.callRepository.create({
           callSid: callRecordingId,
           // startDate from job data
@@ -192,7 +213,13 @@ export class CallProcessingConsumer extends WorkerHost {
           callDirection,
           externalPhoneNumber: externalPhoneNumber || null,
           agentsId: agentEntity?.id,
-        });
+          // Transfer/grouping fields
+          callerIdInternal,
+          sourceType,
+          destinationType,
+          sourceNumber,
+          destinationNumber,
+        } as any);
         this.logger.log(
           `Created new Call record with ID: ${callEntity.id} for SID: ${callRecordingId}`,
         );
@@ -639,6 +666,16 @@ export class CallProcessingConsumer extends WorkerHost {
         callStatus: 'COMPLETED',
         processingMetadata,
       });
+
+      // Group call with related calls (transfers, queue routing)
+      try {
+        await this.callGroupingService.groupCallIfNeeded(callEntity.id);
+      } catch (groupingError) {
+        // Non-fatal — don't fail the pipeline if grouping fails
+        this.logger.warn(
+          `[CallGrouping] Failed to group call ${callEntity.id}: ${groupingError.message}`,
+        );
+      }
 
       await this.processingLogRepository.create({
         callId: callEntity.id,

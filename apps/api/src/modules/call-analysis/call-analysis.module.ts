@@ -23,6 +23,7 @@ import { CompanyInfoModule } from '../company-info/company-info.module';
 import { TrainingRulesModule } from '../training-rules/training-rules.module';
 import { SentimentAlertsModule } from '../sentiment-alerts/sentiment-alerts.module';
 import { AgentAccessModule } from '../agent-access/agent-access.module';
+import { CallGroupingService } from './call-grouping.service';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { AgentAccessModule } from '../agent-access/agent-access.module';
     ProcessingLogRepository,
     AgentRepository,
     CallTranscriptEmbeddingRepository,
+    CallGroupingService,
   ],
   exports: [
     CallAnalysisService,
@@ -63,6 +65,7 @@ import { AgentAccessModule } from '../agent-access/agent-access.module';
     ProcessingLogRepository,
     AgentRepository,
     CallTranscriptEmbeddingRepository,
+    CallGroupingService,
   ],
 })
 export class CallAnalysisModule {}

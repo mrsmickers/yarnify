@@ -491,26 +491,51 @@ Rules:
 
     const total = await this.callRepository.count({ where });
 
-    const callResponseDtos: CallResponseDto[] = calls.map((call) => ({
-      id: call.id,
-      callSid: call.callSid,
-      companyId: call.companyId,
-      callDirection: call.callDirection,
-      externalPhoneNumber: call.externalPhoneNumber,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore // company is included
-      companyName: call.company?.name, // Optional: include company name
-      startTime: call.startTime,
-      endTime: call.endTime,
-      duration: call.duration,
-      transcriptUrl: call.transcriptUrl, // Added transcriptUrl
-      callStatus: call.callStatus, // Prisma model uses string for callStatus
-      agentName: call.Agents?.name || null, // Optional: include agent name
-      analysis: call.analysis?.data, // Assuming analysis data is in 'data' field
-      processingMetadata: call.processingMetadata,
-      createdAt: call.createdAt,
-      updatedAt: call.updatedAt,
-    }));
+    // Get group sizes for transferred calls
+    const groupIds = calls
+      .map((c: any) => c.callGroupId)
+      .filter((id): id is string => !!id);
+    
+    // @ts-ignore - new fields not in Prisma types yet
+    const groupCounts: Array<{ callGroupId: string; _count: number }> = groupIds.length > 0
+      ? await (this.db.call.groupBy as any)({
+          by: ['callGroupId'],
+          where: { callGroupId: { in: groupIds } },
+          _count: true,
+        })
+      : [];
+    const groupSizeMap = new Map(groupCounts.map((g: any) => [g.callGroupId, g._count]));
+
+    const callResponseDtos: CallResponseDto[] = calls.map((call: any) => {
+      const groupSize = call.callGroupId ? (groupSizeMap.get(call.callGroupId) || 1) : 1;
+      return {
+        id: call.id,
+        callSid: call.callSid,
+        companyId: call.companyId,
+        callDirection: call.callDirection,
+        externalPhoneNumber: call.externalPhoneNumber,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore // company is included
+        companyName: call.company?.name, // Optional: include company name
+        startTime: call.startTime,
+        endTime: call.endTime,
+        duration: call.duration,
+        transcriptUrl: call.transcriptUrl, // Added transcriptUrl
+        callStatus: call.callStatus, // Prisma model uses string for callStatus
+        agentName: call.Agents?.name || null, // Optional: include agent name
+        analysis: call.analysis?.data, // Assuming analysis data is in 'data' field
+        processingMetadata: call.processingMetadata,
+        createdAt: call.createdAt,
+        updatedAt: call.updatedAt,
+        // Grouping fields
+        callGroupId: call.callGroupId,
+        callLegOrder: call.callLegOrder,
+        groupSize,
+        isTransferred: !!call.callGroupId && groupSize > 1,
+        sourceType: call.sourceType,
+        destinationType: call.destinationType,
+      };
+    });
 
     // Calculate metrics across all calls (not just current page)
     const allCalls = await this.db.call.findMany({
@@ -575,6 +600,45 @@ Rules:
       return null;
     }
 
+    // Get related calls if this is part of a group
+    let relatedCalls: CallResponseDto[] | undefined;
+    // @ts-ignore - callGroupId exists on extended call type
+    if ((call as any).callGroupId) {
+      // @ts-ignore - new fields not in Prisma types yet
+      const groupCalls = await this.db.call.findMany({
+        where: { callGroupId: (call as any).callGroupId, id: { not: call.id } } as any,
+        include: { Agents: true, analysis: true, company: true },
+        orderBy: { callLegOrder: 'asc' } as any,
+      });
+      relatedCalls = groupCalls.map((c: any) => ({
+        id: c.id,
+        callSid: c.callSid,
+        companyId: c.companyId,
+        callDirection: c.callDirection,
+        externalPhoneNumber: c.externalPhoneNumber,
+        companyName: c.company?.name,
+        startTime: c.startTime,
+        endTime: c.endTime,
+        duration: c.duration,
+        transcriptUrl: c.transcriptUrl,
+        callStatus: c.callStatus,
+        analysis: c.analysis?.data,
+        agentName: c.Agents?.name || null,
+        callGroupId: c.callGroupId,
+        callLegOrder: c.callLegOrder,
+        sourceType: c.sourceType,
+        destinationType: c.destinationType,
+        createdAt: c.createdAt,
+        updatedAt: c.updatedAt,
+      }));
+    }
+
+    // Count group size
+    const groupSize = (call as any).callGroupId
+      // @ts-ignore - new fields not in Prisma types yet
+      ? await this.db.call.count({ where: { callGroupId: (call as any).callGroupId } as any })
+      : 1;
+
     // Map to CallResponseDto, similar to getCalls
     return {
       id: call.id,
@@ -599,6 +663,19 @@ Rules:
       processingMetadata: call.processingMetadata,
       createdAt: call.createdAt,
       updatedAt: call.updatedAt,
+      // Grouping fields
+      // @ts-ignore
+      callGroupId: call.callGroupId,
+      // @ts-ignore
+      callLegOrder: call.callLegOrder,
+      groupSize,
+      // @ts-ignore
+      isTransferred: !!call.callGroupId && groupSize > 1,
+      relatedCalls,
+      // @ts-ignore
+      sourceType: call.sourceType,
+      // @ts-ignore
+      destinationType: call.destinationType,
     };
   }
 
@@ -706,18 +783,158 @@ Rules:
       };
     }
 
-    // Override the agentId filter to the user's own agent
+    // Find calls where this agent is directly assigned OR is part of a grouped call
+    // Step 1: Get group IDs where this agent has a call
+    // @ts-ignore - new fields not in Prisma types yet
+    const agentCallGroups: Array<{ callGroupId: string | null }> = await this.db.call.findMany({
+      where: {
+        agentsId: agent.id,
+        callGroupId: { not: null },
+      } as any,
+      select: { callGroupId: true } as any,
+      distinct: ['callGroupId'] as any,
+    });
+    const agentGroupIds = agentCallGroups
+      .map((c: any) => c.callGroupId)
+      .filter((id): id is string => id !== null);
+
+    // Step 2: Build query that includes direct calls AND calls in shared groups
     const myQuery: GetCallsQueryDto = {
       ...query,
-      agentId: agent.id,
+      // We'll handle the agentId filter specially below
     };
 
-    const result = await this.getCalls(myQuery);
+    // Custom query with OR logic for agent attribution
+    // This is a bit complex because we need to include calls from shared groups
+    if (agentGroupIds.length > 0) {
+      // Override getCalls to use our custom where clause
+      const result = await this.getCallsWithGroupAccess(myQuery, agent.id, agentGroupIds);
+      return {
+        ...result,
+        agentLinked: true,
+        agentName: agent.name,
+      };
+    } else {
+      // No grouped calls, just filter by direct agent assignment
+      const myQueryWithAgent: GetCallsQueryDto = {
+        ...query,
+        agentId: agent.id,
+      };
+      const result = await this.getCalls(myQueryWithAgent);
+      return {
+        ...result,
+        agentLinked: true,
+        agentName: agent.name,
+      };
+    }
+  }
+
+  /**
+   * Get calls with access through both direct attribution AND group membership.
+   * Used by getMyCalls to show all calls an agent is involved in.
+   */
+  private async getCallsWithGroupAccess(
+    query: GetCallsQueryDto,
+    agentId: string,
+    groupIds: string[],
+  ): Promise<PaginatedCallsResponseDto> {
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const skip = (page - 1) * limit;
+
+    // Build where clause: direct agent assignment OR in shared group
+    const where: any = {
+      OR: [
+        { agentsId: agentId },
+        { callGroupId: { in: groupIds } },
+      ],
+    };
+
+    // Apply other filters
+    if (query.startDate) where.startTime = { ...(where.startTime || {}), gte: query.startDate };
+    if (query.endDate) where.startTime = { ...(where.startTime || {}), lte: query.endDate };
+    if (query.companyId) where.companyId = query.companyId;
+    if (query.status) where.callStatus = query.status;
+    if (query.sentiment) {
+      where.analysis = {
+        data: {
+          path: ['sentiment'],
+          equals: query.sentiment,
+        },
+      };
+    }
+
+    const [calls, total] = await Promise.all([
+      this.db.call.findMany({
+        where,
+        include: {
+          company: true,
+          analysis: true,
+          Agents: true,
+        },
+        skip,
+        take: limit,
+        orderBy: { startTime: 'desc' },
+      }),
+      this.db.call.count({ where }),
+    ]);
+
+    // Get group sizes for transferred calls
+    // @ts-ignore - new fields not in Prisma types yet
+    const groupCounts: Array<{ callGroupId: string; _count: number }> = await (this.db.call.groupBy as any)({
+      by: ['callGroupId'],
+      where: { callGroupId: { in: calls.map((c: any) => c.callGroupId).filter((id: any): id is string => !!id) } },
+      _count: true,
+    });
+    const groupSizeMap = new Map(groupCounts.map((g: any) => [g.callGroupId, g._count]));
+
+    // Calculate metrics (simplified)
+    const analysisData = calls
+      .filter((c: any) => c.analysis?.data)
+      .map((c: any) => c.analysis.data as Record<string, any>);
+
+    const metrics = {
+      totalPositiveSentiment: analysisData.filter((a) => a.sentiment === 'Positive').length,
+      totalNegativeSentiment: analysisData.filter((a) => a.sentiment === 'Negative').length,
+      totalNeutralSentiment: analysisData.filter((a) => a.sentiment === 'Neutral').length,
+      averageConfidence: analysisData.length > 0
+        ? analysisData.reduce((sum, a) => sum + (a.ai_confidence || 0), 0) / analysisData.length
+        : 0,
+    };
 
     return {
-      ...result,
-      agentLinked: true,
-      agentName: agent.name,
+      data: calls.map((call: any) => {
+        const groupSize = call.callGroupId ? (groupSizeMap.get(call.callGroupId) || 1) : 1;
+        return {
+          id: call.id,
+          callSid: call.callSid,
+          companyId: call.companyId,
+          companyName: call.company?.name,
+          callDirection: call.callDirection,
+          externalPhoneNumber: call.externalPhoneNumber,
+          startTime: call.startTime,
+          endTime: call.endTime,
+          duration: call.duration,
+          transcriptUrl: call.transcriptUrl,
+          callStatus: call.callStatus,
+          analysis: call.analysis?.data,
+          agentName: call.Agents?.name || null,
+          processingMetadata: call.processingMetadata,
+          createdAt: call.createdAt,
+          updatedAt: call.updatedAt,
+          callGroupId: call.callGroupId,
+          callLegOrder: call.callLegOrder,
+          groupSize,
+          isTransferred: !!call.callGroupId && groupSize > 1,
+          sourceType: call.sourceType,
+          destinationType: call.destinationType,
+        };
+      }),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      metrics,
     };
   }
 

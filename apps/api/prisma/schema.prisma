@@ -65,6 +65,15 @@ model Call {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
+  // Transfer/grouping fields
+  callerIdInternal    String?   // Original caller ID that persists through transfers (links call legs)
+  callGroupId         String?   // Shared ID for grouped/transferred calls
+  callLegOrder        Int?      // Position in transfer chain (1=first leg, 2=second, etc.)
+  sourceType          String?   // VoIP stype: external, queue, phone, api, etc.
+  destinationType     String?   // VoIP dtype: phone, external, number, etc.
+  sourceNumber        String?   // VoIP snumber (who initiated this leg)
+  destinationNumber   String?   // VoIP dnumber (where this leg went)
+
   company Company? @relation(fields: [companyId], references: [id])
 
   analysis                CallAnalysis?             @relation(fields: [callAnalysisId], references: [id])
@@ -77,6 +86,8 @@ model Call {
   sentimentAlerts         SentimentAlert[]
 
   @@index([companyId])
+  @@index([callerIdInternal])
+  @@index([callGroupId])
 }
 
 model CallAnalysis {
