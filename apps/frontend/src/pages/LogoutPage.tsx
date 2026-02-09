@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import axiosInstance from '@/api/axios-instance'
+import { axiosInstance } from '@/api/axios-instance'
 import {
   Card,
   CardContent,
