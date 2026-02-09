@@ -989,7 +989,7 @@ Rules:
 
   /**
    * Delete all calls within a date range (inclusive).
-   * Also deletes related CallAnalysis and ProcessingLog records.
+   * Also deletes related records (FK constraints).
    */
   async bulkDeleteByDateRange(dateFrom: string, dateTo: string): Promise<number> {
     const startDate = new Date(dateFrom);
@@ -1021,6 +1021,10 @@ Rules:
     });
 
     await this.db.processingLog.deleteMany({
+      where: { callId: { in: callIds } },
+    });
+
+    await this.db.sentimentAlert.deleteMany({
       where: { callId: { in: callIds } },
     });
 
