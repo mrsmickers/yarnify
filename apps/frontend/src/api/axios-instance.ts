@@ -11,13 +11,35 @@ import Axios, {
 const STAGING_KEY_STORAGE_KEY = 'staging_api_key'
 
 /**
+ * Get staging key from build-time env var.
+ * Set VITE_STAGING_KEY in Coolify for staging builds.
+ */
+const getEnvStagingKey = (): string | null => {
+  try {
+    const key = import.meta.env.VITE_STAGING_KEY
+    return key && typeof key === 'string' ? key : null
+  } catch {
+    return null
+  }
+}
+
+/**
  * Check for staging key in URL hash on page load.
  * Format: /#staging=KEY or ?staging_key=KEY
+ * Also checks build-time VITE_STAGING_KEY env var.
  */
 const checkForStagingKey = () => {
   if (typeof window === 'undefined') return
 
-  // Check hash first: /#staging=KEY
+  // Check build-time env var first (most reliable for staging builds)
+  const envKey = getEnvStagingKey()
+  if (envKey) {
+    console.log('[Staging] Key detected in VITE_STAGING_KEY env var')
+    localStorage.setItem(STAGING_KEY_STORAGE_KEY, envKey)
+    return // Don't check URL if env var is set
+  }
+
+  // Check hash: /#staging=KEY
   const hash = window.location.hash
   if (hash.startsWith('#staging=')) {
     const key = hash.slice('#staging='.length)
@@ -25,6 +47,7 @@ const checkForStagingKey = () => {
       console.log('[Staging] Key detected in URL hash')
       localStorage.setItem(STAGING_KEY_STORAGE_KEY, key)
       window.history.replaceState(null, '', window.location.pathname + window.location.search)
+      return
     }
   }
 
@@ -42,10 +65,11 @@ const checkForStagingKey = () => {
 
 /**
  * Get the current staging key (if any).
+ * Checks localStorage (persisted from URL/env) or falls back to env var.
  */
 export const getStagingKey = (): string | null => {
-  if (typeof window === 'undefined') return null
-  return localStorage.getItem(STAGING_KEY_STORAGE_KEY)
+  if (typeof window === 'undefined') return getEnvStagingKey()
+  return localStorage.getItem(STAGING_KEY_STORAGE_KEY) || getEnvStagingKey()
 }
 
 /**
@@ -56,13 +80,13 @@ export const isStagingMode = (): boolean => {
 }
 
 /**
- * Clear staging key.
+ * Clear staging key (only clears localStorage, not env var).
  */
 export const clearStagingKey = () => {
   localStorage.removeItem(STAGING_KEY_STORAGE_KEY)
 }
 
-// Check for staging key on module load
+// Check for staging key on module load (synchronous, before React renders)
 checkForStagingKey()
 
 // ===========================
