@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import dayjs from 'dayjs'
 import { motion } from 'framer-motion'
@@ -68,47 +68,78 @@ interface MyCallsResponse {
   agentName?: string
 }
 
+/**
+ * Helper to update a single URL search param.
+ * When a filter (non-page) changes, page resets to 1.
+ */
+function updateSearchParam(
+  setSearchParams: ReturnType<typeof useSearchParams>[1],
+  key: string,
+  value: string | undefined
+) {
+  setSearchParams(
+    (prev) => {
+      const next = new URLSearchParams(prev)
+      if (value) {
+        next.set(key, value)
+      } else {
+        next.delete(key)
+      }
+      // Reset to page 1 when any filter (non-pagination) changes
+      if (key !== 'page' && key !== 'limit') {
+        next.delete('page')
+      }
+      return next
+    },
+    { replace: true }
+  )
+}
+
 const MyCallsPage = () => {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [callLogs, setCallLogs] = useState<TransformedCallLog[]>([])
   const [showFilters, setShowFilters] = useState(false)
 
-  const [sentimentFilter, setSentimentFilter] = useState(
-    () => searchParams.get('sentiment') || ''
+  // ── Derive ALL filter/pagination state from URL search params ──
+  const pageIndex = (Number(searchParams.get('page')) || 1) - 1
+  const pageSize = Number(searchParams.get('limit')) || 10
+  const sentimentFilter = searchParams.get('sentiment') || ''
+  const startDateFilterStr = searchParams.get('startDate') || ''
+  const endDateFilterStr = searchParams.get('endDate') || ''
+
+  const startDateFilter = useMemo(
+    () =>
+      startDateFilterStr && dayjs(startDateFilterStr).isValid()
+        ? dayjs(startDateFilterStr).toDate()
+        : undefined,
+    [startDateFilterStr]
   )
-  const [startDateFilter, setStartDateFilter] = useState<Date | undefined>(
-    () => {
-      const dateStr = searchParams.get('startDate')
-      return dateStr && dayjs(dateStr).isValid()
-        ? dayjs(dateStr).toDate()
-        : undefined
+  const endDateFilter = useMemo(
+    () =>
+      endDateFilterStr && dayjs(endDateFilterStr).isValid()
+        ? dayjs(endDateFilterStr).toDate()
+        : undefined,
+    [endDateFilterStr]
+  )
+
+  // Auto-show filters when any filter is active on mount
+  useEffect(() => {
+    if (sentimentFilter || startDateFilterStr || endDateFilterStr) {
+      setShowFilters(true)
     }
-  )
-  const [endDateFilter, setEndDateFilter] = useState<Date | undefined>(() => {
-    const dateStr = searchParams.get('endDate')
-    return dateStr && dayjs(dateStr).isValid()
-      ? dayjs(dateStr).toDate()
-      : undefined
-  })
+  }, []) // Only on mount
 
-  const [pageSize, setPageSize] = useState(() => {
-    const limit = searchParams.get('limit')
-    return limit ? parseInt(limit, 10) : 10
-  })
-  const [pageIndex, setPageIndex] = useState(() => {
-    const page = searchParams.get('page')
-    return page ? parseInt(page, 10) - 1 : 0
-  })
-
-  const queryParams = new URLSearchParams()
-  queryParams.set('page', String(pageIndex + 1))
-  queryParams.set('limit', String(pageSize))
-  if (sentimentFilter) queryParams.set('sentiment', sentimentFilter)
-  if (startDateFilter)
-    queryParams.set('startDate', dayjs(startDateFilter).format('YYYY-MM-DD'))
-  if (endDateFilter)
-    queryParams.set('endDate', dayjs(endDateFilter).format('YYYY-MM-DD'))
+  // Build query string for API
+  const apiQueryString = useMemo(() => {
+    const params = new URLSearchParams()
+    params.set('page', String(pageIndex + 1))
+    params.set('limit', String(pageSize))
+    if (sentimentFilter) params.set('sentiment', sentimentFilter)
+    if (startDateFilterStr) params.set('startDate', startDateFilterStr)
+    if (endDateFilterStr) params.set('endDate', endDateFilterStr)
+    return params.toString()
+  }, [pageIndex, pageSize, sentimentFilter, startDateFilterStr, endDateFilterStr])
 
   const {
     data: myCallsData,
@@ -121,12 +152,12 @@ const MyCallsPage = () => {
       pageIndex,
       pageSize,
       sentimentFilter,
-      startDateFilter?.toISOString(),
-      endDateFilter?.toISOString(),
+      startDateFilterStr,
+      endDateFilterStr,
     ],
     queryFn: async () => {
       return await axiosInstance<MyCallsResponse>({
-        url: `/api/v1/call-analysis/calls/mine?${queryParams.toString()}`,
+        url: `/api/v1/call-analysis/calls/mine?${apiQueryString}`,
         method: 'GET',
       })
     },
@@ -134,12 +165,32 @@ const MyCallsPage = () => {
     refetchInterval: 10000,
   })
 
+  // ── URL update helpers ──
+  const setPage = useCallback(
+    (newPageIndex: number) => {
+      updateSearchParam(setSearchParams, 'page', String(newPageIndex + 1))
+    },
+    [setSearchParams]
+  )
+
+  const setPageSizeParam = useCallback(
+    (newSize: number) => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev)
+          next.set('limit', String(newSize))
+          next.delete('page')
+          return next
+        },
+        { replace: true }
+      )
+    },
+    [setSearchParams]
+  )
+
   const handleClearFilters = useCallback(() => {
-    setSentimentFilter('')
-    setStartDateFilter(undefined)
-    setEndDateFilter(undefined)
-    setPageIndex(0)
-  }, [])
+    setSearchParams({}, { replace: true })
+  }, [setSearchParams])
 
   useEffect(() => {
     if (myCallsData?.data) {
@@ -163,29 +214,6 @@ const MyCallsPage = () => {
       setCallLogs(logs)
     }
   }, [myCallsData])
-
-  // Update URL search params
-  useEffect(() => {
-    const newSearchParams = new URLSearchParams()
-    newSearchParams.set('page', (pageIndex + 1).toString())
-    newSearchParams.set('limit', pageSize.toString())
-    if (sentimentFilter) newSearchParams.set('sentiment', sentimentFilter)
-    if (startDateFilter)
-      newSearchParams.set(
-        'startDate',
-        dayjs(startDateFilter).format('YYYY-MM-DD')
-      )
-    if (endDateFilter)
-      newSearchParams.set('endDate', dayjs(endDateFilter).format('YYYY-MM-DD'))
-    setSearchParams(newSearchParams, { replace: true })
-  }, [
-    pageIndex,
-    pageSize,
-    sentimentFilter,
-    startDateFilter,
-    endDateFilter,
-    setSearchParams,
-  ])
 
   const getSentimentBadgeVariant = (
     sentiment: TransformedCallLog['sentiment']
@@ -479,8 +507,10 @@ const MyCallsPage = () => {
                 <Select
                   value={sentimentFilter || 'ALL_SENTIMENTS'}
                   onValueChange={(value) =>
-                    setSentimentFilter(
-                      value === 'ALL_SENTIMENTS' ? '' : value
+                    updateSearchParam(
+                      setSearchParams,
+                      'sentiment',
+                      value === 'ALL_SENTIMENTS' ? undefined : value
                     )
                   }
                 >
@@ -522,7 +552,13 @@ const MyCallsPage = () => {
                     <Calendar
                       mode="single"
                       selected={startDateFilter}
-                      onSelect={setStartDateFilter}
+                      onSelect={(date) => {
+                        updateSearchParam(
+                          setSearchParams,
+                          'startDate',
+                          date ? dayjs(date).format('YYYY-MM-DD') : undefined
+                        )
+                      }}
                       initialFocus
                     />
                   </PopoverContent>
@@ -552,7 +588,13 @@ const MyCallsPage = () => {
                     <Calendar
                       mode="single"
                       selected={endDateFilter}
-                      onSelect={setEndDateFilter}
+                      onSelect={(date) => {
+                        updateSearchParam(
+                          setSearchParams,
+                          'endDate',
+                          date ? dayjs(date).format('YYYY-MM-DD') : undefined
+                        )
+                      }}
                       disabled={(date: Date) =>
                         startDateFilter ? date < startDateFilter : false
                       }
@@ -562,13 +604,10 @@ const MyCallsPage = () => {
                 </Popover>
               </div>
             </div>
-            <div className="flex justify-end space-x-2">
+            <div className="flex justify-end">
               <Button variant="outline" onClick={handleClearFilters} size="sm">
                 <RotateCcwIcon className="w-4 h-4 mr-2" />
                 Clear Filters
-              </Button>
-              <Button onClick={() => refetch()} size="sm">
-                Apply Filters
               </Button>
             </div>
           </motion.div>
@@ -606,8 +645,8 @@ const MyCallsPage = () => {
                 pageCount={myCallsData?.totalPages || 1}
                 pageSize={pageSize}
                 pageIndex={pageIndex}
-                onPageChange={setPageIndex}
-                onPageSizeChange={setPageSize}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSizeParam}
                 onRowClick={(row) => navigate(`/calls/${row.id}`)}
               />
             </motion.div>

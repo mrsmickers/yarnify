@@ -7,42 +7,41 @@ import {
 } from '@/components/ui/card'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-// import { Input } from '@/components/ui/input' // No longer needed
-import { Label } from '@/components/ui/label' // Added Label
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select' // Added Select
-import { Calendar } from '@/components/ui/calendar' // Added Calendar
+} from '@/components/ui/select'
+import { Calendar } from '@/components/ui/calendar'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover' // Added Popover
+} from '@/components/ui/popover'
 import {
   CalendarIcon,
   FilterXIcon,
   RefreshCcwIcon,
   RotateCcwIcon,
   UserCircle2,
-} from 'lucide-react' // Added Icons
-import { cn } from '@/lib/utils' // Added cn
-import dayjs from 'dayjs' // Switch to dayjs
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+import dayjs from 'dayjs'
 
 import {
   useCallAnalysisControllerGetCalls,
-  useCallAnalysisControllerGetCompanyList, // Added hook for company list
-  useCallAnalysisControllerGetAgentList, // Added hook for agent list
+  useCallAnalysisControllerGetCompanyList,
+  useCallAnalysisControllerGetAgentList,
 } from '@/api/api-client'
 import type {
   CallResponseDto,
-  CompanyListItemDto, // Added DTO
-  AgentListItemDto, // Added DTO
+  CompanyListItemDto,
+  AgentListItemDto,
 } from '@/api/api-client'
-import { useEffect, useState, useCallback } from 'react' // Added useCallback
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { DataTable } from '@/components/ui/data-table'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
@@ -58,17 +57,15 @@ interface CallStat {
   colorClass?: string
 }
 
-// Updated CallLog to better match CallResponseDto and include analysis data
 interface TransformedCallLog {
   id: string
   date: string
-  time: string // Added time field
+  time: string
   companyName: string
   sentiment: 'Positive' | 'Negative' | 'Neutral' | 'Unknown'
   mood: string
-  agentName: string // Assuming agent name might come from analysis or a related field
-  aiConfidence: string // Assuming AI confidence might come from analysis
-  // Add other relevant fields from CallResponseDto.analysis if needed
+  agentName: string
+  aiConfidence: string
 }
 
 const SCOPE_LABELS: Record<string, string> = {
@@ -78,96 +75,126 @@ const SCOPE_LABELS: Record<string, string> = {
   user: 'Showing your calls',
 }
 
+/**
+ * Helper to update a single URL search param.
+ * When a filter (non-page) changes, page resets to 1.
+ */
+function updateSearchParam(
+  setSearchParams: ReturnType<typeof useSearchParams>[1],
+  key: string,
+  value: string | undefined
+) {
+  setSearchParams(
+    (prev) => {
+      const next = new URLSearchParams(prev)
+      if (value) {
+        next.set(key, value)
+      } else {
+        next.delete(key)
+      }
+      // Reset to page 1 when any filter (non-pagination) changes
+      if (key !== 'page' && key !== 'limit') {
+        next.delete('page')
+      }
+      return next
+    },
+    { replace: true }
+  )
+}
+
 const VoipDashboardPage = () => {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [stats, setStats] = useState<CallStat[]>([])
   const [callLogs, setCallLogs] = useState<TransformedCallLog[]>([])
-  const [showFilters, setShowFilters] = useState(false) // State for filter visibility
+  const [showFilters, setShowFilters] = useState(false)
   const { data: currentUser } = useCurrentUser()
 
-  // Filter states initialized from URL search params or defaults
-  const [companyIdFilter, setCompanyIdFilter] = useState(
-    () => searchParams.get('companyId') || ''
+  // ── Derive ALL filter/pagination state from URL search params ──
+  const pageIndex = (Number(searchParams.get('page')) || 1) - 1 // 0-based for DataTable
+  const pageSize = Number(searchParams.get('limit')) || 10
+  const companyIdFilter = searchParams.get('companyId') || ''
+  const agentIdFilter = searchParams.get('agentId') || ''
+  const sentimentFilter = searchParams.get('sentiment') || ''
+  const startDateFilterStr = searchParams.get('startDate') || ''
+  const endDateFilterStr = searchParams.get('endDate') || ''
+
+  // Parsed Date objects for the Calendar pickers
+  const startDateFilter = useMemo(
+    () =>
+      startDateFilterStr && dayjs(startDateFilterStr).isValid()
+        ? dayjs(startDateFilterStr).toDate()
+        : undefined,
+    [startDateFilterStr]
   )
-  const [agentIdFilter, setAgentIdFilter] = useState(
-    () => searchParams.get('agentId') || ''
+  const endDateFilter = useMemo(
+    () =>
+      endDateFilterStr && dayjs(endDateFilterStr).isValid()
+        ? dayjs(endDateFilterStr).toDate()
+        : undefined,
+    [endDateFilterStr]
   )
-  const [sentimentFilter, setSentimentFilter] = useState(
-    () => searchParams.get('sentiment') || ''
-  )
-  const [startDateFilter, setStartDateFilter] = useState<Date | undefined>(
-    () => {
-      const dateStr = searchParams.get('startDate')
-      return dateStr && dayjs(dateStr).isValid()
-        ? dayjs(dateStr).toDate()
-        : undefined
+
+  // Auto-show filters when any filter is active on mount
+  useEffect(() => {
+    if (companyIdFilter || agentIdFilter || sentimentFilter || startDateFilterStr || endDateFilterStr) {
+      setShowFilters(true)
     }
-  )
-  const [endDateFilter, setEndDateFilter] = useState<Date | undefined>(() => {
-    const dateStr = searchParams.get('endDate')
-    return dateStr && dayjs(dateStr).isValid()
-      ? dayjs(dateStr).toDate()
-      : undefined
-  })
+  }, []) // Only on mount
 
   // Data for filter dropdowns
   const { data: companyList } = useCallAnalysisControllerGetCompanyList()
   const { data: agentList } = useCallAnalysisControllerGetAgentList()
 
-  // Initialize pageSize and pageIndex from URL search params or defaults
-  const [pageSize, setPageSize] = useState(() => {
-    const limit = searchParams.get('limit')
-    return limit ? parseInt(limit, 10) : 10
-  })
-  const [pageIndex, setPageIndex] = useState(() => {
-    const page = searchParams.get('page')
-    return page ? parseInt(page, 10) - 1 : 0 // API is 1-based, local state is 0-based
-  })
-
-  // API call parameters
+  // API call parameters — derived directly from URL state
   const queryParams = {
     page: pageIndex + 1,
     limit: pageSize,
     companyId: companyIdFilter || undefined,
     agentId: agentIdFilter || undefined,
     sentiment: sentimentFilter || undefined,
-    startDate: startDateFilter
-      ? dayjs(startDateFilter).format('YYYY-MM-DD')
-      : undefined,
-    endDate: endDateFilter
-      ? dayjs(endDateFilter).format('YYYY-MM-DD')
-      : undefined,
+    startDate: startDateFilterStr || undefined,
+    endDate: endDateFilterStr || undefined,
   }
 
   const {
     data: paginatedCallsData,
     isLoading,
     error,
-    refetch, // Added refetch
+    refetch,
   } = useCallAnalysisControllerGetCalls(queryParams, {
     query: {
       staleTime: 5 * 60 * 1000,
       refetchInterval: 10000,
-      // refetchOnWindowFocus: false, // Optional: disable refetch on window focus if filters are applied manually
     },
   })
 
-  const handleApplyFilters = useCallback(() => {
-    setPageIndex(0) // Reset to first page when filters are applied
-    refetch()
-  }, [refetch])
+  // ── URL update helpers ──
+  const setPage = useCallback(
+    (newPageIndex: number) => {
+      updateSearchParam(setSearchParams, 'page', String(newPageIndex + 1))
+    },
+    [setSearchParams]
+  )
+
+  const setPageSizeParam = useCallback(
+    (newSize: number) => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev)
+          next.set('limit', String(newSize))
+          next.delete('page') // Reset to page 1
+          return next
+        },
+        { replace: true }
+      )
+    },
+    [setSearchParams]
+  )
 
   const handleClearFilters = useCallback(() => {
-    setCompanyIdFilter('')
-    setAgentIdFilter('')
-    setSentimentFilter('')
-    setStartDateFilter(undefined)
-    setEndDateFilter(undefined)
-    setPageIndex(0) // Reset to first page
-    // setSearchParams({}, { replace: true }); // Clear URL params immediately
-    // refetch will be triggered by useEffect for searchParams
-  }, [])
+    setSearchParams({}, { replace: true })
+  }, [setSearchParams])
 
   useEffect(() => {
     if (paginatedCallsData?.data) {
@@ -175,7 +202,6 @@ const VoipDashboardPage = () => {
         (call: CallResponseDto) => call.callStatus !== 'INTERNAL_CALL_SKIPPED'
       )
 
-      // Transform calls for the log
       const transformedLogs: TransformedCallLog[] = calls.map(
         (call: CallResponseDto): TransformedCallLog => {
           const analysisData = call.analysis || {}
@@ -194,11 +220,11 @@ const VoipDashboardPage = () => {
           return {
             id: call.id,
             date: new Date(call.startTime).toLocaleDateString(),
-            time: new Date(call.startTime).toLocaleTimeString('en-GB'), // Added time in 24-hour format
+            time: new Date(call.startTime).toLocaleTimeString('en-GB'),
             companyName,
             sentiment,
             mood,
-            agentName: call.agentName || 'N/A', // Assuming agent name might come from analysis or a related field
+            agentName: call.agentName || 'N/A',
             aiConfidence,
           }
         }
@@ -244,42 +270,9 @@ const VoipDashboardPage = () => {
         },
       ])
     }
-  }, [paginatedCallsData]) // Use paginatedCallsData in dependency array
+  }, [paginatedCallsData])
 
-  // Update URL search params when pageIndex or pageSize changes
-  useEffect(() => {
-    const newSearchParams = new URLSearchParams()
-    newSearchParams.set('page', (pageIndex + 1).toString())
-    newSearchParams.set('limit', pageSize.toString())
-    if (companyIdFilter) newSearchParams.set('companyId', companyIdFilter)
-    else newSearchParams.delete('companyId')
-    if (agentIdFilter) newSearchParams.set('agentId', agentIdFilter)
-    else newSearchParams.delete('agentId')
-    if (sentimentFilter) newSearchParams.set('sentiment', sentimentFilter)
-    else newSearchParams.delete('sentiment')
-    if (startDateFilter)
-      newSearchParams.set(
-        'startDate',
-        dayjs(startDateFilter).format('YYYY-MM-DD')
-      )
-    else newSearchParams.delete('startDate')
-    if (endDateFilter)
-      newSearchParams.set('endDate', dayjs(endDateFilter).format('YYYY-MM-DD'))
-    else newSearchParams.delete('endDate')
-
-    setSearchParams(newSearchParams, { replace: true })
-  }, [
-    pageIndex,
-    pageSize,
-    companyIdFilter,
-    agentIdFilter,
-    sentimentFilter,
-    startDateFilter,
-    endDateFilter,
-    setSearchParams,
-  ])
-
-  // Helper functions and column definitions moved inside the component
+  // Helper functions and column definitions
   const getSentimentBadgeVariant = (
     sentiment: TransformedCallLog['sentiment']
   ): 'default' | 'destructive' | 'outline' | 'secondary' => {
@@ -290,7 +283,7 @@ const VoipDashboardPage = () => {
         return 'destructive'
       case 'Neutral':
         return 'outline'
-      default: // For "Unknown"
+      default:
         return 'secondary'
     }
   }
@@ -305,7 +298,7 @@ const VoipDashboardPage = () => {
         return 'bg-red-100 text-red-800'
       case 'Neutral':
         return 'bg-yellow-100 text-yellow-800'
-      default: // For "Unknown"
+      default:
         return 'bg-gray-100 text-gray-800'
     }
   }
@@ -391,8 +384,6 @@ const VoipDashboardPage = () => {
     },
   ]
 
-  // Removed the global isLoading check here, will handle it inline for the table
-
   if (error) {
     const errorMessage =
       (error as { message?: string })?.message || 'An unknown error occurred'
@@ -401,7 +392,7 @@ const VoipDashboardPage = () => {
         <Card className="max-w-md border border-destructive/20 bg-card/70 p-8 text-center shadow-lg dark:border-[#442323]">
           <CardHeader className="space-y-3 text-center">
             <CardTitle className="text-xl font-semibold text-destructive">
-              We couldn’t load your dashboard
+              We couldn't load your dashboard
             </CardTitle>
             <CardDescription>{errorMessage}</CardDescription>
           </CardHeader>
@@ -520,7 +511,7 @@ const VoipDashboardPage = () => {
               </>
             ) : (
               <>
-                <svg // Keep original filter icon for "Show Filters"
+                <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -555,11 +546,11 @@ const VoipDashboardPage = () => {
                 <Select
                   value={companyIdFilter || 'ALL_COMPANIES'}
                   onValueChange={(value) => {
-                    if (value === 'ALL_COMPANIES') {
-                      setCompanyIdFilter('')
-                    } else {
-                      setCompanyIdFilter(value)
-                    }
+                    updateSearchParam(
+                      setSearchParams,
+                      'companyId',
+                      value === 'ALL_COMPANIES' ? undefined : value
+                    )
                   }}
                 >
                   <SelectTrigger id="companyFilter">
@@ -582,11 +573,11 @@ const VoipDashboardPage = () => {
                 <Select
                   value={agentIdFilter || 'ALL_AGENTS'}
                   onValueChange={(value) => {
-                    if (value === 'ALL_AGENTS') {
-                      setAgentIdFilter('')
-                    } else {
-                      setAgentIdFilter(value)
-                    }
+                    updateSearchParam(
+                      setSearchParams,
+                      'agentId',
+                      value === 'ALL_AGENTS' ? undefined : value
+                    )
                   }}
                 >
                   <SelectTrigger id="agentFilter">
@@ -607,13 +598,13 @@ const VoipDashboardPage = () => {
               <div className="space-y-1">
                 <Label htmlFor="sentimentFilter">Sentiment</Label>
                 <Select
-                  value={sentimentFilter || 'ALL_SENTIMENTS'} // Ensure "ALL_SENTIMENTS" is selected if filter is empty
+                  value={sentimentFilter || 'ALL_SENTIMENTS'}
                   onValueChange={(value) => {
-                    if (value === 'ALL_SENTIMENTS') {
-                      setSentimentFilter('') // Set to empty string for "no filter"
-                    } else {
-                      setSentimentFilter(value)
-                    }
+                    updateSearchParam(
+                      setSearchParams,
+                      'sentiment',
+                      value === 'ALL_SENTIMENTS' ? undefined : value
+                    )
                   }}
                 >
                   <SelectTrigger id="sentimentFilter">
@@ -656,7 +647,13 @@ const VoipDashboardPage = () => {
                     <Calendar
                       mode="single"
                       selected={startDateFilter}
-                      onSelect={setStartDateFilter}
+                      onSelect={(date) => {
+                        updateSearchParam(
+                          setSearchParams,
+                          'startDate',
+                          date ? dayjs(date).format('YYYY-MM-DD') : undefined
+                        )
+                      }}
                       initialFocus
                     />
                   </PopoverContent>
@@ -688,23 +685,26 @@ const VoipDashboardPage = () => {
                     <Calendar
                       mode="single"
                       selected={endDateFilter}
-                      onSelect={setEndDateFilter}
-                      disabled={(
-                        date: Date // Added type for date
-                      ) => (startDateFilter ? date < startDateFilter : false)}
+                      onSelect={(date) => {
+                        updateSearchParam(
+                          setSearchParams,
+                          'endDate',
+                          date ? dayjs(date).format('YYYY-MM-DD') : undefined
+                        )
+                      }}
+                      disabled={(date: Date) =>
+                        startDateFilter ? date < startDateFilter : false
+                      }
                       initialFocus
                     />
                   </PopoverContent>
                 </Popover>
               </div>
             </div>
-            <div className="flex justify-end space-x-2">
+            <div className="flex justify-end">
               <Button variant="outline" onClick={handleClearFilters} size="sm">
                 <RotateCcwIcon className="w-4 h-4 mr-2" />
                 Clear Filters
-              </Button>
-              <Button onClick={handleApplyFilters} size="sm">
-                Apply Filters
               </Button>
             </div>
           </motion.div>
@@ -712,7 +712,6 @@ const VoipDashboardPage = () => {
 
         <CardContent className="relative min-h-[200px]">
           {' '}
-          {/* Added relative and min-h for loader positioning */}
           {isLoading ? (
             <motion.div
               key="loader"
@@ -720,9 +719,8 @@ const VoipDashboardPage = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm p-4 space-y-3" // Adjusted for skeleton layout
+              className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm p-4 space-y-3"
             >
-              {/* Skeleton Loader for Table Rows */}
               <div className="w-full space-y-2">
                 <Skeleton className="h-8 w-full" />
                 <Skeleton className="h-8 w-full" />
@@ -745,8 +743,8 @@ const VoipDashboardPage = () => {
                 pageCount={paginatedCallsData?.totalPages || 1}
                 pageSize={pageSize}
                 pageIndex={pageIndex}
-                onPageChange={setPageIndex}
-                onPageSizeChange={setPageSize}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSizeParam}
                 onRowClick={(row) => {
                   navigate(`/calls/${row.id}`)
                 }}
