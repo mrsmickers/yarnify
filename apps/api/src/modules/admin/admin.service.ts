@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { createId } from '@paralleldrive/cuid2';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditService } from '../audit/audit.service';
 import { ConnectwiseManageService } from '../connectwise-manage/connectwise-manage.service';
 import { OpenAIService } from '../openai/openai.service';
 import { CallRecordingService } from '../voip/call-recording.service';
@@ -25,6 +26,7 @@ export class AdminService {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
     private readonly connectwiseService: ConnectwiseManageService,
     private readonly openaiService: OpenAIService,
     private readonly voipService: CallRecordingService,
@@ -36,6 +38,15 @@ export class AdminService {
   async getUserById(id: string) {
     return this.prisma.entraUser.findUnique({
       where: { id },
+    });
+  }
+
+  /**
+   * Get a user by their Entra OID.
+   */
+  async getUserByOid(oid: string) {
+    return this.prisma.entraUser.findUnique({
+      where: { oid },
     });
   }
 
@@ -191,6 +202,12 @@ export class AdminService {
    */
   async updateUserRole(id: string, role: 'admin' | 'manager' | 'team_lead' | 'user') {
     try {
+      // Get previous role for audit
+      const existing = await this.prisma.entraUser.findUnique({
+        where: { id },
+        select: { role: true, email: true, displayName: true },
+      });
+
       const user = await this.prisma.entraUser.update({
         where: { id },
         data: {
@@ -200,8 +217,21 @@ export class AdminService {
       });
 
       this.logger.log(
-        `User ${user.email} (${user.id}) department updated to ${user.department}`,
+        `User ${user.email} (${user.id}) role updated to ${user.role}`,
       );
+
+      // Audit log: user role updated
+      this.auditService.log({
+        action: 'user.role.update',
+        targetType: 'user',
+        targetId: id,
+        targetName: user.displayName || user.email,
+        metadata: {
+          previousRole: existing?.role,
+          newRole: role,
+          userEmail: user.email,
+        },
+      }).catch(() => {}); // Fire-and-forget
 
       return {
         success: true,

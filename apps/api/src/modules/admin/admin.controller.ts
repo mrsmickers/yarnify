@@ -19,6 +19,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AdminService } from './admin.service';
 import { AuthService } from '../auth/auth.service';
+import { AuditService } from '../audit/audit.service';
 import { ZodValidationPipe } from 'nestjs-zod';
 import {
   UpdateUserRoleDto,
@@ -53,6 +54,7 @@ export class AdminController {
   constructor(
     private readonly adminService: AdminService,
     private readonly authService: AuthService,
+    private readonly auditService: AuditService,
   ) {}
 
   @Get('users')
@@ -225,6 +227,22 @@ export class AdminController {
     this.logger.log(
       `Admin ${adminPayload.email} is now impersonating ${targetUser.email}`,
     );
+
+    // Audit log: impersonation with full admin context
+    const adminUser = await this.adminService.getUserByOid(adminPayload.oid);
+    this.auditService.log({
+      actorId: adminUser?.id,
+      actorEmail: adminPayload.email,
+      action: 'auth.impersonate.start',
+      targetType: 'user',
+      targetId: targetUser.id,
+      targetName: targetUser.displayName || targetUser.email,
+      metadata: {
+        targetEmail: targetUser.email,
+        targetRole: targetUser.role,
+        targetDepartment: targetUser.department,
+      },
+    }).catch(() => {}); // Fire-and-forget
 
     return {
       token,

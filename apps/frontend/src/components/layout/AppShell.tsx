@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   Menu,
   PhoneCall,
+  ScrollText,
   Settings2,
   Shield,
   Target,
@@ -133,6 +134,12 @@ const adminNav: NavSection = {
       path: '/admin/permissions',
       icon: Shield,
       permission: 'admin.permissions',
+    },
+    {
+      label: 'Audit Log',
+      path: '/admin/audit',
+      icon: ScrollText,
+      permission: 'admin.audit',
     },
   ],
 }

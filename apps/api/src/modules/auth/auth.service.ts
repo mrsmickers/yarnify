@@ -1,4 +1,4 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   AuthorizationCodeRequest,
@@ -9,6 +9,7 @@ import {
 } from '@azure/msal-node';
 import * as jwt from 'jsonwebtoken';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditService } from '../audit/audit.service';
 import type { EntraUser } from '@db';
 import { isPendingEntraOid } from '../../common/constants/entra.constants';
 
@@ -53,6 +54,8 @@ export class AuthService {
   constructor(
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
+    @Inject(forwardRef(() => AuditService))
+    private readonly auditService: AuditService,
   ) {
     const tenantId = this.configService.getOrThrow<string>('ENTRA_TENANT_ID');
     const clientId = this.configService.getOrThrow<string>('ENTRA_CLIENT_ID');
@@ -518,6 +521,17 @@ export class AuthService {
     });
 
     this.logger.log(`User authenticated: ${updatedUser.email}`);
+
+    // Audit log: successful login
+    this.auditService.log({
+      actorId: updatedUser.id,
+      actorEmail: updatedUser.email,
+      action: 'auth.login',
+      targetType: 'user',
+      targetId: updatedUser.id,
+      targetName: updatedUser.displayName || updatedUser.email,
+    }).catch(() => {}); // Fire-and-forget
+
     return updatedUser;
   }
 
@@ -551,6 +565,21 @@ export class AuthService {
     this.logger.log(
       `Generating impersonation token for ${targetUser.email} (initiated by admin ${adminOid})`,
     );
+
+    // Audit log: impersonation start
+    this.auditService.log({
+      actorId: undefined, // We only have the OID, need to look up later or pass admin user
+      actorEmail: undefined,
+      action: 'auth.impersonate.start',
+      targetType: 'user',
+      targetId: targetUser.id,
+      targetName: targetUser.displayName || targetUser.email,
+      metadata: {
+        adminOid,
+        targetEmail: targetUser.email,
+        targetRole: targetUser.role,
+      },
+    }).catch(() => {}); // Fire-and-forget
 
     return jwt.sign(payload, this.jwtSecret, {
       expiresIn: impersonationTtlSeconds,

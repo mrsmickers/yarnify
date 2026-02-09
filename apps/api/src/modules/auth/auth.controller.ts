@@ -22,6 +22,7 @@ import {
 } from './dto/refresh-token.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditService } from '../audit/audit.service';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -34,6 +35,7 @@ export class AuthController {
     private readonly configService: ConfigService,
     private readonly cls: ClsService<ClsStore>,
     private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
   ) {
     this.frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL');
     this.logger.log(`FRONTEND_URL configured as: ${this.frontendUrl}`);
@@ -191,7 +193,31 @@ export class AuthController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post('logout')
-  async logout(@Req() _req: Request, @Res() res: Response) {
+  async logout(@Req() req: Request, @Res() res: Response) {
+    const payload = req.user as JwtPayload | undefined;
+
+    // Audit log: logout
+    if (payload) {
+      // Look up user ID from OID for proper audit trail
+      let userId: string | undefined;
+      if (payload.oid) {
+        const user = await this.prisma.entraUser.findUnique({
+          where: { oid: payload.oid },
+          select: { id: true },
+        });
+        userId = user?.id;
+      }
+
+      this.auditService.log({
+        actorId: userId,
+        actorEmail: payload.email,
+        action: 'auth.logout',
+        targetType: 'user',
+        targetId: userId,
+        targetName: payload.name || payload.email,
+      }).catch(() => {}); // Fire-and-forget
+    }
+
     const cookieOptions = {
       httpOnly: true,
       secure: this.configService.get<string>('NODE_ENV') === 'production',

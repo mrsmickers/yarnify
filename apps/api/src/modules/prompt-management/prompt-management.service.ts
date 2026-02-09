@@ -6,6 +6,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditService } from '../audit/audit.service';
 import { CreatePromptDto } from './dto/create-prompt.dto';
 import { UpdatePromptDto } from './dto/update-prompt.dto';
 
@@ -13,7 +14,10 @@ import { UpdatePromptDto } from './dto/update-prompt.dto';
 export class PromptManagementService {
   private readonly logger = new Logger(PromptManagementService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   async findAll() {
     return this.prisma.promptTemplate.findMany({
@@ -64,12 +68,28 @@ export class PromptManagementService {
   async update(id: string, dto: UpdatePromptDto) {
     const existing = await this.findOne(id);
 
-    return this.prisma.promptTemplate.update({
+    const updated = await this.prisma.promptTemplate.update({
       where: { id },
       data: {
         ...dto,
       },
     });
+
+    // Audit log: prompt updated
+    this.auditService.log({
+      action: 'config.prompt.update',
+      targetType: 'prompt',
+      targetId: id,
+      targetName: updated.name,
+      metadata: {
+        useCase: updated.useCase,
+        previousVersion: existing.version,
+        newVersion: updated.version,
+        contentChanged: dto.content !== undefined && dto.content !== existing.content,
+      },
+    }).catch(() => {}); // Fire-and-forget
+
+    return updated;
   }
 
   async delete(id: string) {

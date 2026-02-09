@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditService } from '../audit/audit.service';
 import { CreateSentimentAlertConfigDto } from './dto/create-sentiment-alert-config.dto';
 import { UpdateSentimentAlertConfigDto } from './dto/update-sentiment-alert-config.dto';
 
@@ -10,7 +11,10 @@ const FRUSTRATION_LEVELS = ['Low', 'Medium', 'High'];
 export class SentimentAlertsService {
   private readonly logger = new Logger(SentimentAlertsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   // ── Alert Config CRUD ─────────────────────────────────────────────────
 
@@ -44,11 +48,26 @@ export class SentimentAlertsService {
   }
 
   async updateConfig(id: string, dto: UpdateSentimentAlertConfigDto) {
-    await this.getAlertConfigById(id);
-    return this.prisma.sentimentAlertConfig.update({
+    const existing = await this.getAlertConfigById(id);
+    const updated = await this.prisma.sentimentAlertConfig.update({
       where: { id },
       data: { ...dto },
     });
+
+    // Audit log: sentiment alert config updated
+    this.auditService.log({
+      action: 'config.alert.update',
+      targetType: 'alert_config',
+      targetId: id,
+      targetName: updated.name,
+      metadata: {
+        previousActive: existing.isActive,
+        newActive: updated.isActive,
+        changes: dto,
+      },
+    }).catch(() => {}); // Fire-and-forget
+
+    return updated;
   }
 
   async deleteConfig(id: string) {

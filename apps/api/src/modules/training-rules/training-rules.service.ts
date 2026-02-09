@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditService } from '../audit/audit.service';
 import { CreateTrainingRuleDto } from './dto/create-training-rule.dto';
 import { UpdateTrainingRuleDto } from './dto/update-training-rule.dto';
 
@@ -7,7 +8,10 @@ import { UpdateTrainingRuleDto } from './dto/update-training-rule.dto';
 export class TrainingRulesService {
   private readonly logger = new Logger(TrainingRulesService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   async findAll(filters?: {
     category?: string;
@@ -45,7 +49,7 @@ export class TrainingRulesService {
   }
 
   async create(dto: CreateTrainingRuleDto, createdBy?: string) {
-    return this.prisma.trainingRule.create({
+    const rule = await this.prisma.trainingRule.create({
       data: {
         title: dto.title,
         description: dto.description,
@@ -57,27 +61,69 @@ export class TrainingRulesService {
         createdBy,
       },
     });
+
+    // Audit log: training rule created
+    this.auditService.log({
+      action: 'config.training_rule.create',
+      targetType: 'training_rule',
+      targetId: rule.id,
+      targetName: rule.title,
+      metadata: {
+        category: rule.category,
+        department: rule.department,
+        isCritical: rule.isCritical,
+      },
+    }).catch(() => {}); // Fire-and-forget
+
+    return rule;
   }
 
   async update(id: string, dto: UpdateTrainingRuleDto) {
     // Verify exists
-    await this.findById(id);
+    const existing = await this.findById(id);
 
-    return this.prisma.trainingRule.update({
+    const updated = await this.prisma.trainingRule.update({
       where: { id },
       data: {
         ...dto,
       },
     });
+
+    // Audit log: training rule updated
+    this.auditService.log({
+      action: 'config.training_rule.update',
+      targetType: 'training_rule',
+      targetId: id,
+      targetName: updated.title,
+      metadata: {
+        previousTitle: existing.title,
+        changes: dto,
+      },
+    }).catch(() => {}); // Fire-and-forget
+
+    return updated;
   }
 
   async delete(id: string) {
     // Verify exists
-    await this.findById(id);
+    const existing = await this.findById(id);
 
     await this.prisma.trainingRule.delete({
       where: { id },
     });
+
+    // Audit log: training rule deleted
+    this.auditService.log({
+      action: 'config.training_rule.delete',
+      targetType: 'training_rule',
+      targetId: id,
+      targetName: existing.title,
+      metadata: {
+        category: existing.category,
+        department: existing.department,
+        wasCritical: existing.isCritical,
+      },
+    }).catch(() => {}); // Fire-and-forget
 
     return { success: true };
   }

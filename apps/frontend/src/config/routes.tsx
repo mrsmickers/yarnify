@@ -16,6 +16,7 @@ import TrainingRulesPage from '../pages/TrainingRulesPage'
 import ScoringCategoriesPage from '../pages/ScoringCategoriesPage'
 import SentimentAlertsPage from '../pages/SentimentAlertsPage'
 import PermissionsPage from '../pages/PermissionsPage'
+import AuditLogPage from '../pages/AuditLogPage'
 
 // Route configuration
 export const routes = [
@@ -90,6 +91,10 @@ export const routes = [
   {
     path: '/admin/permissions',
     element: <PermissionsPage />,
+  },
+  {
+    path: '/admin/audit',
+    element: <AuditLogPage />,
   },
   {
     path: '*',

@@ -1,5 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditService } from '../audit/audit.service';
 import { CreateScoringCategoryDto } from './dto/create-scoring-category.dto';
 import { UpdateScoringCategoryDto } from './dto/update-scoring-category.dto';
 
@@ -36,7 +37,10 @@ export interface CallScoreResult {
 export class ScoringService {
   private readonly logger = new Logger(ScoringService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   // ─── Scoring Categories CRUD ───────────────────────────────
 
@@ -69,11 +73,26 @@ export class ScoringService {
   }
 
   async updateCategory(id: string, dto: UpdateScoringCategoryDto) {
-    await this.findCategoryById(id); // ensure exists
-    return this.prisma.scoringCategory.update({
+    const existing = await this.findCategoryById(id); // ensure exists
+    const updated = await this.prisma.scoringCategory.update({
       where: { id },
       data: dto,
     });
+
+    // Audit log: scoring category updated
+    this.auditService.log({
+      action: 'config.scoring.update',
+      targetType: 'scoring',
+      targetId: id,
+      targetName: updated.label || updated.name,
+      metadata: {
+        previousWeight: existing.weight,
+        newWeight: updated.weight,
+        changes: dto,
+      },
+    }).catch(() => {}); // Fire-and-forget
+
+    return updated;
   }
 
   async deleteCategory(id: string) {

@@ -1,11 +1,15 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class PermissionsService {
   private readonly logger = new Logger(PermissionsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   /**
    * List all available permissions
@@ -142,6 +146,9 @@ export class PermissionsService {
       throw new NotFoundException(`Invalid permission codes: ${invalidCodes.join(', ')}`);
     }
 
+    // Get existing permissions for audit diff
+    const existingPermissions = await this.listRolePermissions(role);
+
     await this.prisma.$transaction(async (tx) => {
       // Delete existing role permissions
       await tx.rolePermission.deleteMany({
@@ -160,6 +167,20 @@ export class PermissionsService {
     });
 
     this.logger.log(`Successfully set ${codes.length} permissions for role ${role}`);
+
+    // Audit log: role permissions updated
+    this.auditService.log({
+      action: 'permission.role.update',
+      targetType: 'role',
+      targetId: role,
+      targetName: role,
+      metadata: {
+        previousPermissions: existingPermissions,
+        newPermissions: codes,
+        added: codes.filter((c) => !existingPermissions.includes(c)),
+        removed: existingPermissions.filter((c) => !codes.includes(c)),
+      },
+    }).catch(() => {}); // Fire-and-forget
   }
 
   /**
@@ -206,6 +227,18 @@ export class PermissionsService {
         where: { userId, permissionCode: code },
       });
       this.logger.log(`Removed override for user ${userId}, permission ${code}`);
+
+      // Audit log: override removed
+      this.auditService.log({
+        action: 'permission.user.override',
+        targetType: 'user',
+        targetId: userId,
+        targetName: user.email,
+        metadata: {
+          permissionCode: code,
+          action: 'removed',
+        },
+      }).catch(() => {}); // Fire-and-forget
     } else {
       // Upsert override
       await this.prisma.userPermissionOverride.upsert({
@@ -218,6 +251,18 @@ export class PermissionsService {
       this.logger.log(
         `Set override for user ${userId}, permission ${code}: ${granted ? 'granted' : 'revoked'}`,
       );
+
+      // Audit log: override set
+      this.auditService.log({
+        action: 'permission.user.override',
+        targetType: 'user',
+        targetId: userId,
+        targetName: user.email,
+        metadata: {
+          permissionCode: code,
+          action: granted ? 'granted' : 'revoked',
+        },
+      }).catch(() => {}); // Fire-and-forget
     }
   }
 

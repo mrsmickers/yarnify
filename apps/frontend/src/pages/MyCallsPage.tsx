@@ -10,6 +10,7 @@ import {
   RotateCcwIcon,
   UserCircle2,
   AlertCircle,
+  Ticket,
 } from 'lucide-react'
 
 import {
@@ -41,6 +42,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { cn } from '@/lib/utils'
 import { axiosInstance, handleApiError } from '@/api/axios-instance'
 import type { ColumnDef } from '@tanstack/react-table'
+import { AddToTicketModal } from '@/components/AddToTicketModal'
 
 interface TransformedCallLog {
   id: string
@@ -50,6 +52,7 @@ interface TransformedCallLog {
   sentiment: 'Positive' | 'Negative' | 'Neutral' | 'Unknown'
   mood: string
   aiConfidence: string
+  summary: string // For pushing to CW tickets
 }
 
 interface MyCallsResponse {
@@ -100,6 +103,24 @@ const MyCallsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [callLogs, setCallLogs] = useState<TransformedCallLog[]>([])
   const [showFilters, setShowFilters] = useState(false)
+  
+  // Add to Ticket modal state
+  const [ticketModalOpen, setTicketModalOpen] = useState(false)
+  const [selectedCallForTicket, setSelectedCallForTicket] = useState<TransformedCallLog | null>(null)
+  
+  // Fetch user permissions for CW push
+  const { data: userPermissions = [] } = useQuery<string[]>({
+    queryKey: ['my-permissions'],
+    queryFn: async () => {
+      return await axiosInstance<string[]>({
+        url: '/api/v1/permissions/me',
+        method: 'GET',
+      })
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+  
+  const canPushToCW = userPermissions.includes('connectwise.push')
 
   // ── Derive ALL filter/pagination state from URL search params ──
   const pageIndex = (Number(searchParams.get('page')) || 1) - 1
@@ -209,6 +230,7 @@ const MyCallsPage = () => {
           aiConfidence: analysisData.confidence_level
             ? `${analysisData.confidence_level}`
             : 'N/A',
+          summary: (analysisData.summary as string) || '',
         }
       })
       setCallLogs(logs)
@@ -293,7 +315,21 @@ const MyCallsPage = () => {
       cell: ({ row }) => {
         const call = row.original
         return (
-          <div className="text-right">
+          <div className="flex items-center justify-end gap-2">
+            {canPushToCW && call.summary && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setSelectedCallForTicket(call)
+                  setTicketModalOpen(true)
+                }}
+                title="Add call notes to a ConnectWise ticket"
+              >
+                <Ticket className="h-4 w-4" />
+              </Button>
+            )}
             <Link
               to={`/calls/${call.id}`}
               className={buttonVariants({ variant: 'secondary', size: 'sm' })}
@@ -653,6 +689,20 @@ const MyCallsPage = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Add to Ticket Modal */}
+      {selectedCallForTicket && (
+        <AddToTicketModal
+          isOpen={ticketModalOpen}
+          onClose={() => {
+            setTicketModalOpen(false)
+            setSelectedCallForTicket(null)
+          }}
+          callId={selectedCallForTicket.id}
+          initialNotes={selectedCallForTicket.summary}
+          companyName={selectedCallForTicket.companyName !== 'N/A' ? selectedCallForTicket.companyName : undefined}
+        />
+      )}
     </div>
   )
 }

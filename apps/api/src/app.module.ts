@@ -25,6 +25,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { PermissionsModule } from './modules/permissions/permissions.module';
 import { AgentAccessModule } from './modules/agent-access/agent-access.module';
 import { AuditModule } from './modules/audit/audit.module';
+import { AiRewriteModule } from './modules/ai-rewrite/ai-rewrite.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -71,6 +72,7 @@ import { join } from 'path';
     PermissionsModule,
     AgentAccessModule,
     AuditModule,
+    AiRewriteModule,
     // Serve frontend static files in production (SPA with client-side routing)
     // __dirname in dist is /app/apps/api/dist/src, client is at /app/apps/api/client
     ServeStaticModule.forRoot({

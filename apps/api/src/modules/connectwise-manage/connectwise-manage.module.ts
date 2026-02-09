@@ -1,10 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ConnectwiseManageService } from './connectwise-manage.service';
+import { ConnectwiseManageController } from './connectwise-manage.controller';
 import { ManageAPI } from 'connectwise-rest';
+import { PermissionsModule } from '../permissions/permissions.module';
+import { AuditModule } from '../audit/audit.module';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, PermissionsModule, AuditModule],
+  controllers: [ConnectwiseManageController],
   providers: [
     {
       provide: ManageAPI,
