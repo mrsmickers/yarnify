@@ -42,6 +42,11 @@ export class PermissionsService {
    * Logic: Start with role permissions, then apply user overrides
    */
   async hasPermission(userId: string, code: string): Promise<boolean> {
+    // Staging bypass user has all permissions
+    if (userId === 'staging-admin-bypass') {
+      return true;
+    }
+
     // Get user's role
     const user = await this.prisma.entraUser.findUnique({
       where: { id: userId },
@@ -79,6 +84,16 @@ export class PermissionsService {
    * Combines role permissions with user overrides
    */
   async getEffectivePermissions(userId: string): Promise<string[]> {
+    // Handle staging bypass user - return all admin permissions
+    if (userId === 'staging-admin-bypass') {
+      this.logger.debug('Staging bypass user - returning all admin permissions');
+      const adminPerms = await this.prisma.rolePermission.findMany({
+        where: { role: 'admin' },
+        select: { permissionCode: true },
+      });
+      return adminPerms.map((p) => p.permissionCode);
+    }
+
     // Get user's role
     const user = await this.prisma.entraUser.findUnique({
       where: { id: userId },
