@@ -357,35 +357,38 @@ export class AdminAgentsService {
 
   /**
    * Propagate agent attribution from queue legs to primary (external) calls within groups.
-   * For grouped calls where the primary leg doesn't have an agent but the queue leg does,
-   * copy the agent from the queue→phone leg to the external→number leg.
+   * For grouped calls, the queue→phone leg's destination agent (who actually answered)
+   * should be attributed to the primary external call.
+   * This corrects cases where VoIP metadata showed initial answerer rather than final handler.
    */
   async propagateAgentsFromQueueLegs(): Promise<{
     propagated: number;
+    corrected: number;
     skipped: number;
   }> {
     this.logger.log('Starting agent propagation from queue legs...');
 
     let propagated = 0;
+    let corrected = 0;
     let skipped = 0;
 
-    // Find all grouped calls where primary (sourceType=external) has no agent
-    const primaryCallsWithoutAgent = await this.prisma.call.findMany({
+    // Find all grouped external calls (with or without agent - we may need to correct wrong attribution)
+    const primaryCalls = await this.prisma.call.findMany({
       where: {
         callGroupId: { not: null },
         sourceType: 'external',
-        agentsId: null,
       },
       select: {
         id: true,
         callGroupId: true,
         callSid: true,
+        agentsId: true,
       },
     });
 
-    this.logger.log(`Found ${primaryCallsWithoutAgent.length} grouped primary calls without agents`);
+    this.logger.log(`Found ${primaryCalls.length} grouped primary (external) calls to check`);
 
-    for (const primaryCall of primaryCallsWithoutAgent) {
+    for (const primaryCall of primaryCalls) {
       // Find the queue→phone leg in the same group that has an agent or destination extension
       const queueLeg = await this.prisma.call.findFirst({
         where: {
@@ -428,18 +431,31 @@ export class AdminAgentsService {
         continue;
       }
 
-      // Update primary call with agent
+      // Check if primary call needs update
+      if (primaryCall.agentsId === agentId) {
+        // Already correct
+        skipped++;
+        continue;
+      }
+
+      // Update primary call with correct agent (who actually answered via queue)
+      const wasCorrection = primaryCall.agentsId !== null;
       await this.prisma.call.update({
         where: { id: primaryCall.id },
         data: { agentsId: agentId },
       });
 
-      propagated++;
-      this.logger.log(`Propagated agent to primary call ${primaryCall.callSid} from queue leg`);
+      if (wasCorrection) {
+        corrected++;
+        this.logger.log(`Corrected agent on primary call ${primaryCall.callSid} (was wrong, now from queue leg)`);
+      } else {
+        propagated++;
+        this.logger.log(`Propagated agent to primary call ${primaryCall.callSid} from queue leg`);
+      }
     }
 
-    this.logger.log(`Agent propagation complete: ${propagated} propagated, ${skipped} skipped`);
-    return { propagated, skipped };
+    this.logger.log(`Agent propagation complete: ${propagated} propagated, ${corrected} corrected, ${skipped} skipped`);
+    return { propagated, corrected, skipped };
   }
 
   /**
