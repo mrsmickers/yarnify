@@ -25,9 +25,6 @@ interface CallWithGrouping {
 export class CallGroupingService {
   private readonly logger = new Logger(CallGroupingService.name);
 
-  // Maximum gap between calls to consider them part of the same group (5 minutes)
-  private readonly MAX_GAP_SECONDS = 300;
-
   constructor(private readonly prisma: PrismaService) {}
 
   /**
@@ -107,9 +104,10 @@ export class CallGroupingService {
     const callStart = new Date(call.startTime);
     const callEnd = call.endTime ? new Date(call.endTime) : new Date();
 
-    // Expand time window by MAX_GAP_SECONDS on both sides
-    const windowStart = new Date(callStart.getTime() - this.MAX_GAP_SECONDS * 1000);
-    const windowEnd = new Date(callEnd.getTime() + this.MAX_GAP_SECONDS * 1000);
+    // Use a reasonable window to find candidates (1 hour either side)
+    // The actual overlap check in callsAreRelated() is strict
+    const windowStart = new Date(callStart.getTime() - 60 * 60 * 1000);
+    const windowEnd = new Date(callEnd.getTime() + 60 * 60 * 1000);
 
     // @ts-ignore - new fields not in Prisma types yet
     const relatedCalls = await this.prisma.call.findMany({
@@ -126,31 +124,33 @@ export class CallGroupingService {
       orderBy: { startTime: 'asc' },
     }) as CallWithGrouping[];
 
-    // Filter to only calls that actually overlap or are adjacent
+    // Filter to only calls that actually overlap (strict check)
     return relatedCalls.filter(c => this.callsAreRelated(call, c));
   }
 
   /**
-   * Check if two calls are related (overlapping or adjacent in time)
+   * Check if two calls are related (must actually overlap in time).
+   * 
+   * Real transfers overlap: the new leg starts while the previous is still active.
+   * Separate calls to the same number are sequential with a gap — don't group those.
+   * 
+   * We allow a small grace period (30 sec) to account for slight timing discrepancies
+   * in how NTA records start/end times across legs.
    */
   private callsAreRelated(call1: CallWithGrouping, call2: CallWithGrouping): boolean {
+    const OVERLAP_GRACE_MS = 30 * 1000; // 30 seconds grace for timing discrepancies
+    
     const start1 = new Date(call1.startTime).getTime();
     const end1 = call1.endTime ? new Date(call1.endTime).getTime() : Date.now();
     const start2 = new Date(call2.startTime).getTime();
     const end2 = call2.endTime ? new Date(call2.endTime).getTime() : Date.now();
 
-    // Check for overlap
-    if (start1 <= end2 && start2 <= end1) {
-      return true;
-    }
-
-    // Check for adjacency (gap less than MAX_GAP_SECONDS)
-    const gap = Math.min(
-      Math.abs(start1 - end2),
-      Math.abs(start2 - end1)
-    );
-
-    return gap <= this.MAX_GAP_SECONDS * 1000;
+    // Check for overlap (with small grace period)
+    // Overlap means: one call starts before the other ends
+    // With grace: start2 <= end1 + grace AND start1 <= end2 + grace
+    const overlaps = (start1 <= end2 + OVERLAP_GRACE_MS) && (start2 <= end1 + OVERLAP_GRACE_MS);
+    
+    return overlaps;
   }
 
   /**
