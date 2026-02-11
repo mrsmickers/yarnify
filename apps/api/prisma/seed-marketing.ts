@@ -29,6 +29,28 @@ async function seedMarketingSyncs() {
   });
 
   console.log(`Created marketing sync: ${managedClientSync.name}`);
+
+  const lostDealSync = await prisma.marketingSync.upsert({
+    where: { id: 'seed-marketing-sync-002' },
+    update: {},
+    create: {
+      id: 'seed-marketing-sync-002',
+      name: 'Lost Deal Nurture',
+      description:
+        'Syncs contacts from Closed Lost deals in HubSpot to Encharge for the lost deal nurture sequence.',
+      sourceType: 'hubspot',
+      destType: 'encharge',
+      filterConfig: {
+        dealStage: 'closedlost',
+        properties: ['dealname', 'closedate', 'lost_reason', 'amount'],
+      },
+      tagName: 'lost-deal',
+      schedule: '0 7 * * *',
+      enabled: true,
+    },
+  });
+
+  console.log(`Created marketing sync: ${lostDealSync.name}`);
   console.log('\nMarketing sync seeding complete!');
 }
 
