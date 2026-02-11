@@ -205,6 +205,45 @@ model DepartmentKeywordTrigger {
   @@map("department_keyword_triggers")
 }
 
+// Marketing sync automations (e.g. ConnectWise → Encharge)
+model MarketingSync {
+  id           String   @id @default(uuid())
+  name         String
+  description  String?
+  sourceType   String   // e.g. "connectwise"
+  destType     String   // e.g. "encharge"
+  filterConfig Json     // JSON with the CW filter params
+  tagName      String   // Tag to apply in Encharge
+  schedule     String?  // Cron expression
+  enabled      Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  runs         MarketingSyncRun[]
+
+  @@map("marketing_syncs")
+}
+
+model MarketingSyncRun {
+  id              String    @id @default(uuid())
+  syncId          String
+  sync            MarketingSync @relation(fields: [syncId], references: [id])
+  status          String    // "running", "completed", "failed"
+  triggeredBy     String    // "manual", "schedule"
+  startedAt       DateTime  @default(now())
+  completedAt     DateTime?
+  contactsTotal   Int       @default(0)
+  contactsCreated Int       @default(0)
+  contactsUpdated Int       @default(0)
+  contactsRemoved Int       @default(0)
+  contactsSkipped Int       @default(0)
+  contactsFailed  Int       @default(0)
+  errorMessage    String?
+  details         Json?
+
+  @@index([syncId])
+  @@map("marketing_sync_runs")
+}
+
 // Keyword alert instances when triggers are matched
 model KeywordAlert {
   id          String   @id @default(cuid())

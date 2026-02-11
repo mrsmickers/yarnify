@@ -9,6 +9,7 @@ import AgentManagementPage from '../pages/AgentManagementPage'
 import ApiCredentialsPage from '../pages/ApiCredentialsPage'
 import PromptManagementPage from '../pages/PromptManagementPage'
 import LLMManagementPage from '../pages/LLMManagementPage'
+import MarketingPage from '../pages/marketing/MarketingPage'
 
 // Route configuration
 export const routes = [
@@ -55,6 +56,10 @@ export const routes = [
   {
     path: '/admin/llms',
     element: <LLMManagementPage />,
+  },
+  {
+    path: '/marketing',
+    element: <MarketingPage />,
   },
   {
     path: '*',

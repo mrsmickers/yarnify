@@ -17,6 +17,7 @@ import { EmbeddingModule } from './modules/embedding/embedding.module';
 import { TextChunkingModule } from './modules/text-chunking/text-chunking.module';
 import { PromptManagementModule } from './modules/prompt-management/prompt-management.module';
 import { NvidiaModule } from './modules/nvidia/nvidia.module';
+import { MarketingModule } from './modules/marketing/marketing.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -55,6 +56,7 @@ import { join } from 'path';
     TextChunkingModule,
     PromptManagementModule,
     NvidiaModule,
+    MarketingModule,
     // Serve frontend static files in production (SPA with client-side routing)
     // __dirname in dist is /app/apps/api/dist/src, client is at /app/apps/api/client
     ServeStaticModule.forRoot({

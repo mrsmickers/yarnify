@@ -7,8 +7,10 @@ import {
   FileText,
   Headphones,
   KeyRound,
+  Megaphone,
   Menu,
   PhoneCall,
+  RefreshCw,
   Settings2,
   Users,
   UserCircle2,
@@ -45,6 +47,23 @@ const workspaceNav: NavSection = {
       path: '/',
       icon: PhoneCall,
       end: true,
+    },
+  ],
+}
+
+const marketingNav: NavSection = {
+  title: 'Marketing',
+  items: [
+    {
+      label: 'Marketing',
+      icon: Megaphone,
+      children: [
+        {
+          label: 'Automations',
+          path: '/marketing',
+          icon: RefreshCw,
+        },
+      ],
     },
   ],
 }
@@ -326,6 +345,7 @@ export function AppShell({ children }: AppShellProps) {
         aria-label="Primary"
       >
         {renderNavSection(workspaceNav)}
+        {renderNavSection(marketingNav)}
         {renderNavSection(adminNav)}
       </nav>
 
