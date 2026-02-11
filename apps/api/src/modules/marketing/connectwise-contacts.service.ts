@@ -62,8 +62,12 @@ export class ConnectwiseContactsService {
       'CONNECTWISE_URL',
       'https://api-eu.myconnectwise.net',
     );
-    // Normalise: strip trailing slash, ensure we point at the REST endpoint
-    this.baseUrl = cwUrl.replace(/\/+$/, '');
+    // Normalise: ensure https://, strip trailing slash, ensure we point at the REST endpoint
+    let normalisedUrl = cwUrl.replace(/\/+$/, '');
+    if (!normalisedUrl.startsWith('http://') && !normalisedUrl.startsWith('https://')) {
+      normalisedUrl = `https://${normalisedUrl}`;
+    }
+    this.baseUrl = normalisedUrl;
     if (!this.baseUrl.includes('/apis/')) {
       this.baseUrl += '/v2025_1/apis/3.0';
     }
