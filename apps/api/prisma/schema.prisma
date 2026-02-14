@@ -266,3 +266,81 @@ model KeywordAlert {
   @@index([reviewedAt])
   @@map("keyword_alerts")
 }
+
+// ─── Auto-Triage ───────────────────────────────────────────────────────
+
+/// Cached board category hierarchy (Type → Subtype → Item combos) from CW ServiceItem report
+model TriageCache {
+  id            String   @id @default(cuid())
+  boardId       Int
+  boardName     String
+  /// JSON: { types: [{ id, name, subtypes: [{ name, items: [] }] }] }
+  hierarchy     Json
+  comboCount    Int      @default(0)
+  lastRefreshed DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([boardId])
+  @@map("triage_cache")
+}
+
+/// Product alias table for keyword → product matching
+model ProductAlias {
+  id                  String   @id @default(cuid())
+  category            String   // Hardware, SaaS, Networking, etc.
+  product             String   // e.g. "TZ Series", "SentinelOne"
+  vendor              String   // e.g. "SonicWall"
+  /// JSON array of keyword strings (some prefixed ^ for word-boundary match)
+  keywords            Json     // string[]
+  notes               String?  @db.Text // Context for LLM
+  troubleshootingHints String? @db.Text
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("product_aliases")
+}
+
+/// Log of every auto-triage classification
+model TriageLog {
+  id              String   @id @default(cuid())
+  ticketId        Int
+  ticketSummary   String
+  companyName     String?
+  contactName     String?
+  source          String?
+
+  // Classification result
+  board           String?
+  type            String?
+  subtype         String?
+  item            String?
+  priority        String?
+  reasoning       String?  @db.Text
+  troubleshooting String?  @db.Text
+
+  // Matched products
+  matchedProducts Json?    // string[]
+
+  // Validation
+  isValid         Boolean  @default(false) // All values validated against cache
+  warnings        Json?    // string[] of validation warnings
+
+  // Meta
+  modelUsed       String?
+  promptTokens    Int?
+  completionTokens Int?
+  responseTimeMs  Int?
+  error           String?  @db.Text
+
+  // Whether the note was posted to CW
+  notePosted      Boolean  @default(false)
+  notePostedAt    DateTime?
+
+  createdAt       DateTime @default(now())
+
+  @@index([ticketId])
+  @@index([createdAt])
+  @@map("triage_logs")
+}

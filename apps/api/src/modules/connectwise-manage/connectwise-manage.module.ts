@@ -23,6 +23,6 @@ import { ManageAPI } from 'connectwise-rest';
     },
     ConnectwiseManageService,
   ],
-  exports: [ConnectwiseManageService],
+  exports: [ConnectwiseManageService, ManageAPI],
 })
 export class ConnectwiseManageModule {}
