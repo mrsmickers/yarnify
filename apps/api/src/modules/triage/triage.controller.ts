@@ -11,7 +11,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { TriageService } from './triage.service';
 
-@Controller('api/v1/triage')
+@Controller('triage')
 @UseGuards(AuthGuard('jwt'))
 export class TriageController {
   private readonly logger = new Logger(TriageController.name);
