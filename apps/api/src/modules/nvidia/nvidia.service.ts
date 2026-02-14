@@ -84,6 +84,44 @@ export class NvidiaService {
   }
 
   /**
+   * Generate embeddings using NVIDIA NIM embedding models
+   * Default: nvidia/nv-embedqa-e5-v5 (1024 dims, free tier)
+   */
+  async createEmbedding(
+    input: string,
+    options?: {
+      model?: string;
+      inputType?: 'query' | 'passage';
+    },
+  ): Promise<number[]> {
+    if (!this.client) {
+      throw new Error('NVIDIA service not initialized - API key missing');
+    }
+
+    const embeddingModel = options?.model || 'nvidia/nv-embedqa-e5-v5';
+    const inputType = options?.inputType || 'passage';
+
+    try {
+      const response = await this.client.embeddings.create({
+        model: embeddingModel,
+        input: input.replace(/\n/g, ' ').substring(0, 8000), // Trim to safe length
+        extra_body: { input_type: inputType },
+      } as any);
+
+      const embedding = response.data?.[0]?.embedding;
+      if (!embedding || embedding.length === 0) {
+        throw new Error('NVIDIA embedding API returned no data');
+      }
+
+      this.logger.debug(`Generated ${embedding.length}-dim embedding with ${embeddingModel} (${inputType})`);
+      return embedding;
+    } catch (error) {
+      this.logger.error(`Failed to generate NVIDIA embedding: ${error.message}`);
+      throw error;
+    }
+  }
+
+  /**
    * Generate a summary of text content
    */
   async generateSummary(

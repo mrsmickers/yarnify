@@ -1,9 +1,10 @@
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit, Optional, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { NvidiaService } from '../nvidia/nvidia.service';
 import { ManageAPI } from 'connectwise-rest';
 import { TRIAGE_CW_API } from './triage.constants';
+import { ResolutionKbService } from '../resolution-kb/resolution-kb.service';
 
 interface BoardType {
   id: number;
@@ -60,6 +61,7 @@ export class TriageService implements OnModuleInit {
     private readonly config: ConfigService,
     private readonly cw: ManageAPI,
     @Inject(TRIAGE_CW_API) private readonly triageCw: ManageAPI,
+    @Optional() @Inject(forwardRef(() => ResolutionKbService)) private readonly resolutionKb?: ResolutionKbService,
   ) {
     this.dispatchBoardId = parseInt(
       this.config.get<string>('TRIAGE_DISPATCH_BOARD_ID', '35'),
@@ -680,6 +682,22 @@ Description: ${ticketData.description || 'No description provided'}`;
     }
 
     lines.push('', `⏱️ Response Time: ${log.responseTimeMs}ms | Model: ${log.modelUsed}`);
+
+    // Enrich with Resolution KB similar past tickets
+    if (this.resolutionKb) {
+      try {
+        const searchQuery = `${log.ticketSummary} ${log.type || ''} ${log.subtype || ''}`.trim();
+        const similar = await this.resolutionKb.searchSimilar(searchQuery, {
+          limit: 3,
+          minSimilarity: 0.55,
+          type: log.type || undefined,
+        });
+        const kbSection = this.resolutionKb.formatForTriageNote(similar);
+        if (kbSection) lines.push(kbSection);
+      } catch (err) {
+        this.logger.warn(`Resolution KB search failed for ticket #${ticketId}: ${err.message}`);
+      }
+    }
 
     const text = lines.join('\n');
 
