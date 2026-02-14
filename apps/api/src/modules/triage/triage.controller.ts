@@ -2,24 +2,58 @@ import {
   Controller,
   Get,
   Post,
+  Body,
   Param,
   Query,
   UseGuards,
   ParseIntPipe,
   Logger,
+  HttpCode,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { TriageService } from './triage.service';
 
+/**
+ * Unauthenticated webhook endpoint — CW callbacks hit this directly.
+ * Separate from the authenticated admin endpoints below.
+ */
 @Controller('triage')
-@UseGuards(AuthGuard('jwt'))
-export class TriageController {
-  private readonly logger = new Logger(TriageController.name);
+export class TriageWebhookController {
+  private readonly logger = new Logger(TriageWebhookController.name);
 
   constructor(private readonly triageService: TriageService) {}
 
   /**
-   * Classify a ticket by ID
+   * CW callback receiver
+   * POST /api/v1/triage/webhook
+   *
+   * CW sends: { ID, Type, Action, MemberID, CompanyID, Entity }
+   * No auth — CW can't send bearer tokens.
+   */
+  @Post('webhook')
+  @HttpCode(200)
+  async handleWebhook(@Body() payload: any) {
+    this.logger.log(
+      `CW callback received: Type=${payload?.Type} Action=${payload?.Action} ID=${payload?.ID}`,
+    );
+    const result = await this.triageService.handleCallback(payload);
+    // Always return 200 to CW (even on errors) to prevent retry storms
+    return { ok: true, ...result };
+  }
+}
+
+/**
+ * Authenticated admin/API endpoints for triage management.
+ */
+@Controller('triage')
+@UseGuards(AuthGuard('jwt'))
+export class TriageAdminController {
+  private readonly logger = new Logger(TriageAdminController.name);
+
+  constructor(private readonly triageService: TriageService) {}
+
+  /**
+   * Classify a ticket by ID (manual trigger)
    * POST /api/v1/triage/classify/:ticketId
    */
   @Post('classify/:ticketId')
@@ -70,5 +104,23 @@ export class TriageController {
   @Post('prompt/reload')
   async reloadPrompt() {
     return this.triageService.reloadPrompt();
+  }
+
+  /**
+   * Register/verify the CW callback
+   * POST /api/v1/triage/callback/register
+   */
+  @Post('callback/register')
+  async registerCallback() {
+    return this.triageService.ensureCallback();
+  }
+
+  /**
+   * List all CW callbacks
+   * GET /api/v1/triage/callback/list
+   */
+  @Get('callback/list')
+  async listCallbacks() {
+    return this.triageService.listCallbacks();
   }
 }

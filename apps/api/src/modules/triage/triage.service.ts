@@ -1,10 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { NvidiaService } from '../nvidia/nvidia.service';
-import { ConnectwiseManageService } from '../connectwise-manage/connectwise-manage.service';
 import { ManageAPI } from 'connectwise-rest';
-// No @nestjs/schedule — cache refresh triggered via API endpoint or on startup
+import { TRIAGE_CW_API } from './triage.module';
 
 interface BoardType {
   id: number;
@@ -48,17 +47,25 @@ const BOARDS = [
 ];
 
 @Injectable()
-export class TriageService {
+export class TriageService implements OnModuleInit {
   private readonly logger = new Logger(TriageService.name);
   private boardCaches: Map<number, BoardCache> = new Map();
   private itilPrompt: string | null = null;
+  private readonly dispatchBoardId: number;
+  private recentlyProcessed: Set<number> = new Set();
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly nvidia: NvidiaService,
     private readonly config: ConfigService,
     private readonly cw: ManageAPI,
-  ) {}
+    @Inject(TRIAGE_CW_API) private readonly triageCw: ManageAPI,
+  ) {
+    this.dispatchBoardId = parseInt(
+      this.config.get<string>('TRIAGE_DISPATCH_BOARD_ID', '35'),
+      10,
+    );
+  }
 
   async onModuleInit() {
     // Load caches from DB on startup
@@ -72,6 +79,147 @@ export class TriageService {
       this.logger.log('No triage cache found, triggering initial refresh...');
       await this.refreshAllBoardCaches();
     }
+
+    // Register CW callback if enabled
+    const callbackEnabled = this.config.get<string>('TRIAGE_CALLBACK_ENABLED', 'false');
+    if (callbackEnabled === 'true') {
+      this.ensureCallback().catch((err) => {
+        this.logger.error(`Failed to register CW callback: ${err.message}`);
+      });
+    }
+
+    // Clear recently-processed set every 10 minutes (prevent unbounded growth)
+    setInterval(() => this.recentlyProcessed.clear(), 10 * 60_000);
+  }
+
+  // ─── CW Callback (Webhook) ────────────────────────────────────────
+
+  /**
+   * Handle incoming CW callback payload.
+   * Called from the controller's unauthenticated webhook endpoint.
+   */
+  async handleCallback(payload: {
+    ID?: number;
+    Type?: string;
+    Action?: string;
+    Entity?: any;
+  }): Promise<{ processed: boolean; ticketId?: number; reason?: string }> {
+    const ticketId = payload.ID;
+    const action = payload.Action;
+
+    if (!ticketId || payload.Type !== 'ticket') {
+      return { processed: false, reason: 'Not a ticket callback' };
+    }
+
+    // Only process 'added' actions (new tickets hitting the board)
+    // Also handle 'updated' in case ticket is moved TO dispatch board
+    if (action !== 'added' && action !== 'updated') {
+      return { processed: false, reason: `Ignoring action: ${action}`, ticketId };
+    }
+
+    // Dedup: skip if we just processed this ticket
+    if (this.recentlyProcessed.has(ticketId)) {
+      return { processed: false, reason: 'Recently processed', ticketId };
+    }
+
+    // Check if ticket is actually on the dispatch board
+    try {
+      const ticket = await this.cw.request({
+        path: `/service/tickets/${ticketId}`,
+        method: 'get',
+        params: { fields: 'id,board/id,board/name' },
+      });
+
+      if (ticket?.board?.id !== this.dispatchBoardId) {
+        return { processed: false, reason: `Ticket on board ${ticket?.board?.id}, not dispatch (${this.dispatchBoardId})`, ticketId };
+      }
+    } catch (err) {
+      this.logger.error(`Failed to verify ticket #${ticketId} board: ${err.message}`);
+      return { processed: false, reason: `Failed to verify board: ${err.message}`, ticketId };
+    }
+
+    // Mark as processed before classifying (prevents double-processing from rapid callbacks)
+    this.recentlyProcessed.add(ticketId);
+
+    this.logger.log(`CW callback: classifying ticket #${ticketId} (action: ${action})`);
+
+    try {
+      const result = await this.classifyTicket(ticketId);
+      return { processed: true, ticketId };
+    } catch (err) {
+      this.logger.error(`Callback classification failed for ticket #${ticketId}: ${err.message}`);
+      return { processed: false, reason: err.message, ticketId };
+    }
+  }
+
+  /**
+   * Register (or verify) the CW callback for ticket events.
+   * Uses the triage CW API (The_Oracle member) to register.
+   */
+  async ensureCallback(): Promise<{ id: number; status: string }> {
+    const baseUrl = this.config.get<string>(
+      'TRIAGE_CALLBACK_URL',
+      'https://theoracle.ingeniotech.co.uk',
+    );
+    const callbackUrl = `${baseUrl}/api/v1/triage/webhook`;
+
+    // Check for existing callback
+    try {
+      const existing = await this.triageCw.request({
+        path: '/system/callbacks',
+        method: 'get',
+        params: {
+          conditions: `url='${callbackUrl}'`,
+          pageSize: 5,
+        },
+      });
+
+      if (existing?.length > 0) {
+        const cb = existing[0];
+        if (cb.inactiveFlag) {
+          // Re-activate
+          await this.triageCw.request({
+            path: `/system/callbacks/${cb.id}`,
+            method: 'patch',
+            data: [{ op: 'replace', path: 'inactiveFlag', value: false }],
+          });
+          this.logger.log(`Re-activated CW callback #${cb.id}`);
+          return { id: cb.id, status: 'reactivated' };
+        }
+        this.logger.log(`CW callback already registered: #${cb.id}`);
+        return { id: cb.id, status: 'existing' };
+      }
+    } catch (err) {
+      this.logger.warn(`Could not check existing callbacks: ${err.message}`);
+    }
+
+    // Register new callback
+    const callback = await this.triageCw.request({
+      path: '/system/callbacks',
+      method: 'post',
+      data: {
+        url: callbackUrl,
+        objectId: this.dispatchBoardId,
+        type: 'ticket',
+        level: 'all',
+        description: 'Oracle Auto-Triage: classify new tickets on Tier-Dispatch board',
+        inactiveFlag: false,
+      },
+    });
+
+    this.logger.log(`Registered CW callback #${callback.id} → ${callbackUrl}`);
+    return { id: callback.id, status: 'created' };
+  }
+
+  /**
+   * List all registered CW callbacks (admin visibility)
+   */
+  async listCallbacks(): Promise<any[]> {
+    return this.triageCw.request({
+      path: '/system/callbacks',
+      method: 'get',
+      params: { pageSize: 100 },
+    });
   }
 
   // ─── Cache Management ─────────────────────────────────────────────
@@ -419,6 +567,15 @@ Description: ${ticketData.description || 'No description provided'}`;
       `Classified ticket #${ticketId}: ${classification.board} / ${classification.type} / ${classification.subtype} / ${classification.item} (valid: ${validation.isValid}, ${responseTimeMs}ms)`,
     );
 
+    // Auto-post note to CW ticket if classification is valid
+    if (validation.isValid) {
+      try {
+        await this.postTriageNote(ticketId, log.id);
+      } catch (err) {
+        this.logger.error(`Failed to auto-post note for ticket #${ticketId}: ${err.message}`);
+      }
+    }
+
     return {
       id: log.id,
       ticketId,
@@ -471,6 +628,69 @@ Description: ${ticketData.description || 'No description provided'}`;
       contact: ticket.contact?.name || 'Unknown',
       source: ticket.source?.name || 'Unknown',
     };
+  }
+
+  // ─── Note Posting ──────────────────────────────────────────────────
+
+  /**
+   * Post triage classification as an internal note on the CW ticket
+   */
+  async postTriageNote(ticketId: number, triageLogId: string): Promise<void> {
+    const log = await this.prisma.triageLog.findUniqueOrThrow({
+      where: { id: triageLogId },
+    });
+
+    const matchedProducts = (log.matchedProducts as string[]) || [];
+
+    const lines = [
+      '🔮 Oracle Auto-Triage Classification',
+      '═══════════════════════════════════════',
+      '',
+      `📋 Board: ${log.board || 'N/A'}`,
+      `📁 Type: ${log.type || 'N/A'}`,
+      `📂 Subtype: ${log.subtype || 'N/A'}`,
+      `📄 Item: ${log.item || 'N/A'}`,
+      `⚡ Priority: ${log.priority || 'N/A'}`,
+      '',
+      `✅ Valid: ${log.isValid ? 'Yes' : 'No'}`,
+    ];
+
+    if (log.reasoning) {
+      lines.push('', `💡 Reasoning: ${log.reasoning}`);
+    }
+
+    if (log.troubleshooting) {
+      lines.push('', '🔧 Troubleshooting:', log.troubleshooting);
+    }
+
+    if (matchedProducts.length > 0) {
+      lines.push('', `🏷️ Matched Products: ${matchedProducts.join(', ')}`);
+    }
+
+    lines.push('', `⏱️ Response Time: ${log.responseTimeMs}ms | Model: ${log.modelUsed}`);
+
+    const text = lines.join('\n');
+
+    try {
+      await this.triageCw.request({
+        path: `/service/tickets/${ticketId}/notes`,
+        method: 'post',
+        data: {
+          text,
+          internalAnalysisFlag: true,
+          detailDescriptionFlag: false,
+        },
+      });
+
+      await this.prisma.triageLog.update({
+        where: { id: triageLogId },
+        data: { notePosted: true, notePostedAt: new Date() },
+      });
+
+      this.logger.log(`Posted triage note to ticket #${ticketId}`);
+    } catch (err) {
+      this.logger.error(`Failed to post triage note to ticket #${ticketId}: ${err.message}`);
+    }
   }
 
   // ─── Admin / API ──────────────────────────────────────────────────
