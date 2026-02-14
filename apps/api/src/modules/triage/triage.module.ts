@@ -6,8 +6,7 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { NvidiaModule } from '../nvidia/nvidia.module';
 import { ConnectwiseManageModule } from '../connectwise-manage/connectwise-manage.module';
 import { ManageAPI } from 'connectwise-rest';
-
-export const TRIAGE_CW_API = 'TRIAGE_CW_API';
+import { TRIAGE_CW_API } from './triage.constants';
 
 @Module({
   imports: [

@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { NvidiaService } from '../nvidia/nvidia.service';
 import { ManageAPI } from 'connectwise-rest';
-import { TRIAGE_CW_API } from './triage.module';
+import { TRIAGE_CW_API } from './triage.constants';
 
 interface BoardType {
   id: number;
