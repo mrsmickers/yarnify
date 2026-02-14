@@ -6,11 +6,11 @@ import {
   UseGuards,
   Logger,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { ResolutionKbService } from './resolution-kb.service';
+import { JwtOrStagingGuard } from '../auth/guards/jwt-or-staging.guard';
 
 @Controller('resolution-kb')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(JwtOrStagingGuard)
 export class ResolutionKbController {
   private readonly logger = new Logger(ResolutionKbController.name);
 
