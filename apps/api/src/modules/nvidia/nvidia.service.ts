@@ -84,7 +84,9 @@ export class NvidiaService {
   }
 
   /**
-   * Generate embeddings using NVIDIA NIM embedding models
+   * Generate embeddings using NVIDIA NIM embedding models.
+   * Uses raw fetch because the OpenAI SDK doesn't support NVIDIA's
+   * `input_type` parameter (rejects it as extra_body).
    * Default: nvidia/nv-embedqa-e5-v5 (1024 dims, free tier)
    */
   async createEmbedding(
@@ -94,21 +96,39 @@ export class NvidiaService {
       inputType?: 'query' | 'passage';
     },
   ): Promise<number[]> {
-    if (!this.client) {
+    const apiKey = this.configService.get<string>('NVIDIA_API_KEY');
+    if (!apiKey) {
       throw new Error('NVIDIA service not initialized - API key missing');
     }
 
+    const baseUrl = this.configService.get<string>(
+      'NVIDIA_API_URL',
+      'https://integrate.api.nvidia.com/v1',
+    );
     const embeddingModel = options?.model || 'nvidia/nv-embedqa-e5-v5';
     const inputType = options?.inputType || 'passage';
 
     try {
-      const response = await this.client.embeddings.create({
-        model: embeddingModel,
-        input: input.replace(/\n/g, ' ').substring(0, 8000), // Trim to safe length
-        extra_body: { input_type: inputType },
-      } as any);
+      const response = await fetch(`${baseUrl}/embeddings`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: embeddingModel,
+          input: input.replace(/\n/g, ' ').substring(0, 8000),
+          input_type: inputType,
+        }),
+      });
 
-      const embedding = response.data?.[0]?.embedding;
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`${response.status} ${errorText}`);
+      }
+
+      const data = await response.json();
+      const embedding = data?.data?.[0]?.embedding;
       if (!embedding || embedding.length === 0) {
         throw new Error('NVIDIA embedding API returned no data');
       }
