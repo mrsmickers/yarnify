@@ -338,7 +338,13 @@ export class ResolutionKbService implements OnModuleInit {
         $8, $9, $10, $11,
         $12, $13::vector, $14,
         NOW(), NOW()
-      )`,
+      ) ON CONFLICT ("ticketId") DO UPDATE SET
+        "ticketSummary" = EXCLUDED."ticketSummary",
+        summary = EXCLUDED.summary,
+        resolution = EXCLUDED.resolution,
+        "combinedText" = EXCLUDED."combinedText",
+        embedding = EXCLUDED.embedding,
+        "updatedAt" = NOW()`,
       ticket.id,
       effectiveSummary,
       closedAt,
