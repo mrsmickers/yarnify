@@ -457,8 +457,9 @@ Description: ${ticketData.description || 'No description provided'}`;
     const subtypeMatch = response.match(/Subtype:\s*(.+)/i);
     const itemMatch = response.match(/Item:\s*(.+)/i);
     const priorityMatch = response.match(/Priority:\s*(.+)/i);
-    const reasoningMatch = response.match(/Reasoning:\s*([\s\S]*?)(?=\n\s*(?:5 troubleshooting|$))/i);
-    const troubleshootingMatch = response.match(/5 troubleshooting items?:\s*([\s\S]*?)$/i);
+    // Flexible matching for reasoning and troubleshooting — LLM output varies
+    const reasoningMatch = response.match(/Reasoning:\s*([\s\S]*?)(?=\n\s*(?:\d+[\.\)]\s|troubleshoot|5 troubleshoot|$))/i);
+    const troubleshootingMatch = response.match(/(?:5 troubleshooting items?|troubleshooting(?: steps)?|troubleshoot):\s*([\s\S]*?)$/i);
 
     if (boardMatch) result.board = boardMatch[1].trim();
     if (typeMatch) result.type = typeMatch[1].trim();
@@ -543,6 +544,7 @@ Description: ${ticketData.description || 'No description provided'}`;
 
     const responseTimeMs = Date.now() - startTime;
     const responseText = completion.choices[0]?.message?.content?.trim() || '';
+    this.logger.debug(`LLM response for ticket #${ticketId}:\n${responseText}`);
 
     // Parse and validate
     const classification = this.parseClassification(responseText);
