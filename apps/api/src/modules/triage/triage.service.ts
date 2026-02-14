@@ -117,9 +117,20 @@ export class TriageService implements OnModuleInit {
       return { processed: false, reason: `Ignoring action: ${action}`, ticketId };
     }
 
-    // Dedup: skip if we just processed this ticket
+    // Dedup: immediately mark as processed BEFORE any async work.
+    // CW fires added + updated simultaneously; this prevents both getting through.
     if (this.recentlyProcessed.has(ticketId)) {
       return { processed: false, reason: 'Recently processed', ticketId };
+    }
+    this.recentlyProcessed.add(ticketId);
+
+    // Also check DB — if we already classified this ticket, skip
+    const existingLog = await this.prisma.triageLog.findFirst({
+      where: { ticketId, notePosted: true },
+      select: { id: true },
+    });
+    if (existingLog) {
+      return { processed: false, reason: 'Already classified and note posted', ticketId };
     }
 
     // Check if ticket is actually on the dispatch board
@@ -137,9 +148,6 @@ export class TriageService implements OnModuleInit {
       this.logger.error(`Failed to verify ticket #${ticketId} board: ${err.message}`);
       return { processed: false, reason: `Failed to verify board: ${err.message}`, ticketId };
     }
-
-    // Mark as processed before classifying (prevents double-processing from rapid callbacks)
-    this.recentlyProcessed.add(ticketId);
 
     this.logger.log(`CW callback: classifying ticket #${ticketId} (action: ${action})`);
 
