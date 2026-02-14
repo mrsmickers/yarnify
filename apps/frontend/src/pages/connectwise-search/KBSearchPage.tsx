@@ -46,15 +46,17 @@ type KBStats = {
 }
 
 async function searchKB(query: string, limit: number): Promise<{ query: string; count: number; results: SearchResult[] }> {
-  const { data } = await axiosInstance.get('/resolution-kb/search', {
-    params: { q: query, limit },
+  return axiosInstance<{ query: string; count: number; results: SearchResult[] }>({
+    url: `/api/v1/resolution-kb/search?q=${encodeURIComponent(query)}&limit=${limit}`,
+    method: 'GET',
   })
-  return data
 }
 
 async function fetchStats(): Promise<KBStats> {
-  const { data } = await axiosInstance.get('/resolution-kb/stats')
-  return data
+  return axiosInstance<KBStats>({
+    url: '/api/v1/resolution-kb/stats',
+    method: 'GET',
+  })
 }
 
 function formatMinutes(mins: number | null): string {
