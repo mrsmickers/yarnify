@@ -689,7 +689,7 @@ Description: ${ticketData.description || 'No description provided'}`;
         const searchQuery = `${log.ticketSummary} ${log.type || ''} ${log.subtype || ''}`.trim();
         const similar = await this.resolutionKb.searchSimilar(searchQuery, {
           limit: 3,
-          minSimilarity: 0.55,
+          minSimilarity: 0.25,
           type: log.type || undefined,
         });
         const kbSection = this.resolutionKb.formatForTriageNote(similar);

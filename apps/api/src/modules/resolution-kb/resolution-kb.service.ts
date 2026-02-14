@@ -550,7 +550,7 @@ ${notesText || 'No notes'}`;
       type?: string;
     },
   ): Promise<SimilarResolution[]> {
-    const { limit = 5, minSimilarity = 0.5, board, type } = options || {};
+    const { limit = 5, minSimilarity = 0.15, board, type } = options || {};
 
     // Generate query embedding
     const queryEmbedding = await this.nvidia.createEmbedding(query, {
