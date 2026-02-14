@@ -236,6 +236,9 @@ export class ResolutionKbService implements OnModuleInit {
           await this.ingestTicket(ticket);
           stats.synced++;
 
+          // Rate-limit: small delay between tickets to avoid hammering CW/NVIDIA APIs
+          await new Promise((r) => setTimeout(r, 500));
+
           const closedAt = new Date(ticket.closedDate);
           if (closedAt > latestClosedDate) latestClosedDate = closedAt;
         } catch (err) {
