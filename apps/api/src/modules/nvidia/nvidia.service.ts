@@ -108,6 +108,9 @@ export class NvidiaService {
     const embeddingModel = options?.model || 'nvidia/nv-embedqa-e5-v5';
     const inputType = options?.inputType || 'passage';
 
+    const truncatedInput = input.replace(/\n/g, ' ').substring(0, 8000);
+
+    // Try NVIDIA NIM first, fall back to local Ollama
     try {
       const response = await fetch(`${baseUrl}/embeddings`, {
         method: 'POST',
@@ -117,14 +120,14 @@ export class NvidiaService {
         },
         body: JSON.stringify({
           model: embeddingModel,
-          input: input.replace(/\n/g, ' ').substring(0, 8000),
+          input: truncatedInput,
           input_type: inputType,
         }),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`${response.status} ${errorText}`);
+        throw new Error(`NVIDIA ${response.status}: ${errorText}`);
       }
 
       const data = await response.json();
@@ -135,8 +138,47 @@ export class NvidiaService {
 
       this.logger.debug(`Generated ${embedding.length}-dim embedding with ${embeddingModel} (${inputType})`);
       return embedding;
+    } catch (nvidiaError) {
+      this.logger.warn(`NVIDIA embedding failed, falling back to Ollama: ${nvidiaError.message}`);
+      return this.createEmbeddingViaOllama(truncatedInput);
+    }
+  }
+
+  /**
+   * Fallback: generate embedding via local Ollama (mxbai-embed-large, 1024 dims).
+   * Runs on ingcoolify CPU — no GPU needed, no external dependency.
+   */
+  private async createEmbeddingViaOllama(input: string): Promise<number[]> {
+    const ollamaUrl = this.configService.get<string>(
+      'OLLAMA_EMBEDDING_URL',
+      'http://localhost:11434',
+    );
+
+    try {
+      const response = await fetch(`${ollamaUrl}/api/embed`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'mxbai-embed-large',
+          input,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Ollama ${response.status}: ${errorText}`);
+      }
+
+      const data = await response.json();
+      const embedding = data?.embeddings?.[0];
+      if (!embedding || embedding.length === 0) {
+        throw new Error('Ollama returned no embedding data');
+      }
+
+      this.logger.debug(`Generated ${embedding.length}-dim embedding via Ollama fallback (mxbai-embed-large)`);
+      return embedding;
     } catch (error) {
-      this.logger.error(`Failed to generate NVIDIA embedding: ${error.message}`);
+      this.logger.error(`Ollama embedding fallback also failed: ${error.message}`);
       throw error;
     }
   }
