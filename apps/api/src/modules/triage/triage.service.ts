@@ -199,9 +199,11 @@ export class TriageService implements OnModuleInit {
       method: 'post',
       data: {
         url: callbackUrl,
-        objectId: this.dispatchBoardId,
+        // For ticket callbacks, CW requires objectId + level=owner.
+        // objectId=1 is the standard ticket callback object.
+        objectId: 1,
         type: 'ticket',
-        level: 'all',
+        level: 'owner',
         description: 'Oracle Auto-Triage: classify new tickets on Tier-Dispatch board',
         inactiveFlag: false,
       },
