@@ -45,7 +45,7 @@ export class ResolutionKbController {
       limit: limit ? parseInt(limit, 10) : 5,
       board: board || undefined,
       type: type || undefined,
-      minSimilarity: minSimilarity ? parseFloat(minSimilarity) : 0.5,
+      minSimilarity: minSimilarity ? parseFloat(minSimilarity) : undefined,
     });
 
     return { query, count: results.length, results };
