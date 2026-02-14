@@ -275,22 +275,34 @@ export class ResolutionKbService implements OnModuleInit {
   }
 
   /**
-   * Ingest a single closed ticket into the KB
+   * Ingest a single closed ticket into the KB.
+   * Reads ALL notes, initial description, and resolution — then uses LLM
+   * to generate a clean problem/resolution summary.
    */
   private async ingestTicket(ticket: ClosedTicket): Promise<void> {
-    // Fetch resolution notes from the ticket
-    const notes = await this.getResolutionNotes(ticket.id);
-    const description = await this.getInitialDescription(ticket.id);
+    // Fetch the full ticket context: initial description + ALL notes
+    const { initialDescription, allNotes, resolutionNote } =
+      await this.getFullTicketContext(ticket.id);
+
+    // Use LLM to generate a clean problem/resolution summary from all context
+    const { problemSummary, resolutionSummary, correctedSummary } =
+      await this.generateTicketSummary(ticket, initialDescription, allNotes, resolutionNote);
+
+    // Optionally update the CW ticket summary if it was poor
+    if (correctedSummary && correctedSummary !== ticket.summary) {
+      await this.updateTicketSummary(ticket.id, correctedSummary);
+    }
 
     // Anonymise all text
-    const anonSummary = this.anonymise(ticket.summary);
-    const anonDescription = this.anonymise(description);
-    const anonResolution = this.anonymise(notes);
+    const anonProblem = this.anonymise(problemSummary);
+    const anonResolution = this.anonymise(resolutionSummary);
+    const effectiveSummary = correctedSummary || ticket.summary;
+    const anonSummary = this.anonymise(effectiveSummary);
 
     // Build combined text for embedding
     const parts = [
       `Summary: ${anonSummary}`,
-      anonDescription ? `Description: ${anonDescription}` : null,
+      `Problem: ${anonProblem}`,
       anonResolution ? `Resolution: ${anonResolution}` : null,
       ticket.type?.name ? `Type: ${ticket.type.name}` : null,
       ticket.subType?.name ? `Subtype: ${ticket.subType.name}` : null,
@@ -325,14 +337,14 @@ export class ResolutionKbService implements OnModuleInit {
         NOW(), NOW()
       )`,
       ticket.id,
-      ticket.summary,
+      effectiveSummary,
       closedAt,
       ticket.board?.name || null,
       ticket.type?.name || null,
       ticket.subType?.name || null,
       ticket.item?.name || null,
-      anonSummary,
-      anonDescription || null,
+      anonProblem,
+      null, // description field — replaced by problemSummary
       anonResolution || null,
       combinedText,
       minutesToResolve,
@@ -346,57 +358,180 @@ export class ResolutionKbService implements OnModuleInit {
   }
 
   /**
-   * Get resolution/internal notes from a ticket
+   * Get FULL ticket context: initial description, ALL notes, and resolution note.
+   * Engineers often bury resolution info in random notes — we need everything.
    */
-  private async getResolutionNotes(ticketId: number): Promise<string> {
+  private async getFullTicketContext(ticketId: number): Promise<{
+    initialDescription: string;
+    allNotes: string[];
+    resolutionNote: string;
+  }> {
+    let initialDescription = '';
+    let allNotes: string[] = [];
+    let resolutionNote = '';
+
     try {
-      const notes = await this.cw.request({
-        path: `/service/tickets/${ticketId}/notes`,
-        method: 'get',
-        params: {
-          conditions: 'internalAnalysisFlag=true',
-          orderBy: 'id desc',
-          pageSize: 10,
-        },
-      });
-
-      if (!notes || notes.length === 0) return '';
-
-      // Filter out Oracle auto-triage notes and combine the rest
-      const humanNotes = (notes as any[])
-        .filter(
-          (n: any) =>
-            n.text && !n.text.includes('Oracle Auto-Triage'),
-        )
-        .map((n: any) => n.text.trim());
-
-      return humanNotes.join('\n---\n');
-    } catch {
-      return '';
-    }
-  }
-
-  /**
-   * Get initial description from ticket or first note
-   */
-  private async getInitialDescription(ticketId: number): Promise<string> {
-    try {
+      // Get initial description
       const ticket = await this.cw.request({
         path: `/service/tickets/${ticketId}`,
         method: 'get',
-        params: { fields: 'id,initialDescription' },
+        params: { fields: 'id,initialDescription,resolveMinutes' },
       });
-      if (ticket?.initialDescription) return ticket.initialDescription;
-
-      // Fallback: first note
-      const notes = await this.cw.request({
-        path: `/service/tickets/${ticketId}/notes`,
-        method: 'get',
-        params: { pageSize: 1, orderBy: 'id asc' },
-      });
-      return notes?.[0]?.text || '';
+      initialDescription = ticket?.initialDescription || '';
     } catch {
-      return '';
+      // Continue without description
+    }
+
+    try {
+      // Get ALL notes — internal, external, resolution
+      let page = 1;
+      while (true) {
+        const notes = await this.cw.request({
+          path: `/service/tickets/${ticketId}/notes`,
+          method: 'get',
+          params: {
+            orderBy: 'id asc',
+            pageSize: 200,
+            page,
+          },
+        });
+
+        if (!notes || notes.length === 0) break;
+
+        for (const note of notes as any[]) {
+          if (!note.text) continue;
+          // Skip Oracle auto-triage notes
+          if (note.text.includes('Oracle Auto-Triage')) continue;
+
+          if (note.resolutionFlag) {
+            resolutionNote = note.text.trim();
+          } else {
+            allNotes.push(note.text.trim());
+          }
+        }
+
+        if (notes.length < 200) break;
+        page++;
+      }
+    } catch {
+      // Continue with what we have
+    }
+
+    return { initialDescription, allNotes, resolutionNote };
+  }
+
+  /**
+   * Use LLM to generate a clean problem/resolution summary from the full ticket.
+   * Also generates a corrected summary line if the original was poor.
+   */
+  private async generateTicketSummary(
+    ticket: ClosedTicket,
+    initialDescription: string,
+    allNotes: string[],
+    resolutionNote: string,
+  ): Promise<{
+    problemSummary: string;
+    resolutionSummary: string;
+    correctedSummary: string | null;
+  }> {
+    // Truncate notes to avoid exceeding token limits
+    const notesText = allNotes
+      .map((n, i) => `Note ${i + 1}: ${n}`)
+      .join('\n')
+      .substring(0, 6000);
+
+    const systemPrompt = `You are a technical analyst for an IT managed service provider (MSP).
+Your job is to read a closed support ticket and produce:
+1. A clear PROBLEM SUMMARY (what was actually wrong — not what the customer initially said, but the diagnosed root cause)
+2. A clear RESOLUTION SUMMARY (what was done to fix it — specific steps, not vague descriptions)
+3. A CORRECTED SUMMARY (a concise, accurate one-line ticket subject that reflects the actual issue)
+
+Rules:
+- Be technical and specific (e.g., "Dell Latitude 5540 webcam hardware failure" not "laptop camera issue")
+- Include model numbers, software names, error codes when available in the notes
+- The resolution must describe what actually fixed it, not just troubleshooting steps that were tried
+- The corrected summary should be what the ticket SHOULD have been called — max 80 chars
+- If the original summary is already accurate, set correctedSummary to null
+- Do NOT include any client names, contact names, or identifying information
+
+Respond in JSON only:
+{
+  "problemSummary": "...",
+  "resolutionSummary": "...",
+  "correctedSummary": "..." or null
+}`;
+
+    const userPrompt = `Original Summary: ${ticket.summary}
+Board: ${ticket.board?.name || 'Unknown'}
+Type: ${ticket.type?.name || 'N/A'} > ${ticket.subType?.name || 'N/A'} > ${ticket.item?.name || 'N/A'}
+
+Initial Description:
+${initialDescription || 'None'}
+
+${resolutionNote ? `Resolution Note:\n${resolutionNote}\n` : ''}
+Ticket Notes (chronological):
+${notesText || 'No notes'}`;
+
+    try {
+      const modelOverride = this.config.get<string>(
+        'TRIAGE_MODEL',
+        'moonshotai/kimi-k2-instruct',
+      );
+      const completion = await this.nvidia.createChatCompletion(
+        [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        { temperature: 0.2, maxTokens: 1024 },
+        modelOverride,
+      );
+
+      const responseText =
+        completion.choices[0]?.message?.content?.trim() || '';
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return {
+          problemSummary: parsed.problemSummary || ticket.summary,
+          resolutionSummary: parsed.resolutionSummary || '',
+          correctedSummary: parsed.correctedSummary || null,
+        };
+      }
+    } catch (err) {
+      this.logger.warn(
+        `LLM summary generation failed for ticket #${ticket.id}: ${err.message}`,
+      );
+    }
+
+    // Fallback: use raw data
+    return {
+      problemSummary: ticket.summary,
+      resolutionSummary: resolutionNote || allNotes[allNotes.length - 1] || '',
+      correctedSummary: null,
+    };
+  }
+
+  /**
+   * Update a CW ticket's summary (subject line) with a corrected version.
+   * Only runs on closed tickets during KB ingestion.
+   */
+  private async updateTicketSummary(
+    ticketId: number,
+    newSummary: string,
+  ): Promise<void> {
+    try {
+      await this.cw.request({
+        path: `/service/tickets/${ticketId}`,
+        method: 'patch',
+        data: [{ op: 'replace', path: 'summary', value: newSummary }],
+      });
+      this.logger.log(
+        `Updated ticket #${ticketId} summary to: "${newSummary}"`,
+      );
+    } catch (err) {
+      this.logger.warn(
+        `Failed to update summary for ticket #${ticketId}: ${err.message}`,
+      );
     }
   }
 

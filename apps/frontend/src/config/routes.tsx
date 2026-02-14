@@ -10,6 +10,7 @@ import ApiCredentialsPage from '../pages/ApiCredentialsPage'
 import PromptManagementPage from '../pages/PromptManagementPage'
 import LLMManagementPage from '../pages/LLMManagementPage'
 import MarketingPage from '../pages/marketing/MarketingPage'
+import KBSearchPage from '../pages/connectwise-search/KBSearchPage'
 
 // Route configuration
 export const routes = [
@@ -56,6 +57,10 @@ export const routes = [
   {
     path: '/admin/llms',
     element: <LLMManagementPage />,
+  },
+  {
+    path: '/connectwise/kb-search',
+    element: <KBSearchPage />,
   },
   {
     path: '/marketing',
