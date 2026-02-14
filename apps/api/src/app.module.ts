@@ -19,6 +19,7 @@ import { PromptManagementModule } from './modules/prompt-management/prompt-manag
 import { NvidiaModule } from './modules/nvidia/nvidia.module';
 import { MarketingModule } from './modules/marketing/marketing.module';
 import { TriageModule } from './modules/triage/triage.module';
+import { ResolutionKbModule } from './modules/resolution-kb/resolution-kb.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -59,6 +60,7 @@ import { join } from 'path';
     NvidiaModule,
     MarketingModule,
     TriageModule,
+    ResolutionKbModule,
     // Serve frontend static files in production (SPA with client-side routing)
     // __dirname in dist is /app/apps/api/dist/src, client is at /app/apps/api/client
     ServeStaticModule.forRoot({

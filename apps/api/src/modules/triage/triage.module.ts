@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TriageService } from './triage.service';
 import { TriageWebhookController, TriageAdminController } from './triage.controller';
@@ -7,6 +7,7 @@ import { NvidiaModule } from '../nvidia/nvidia.module';
 import { ConnectwiseManageModule } from '../connectwise-manage/connectwise-manage.module';
 import { ManageAPI } from 'connectwise-rest';
 import { TRIAGE_CW_API } from './triage.constants';
+import { ResolutionKbModule } from '../resolution-kb/resolution-kb.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { TRIAGE_CW_API } from './triage.constants';
     PrismaModule,
     NvidiaModule,
     ConnectwiseManageModule,
+    forwardRef(() => ResolutionKbModule),
   ],
   controllers: [TriageWebhookController, TriageAdminController],
   providers: [
@@ -35,6 +37,6 @@ import { TRIAGE_CW_API } from './triage.constants';
       inject: [ConfigService],
     },
   ],
-  exports: [TriageService],
+  exports: [TriageService, TRIAGE_CW_API],
 })
 export class TriageModule {}

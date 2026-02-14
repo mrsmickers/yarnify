@@ -11,6 +11,8 @@ import {
   Menu,
   PhoneCall,
   RefreshCw,
+  Search,
+  Server,
   Settings2,
   Users,
   UserCircle2,
@@ -47,6 +49,23 @@ const workspaceNav: NavSection = {
       path: '/',
       icon: PhoneCall,
       end: true,
+    },
+  ],
+}
+
+const connectwiseNav: NavSection = {
+  title: 'ConnectWise Search',
+  items: [
+    {
+      label: 'ConnectWise Search',
+      icon: Server,
+      children: [
+        {
+          label: 'KB Search',
+          path: '/connectwise/kb-search',
+          icon: Search,
+        },
+      ],
     },
   ],
 }
@@ -345,6 +364,7 @@ export function AppShell({ children }: AppShellProps) {
         aria-label="Primary"
       >
         {renderNavSection(workspaceNav)}
+        {renderNavSection(connectwiseNav)}
         {renderNavSection(marketingNav)}
         {renderNavSection(adminNav)}
       </nav>

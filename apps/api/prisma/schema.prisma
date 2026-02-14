@@ -344,3 +344,54 @@ model TriageLog {
   @@index([createdAt])
   @@map("triage_logs")
 }
+
+// ─── Resolution Knowledge Base ──────────────────────────────────────
+
+/// A resolved ticket stored as an anonymised, embedded knowledge entry
+model ResolutionEntry {
+  id              String   @id @default(cuid())
+
+  // Source ticket reference (not exposed to clients, only engineers)
+  ticketId        Int
+  ticketSummary   String
+  closedAt        DateTime
+
+  // Classification (mirrors triage fields)
+  board           String?
+  type            String?
+  subtype         String?
+  item            String?
+
+  // Content (anonymised)
+  summary         String   @db.Text  // Anonymised ticket summary
+  description     String?  @db.Text  // Anonymised initial description
+  resolution      String?  @db.Text  // Anonymised resolution notes
+  combinedText    String   @db.Text  // summary + description + resolution (used for embedding)
+
+  // Time metrics
+  minutesToResolve Int?
+
+  // Vector embedding (NVIDIA nv-embedqa-e5-v5, 1024 dims)
+  embedding       Unsupported("vector(1024)")
+  embeddingModel  String   @default("nvidia/nv-embedqa-e5-v5")
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([ticketId])
+  @@index([closedAt])
+  @@index([board])
+  @@index([type])
+  @@map("resolution_entries")
+}
+
+/// Tracks the last sync cursor for resolution KB ingestion
+model ResolutionSyncState {
+  id              String   @id @default("singleton")
+  lastSyncAt      DateTime // Last ticket closedAt we synced up to
+  totalSynced     Int      @default(0)
+  lastRunAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("resolution_sync_state")
+}
